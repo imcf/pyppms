@@ -23,25 +23,30 @@ EXPECTED = 'username: %s - system: %s - ' % (USERNAME, SYS_ID)
 EXPECTED += 'reservation_start: %s - reservation_end: %s'
 
 
-def test_ppmsbooking():
-    """Test the PpmsBooking constructor."""
-    booking = PpmsBooking(
-        username='ppmsuser',
-        system_id='42',
+def create_booking():
+    """Helper function to create a PpmsBooking object with default values.
+
+    Returns
+    -------
+    PpmsBooking
+    """
+    return PpmsBooking(
+        username=USERNAME,
+        system_id=SYS_ID,
         starttime=datetime.strptime(START, FMT),
         endtime=datetime.strptime(END, FMT)
     )
+
+
+def test_ppmsbooking():
+    """Test the PpmsBooking constructor."""
+    booking = create_booking()
 
     assert booking.__str__() == EXPECTED % (START, END)
 
 def test_starttime_fromstr__time():
     """Test changing the starting time of a booking."""
-    booking = PpmsBooking(
-        username='ppmsuser',
-        system_id='42',
-        starttime=datetime.strptime(START, FMT),
-        endtime=datetime.strptime(END, FMT)
-    )
+    booking = create_booking()
 
     newtime = '12:45:00'
     booking.starttime_fromstr(newtime, date=datetime.strptime(START, FMT))
@@ -51,12 +56,7 @@ def test_starttime_fromstr__time():
 
 def test_starttime_fromstr__date():
     """Test changing the starting date of a booking."""
-    booking = PpmsBooking(
-        username='ppmsuser',
-        system_id='42',
-        starttime=datetime.strptime(START, FMT),
-        endtime=datetime.strptime(END, FMT)
-    )
+    booking = create_booking()
 
     newdate = '2019-04-01'
     newtime = '12:45:00'
@@ -68,12 +68,7 @@ def test_starttime_fromstr__date():
 
 def test_endtime_fromstr__time():
     """Test changing the ending time of a booking."""
-    booking = PpmsBooking(
-        username='ppmsuser',
-        system_id='42',
-        starttime=datetime.strptime(START, FMT),
-        endtime=datetime.strptime(END, FMT)
-    )
+    booking = create_booking()
 
     newtime = '12:45:00'
     booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
@@ -83,12 +78,7 @@ def test_endtime_fromstr__time():
 
 def test_endtime_fromstr__date():
     """Test changing the ending date of a booking."""
-    booking = PpmsBooking(
-        username='ppmsuser',
-        system_id='42',
-        starttime=datetime.strptime(START, FMT),
-        endtime=datetime.strptime(END, FMT)
-    )
+    booking = create_booking()
 
     newdate = '2019-06-01'
     newtime = '12:45:00'
