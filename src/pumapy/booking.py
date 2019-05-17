@@ -26,6 +26,7 @@ class PpmsBooking(object):
         endtime : datetime.date
             The booking's ending time.
         """
+        # TODO: add a constructor dealing with a PUMAPI response
         self.username = username
         self.system_id = system_id
         self.starttime = starttime
