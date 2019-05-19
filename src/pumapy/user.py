@@ -68,7 +68,7 @@ class PpmsUser(object):
                 raise ValueError('Splitting data fields failed!')
         except Exception as err:
             msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
-                   (response_text, err.message))
+                   (response_text, err))
             LOG.error(msg)
             raise ValueError(msg)
 
