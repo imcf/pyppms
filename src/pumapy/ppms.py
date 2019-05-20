@@ -66,8 +66,7 @@ class PpmsConnection(object):
         LOG.debug('Attempting authentication against %s with key [%s...%s]',
                   self.url, self.api_key[:2], self.api_key[-2:])
         self.status['auth_state'] = 'attempting'
-        response = requests.post(self.url, data={'action': 'auth',
-                                                 'apikey': self.api_key})
+        response = self.request('auth')
         LOG.debug('Authenticate response: %s', response.text)
         self.status['auth_response'] = response.text
         self.status['auth_httpstatus'] = response.status_code
