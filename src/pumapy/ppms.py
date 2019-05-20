@@ -43,6 +43,11 @@ class PpmsConnection(object):
         self.api_key = api_key
         self.users = None
         self.systems = None
+        self.status = {
+            'auth_state': 'NOT_TRIED',
+            'auth_response': None,
+            'auth_httpstatus': -1,
+        }
 
         if not self.__authenticate():
             msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
@@ -60,29 +65,36 @@ class PpmsConnection(object):
         """
         LOG.debug('Attempting authentication against %s with key [%s...%s]',
                   self.url, self.api_key[:2], self.api_key[-2:])
+        self.status['auth_state'] = 'attempting'
         response = requests.post(self.url, data={'action': 'auth',
                                                  'apikey': self.api_key})
         LOG.debug('Authenticate response: %s', response.text)
+        self.status['auth_response'] = response.text
+        self.status['auth_httpstatus'] = response.status_code
 
         # WARNING: the HTTP status code returned is not correct - it is always
         # `200` even if authentication failed, so we need to check the actual
         # response *TEXT* to check if we have succeeded:
         if 'request not authorized' in response.text.lower():
             LOG.warn('Authentication failed: %s', response.text)
+            self.status['auth_state'] = 'FAILED'
             return False
         elif 'error' in response.text.lower():
             LOG.warn('Authentication failed with an error: %s', response.text)
+            self.status['auth_state'] = 'FAILED-ERROR'
             return False
 
         status_ok = requests.codes.ok  # pylint: disable-msg=no-member
         if response.status_code == status_ok:
             LOG.info('Authentication succeeded, response=[%s]', response.text)
             LOG.debug('HTTP Status: %s', response.status_code)
+            self.status['auth_state'] = 'good'
             return True
 
         LOG.warn("Unexpected combination of response [%s] and status code [%s],"
-                 " it' uncelar if the authentication was successful (assuming "
+                 " it's uncelar if the authentication was successful (assuming "
                  "it wasn't)", response.status_code, response.text)
+        self.status['auth_state'] = 'FAILED-UNKNOWN'
         return False
 
     def request(self, action, parameters={}):
