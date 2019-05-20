@@ -49,19 +49,15 @@ class PpmsConnection(object):
             'auth_httpstatus': -1,
         }
 
-        if not self.__authenticate():
-            msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
-                url, api_key[:2], api_key[-2:])
-            LOG.error(msg)
-            raise requests.exceptions.ConnectionError(msg)
+        self.__authenticate()
 
     def __authenticate(self):
         """Try to authenticate to PPMS using the `auth` request.
 
-        Returns
-        -------
-        bool
-            True if authentication was successful, False otherwise.
+        Raises
+        ------
+        requests.exceptions.ConnectionError
+            Raised in case authentication failed for any reason.
         """
         LOG.debug('Attempting authentication against %s with key [%s...%s]',
                   self.url, self.api_key[:2], self.api_key[-2:])
@@ -74,27 +70,28 @@ class PpmsConnection(object):
         # WARNING: the HTTP status code returned is not correct - it is always
         # `200` even if authentication failed, so we need to check the actual
         # response *TEXT* to check if we have succeeded:
-        if 'request not authorized' in response.text.lower():
-            LOG.warn('Authentication failed: %s', response.text)
-            self.status['auth_state'] = 'FAILED'
-            return False
-        elif 'error' in response.text.lower():
-            LOG.warn('Authentication failed with an error: %s', response.text)
+        if 'error' in response.text.lower():
             self.status['auth_state'] = 'FAILED-ERROR'
-            return False
+            msg = 'Authentication failed with an error: %s' % response.text
+            LOG.error(msg)
+            raise requests.exceptions.ConnectionError(msg)
 
         status_ok = requests.codes.ok  # pylint: disable-msg=no-member
         if response.status_code == status_ok:
             LOG.info('Authentication succeeded, response=[%s]', response.text)
             LOG.debug('HTTP Status: %s', response.status_code)
             self.status['auth_state'] = 'good'
-            return True
+            return
 
         LOG.warn("Unexpected combination of response [%s] and status code [%s],"
                  " it's uncelar if the authentication was successful (assuming "
                  "it wasn't)", response.status_code, response.text)
         self.status['auth_state'] = 'FAILED-UNKNOWN'
-        return False
+
+        msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
+            self.url, self.api_key[:2], self.api_key[-2:])
+        LOG.error(msg)
+        raise requests.exceptions.ConnectionError(msg)
 
     def request(self, action, parameters={}):
         """Generic method to submit a request to PPMS and return the result.
