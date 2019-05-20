@@ -52,3 +52,10 @@ def test_from_response():
     user = PpmsUser.from_response(API_RESPONSE)
 
     assert user.details() == EXPECTED
+
+def test_fullname():
+    """Test the 'fullname' fallback if empty."""
+    user = PpmsUser.from_response(API_RESPONSE)
+    user._fullname = ''  # pylint: disable-msg=protected-access
+
+    assert user.fullname == USERNAME
