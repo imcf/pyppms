@@ -10,4 +10,4 @@ htmlcov/
 *.pyc
 
 # configuration file(s)
-config.py
+pumapyconf.py
