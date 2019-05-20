@@ -6,6 +6,8 @@ Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
          Basil Neff <basil.neff@unibas.ch>
 """
 
+# pylint: disable-msg=dangerous-default-value
+
 import logging
 
 import requests
