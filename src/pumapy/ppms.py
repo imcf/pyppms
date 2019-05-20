@@ -180,18 +180,20 @@ class PpmsConnection(object):
 
         Example
         -------
-        >>> conn.get_user('pumapy')
-        ... {u'active': u'true',
-        ...  u'affiliation': u'""',
-        ...  u'bcode': u'""',
-        ...  u'email': u'"does-not-reply@facility.xy"',
-        ...  u'fname': u'"PumAPI"',
-        ...  u'lname': u'"Python"',
-        ...  u'login': u'"pumapy"',
-        ...  u'mustchbcode': u'false',
-        ...  u'mustchpwd': u'false',
-        ...  u'phone': u'"+98 (76) 54 3210"',
-        ...  u'unitlogin': u'"Python Core Facility"'}
+        >>> conn.get_user_dict('pumapy')
+        ... {
+        ...     u'active': True,
+        ...     u'affiliation': u'',
+        ...     u'bcode': u'',
+        ...     u'email': u'pumapy@python-facility.example',
+        ...     u'fname': u'PumAPI',
+        ...     u'lname': u'Python',
+        ...     u'login': u'pumapy',
+        ...     u'mustchbcode': False,
+        ...     u'mustchpwd': False',
+        ...     u'phone': u'+98 (76) 54 3210',
+        ...     u'unitlogin': u'pumapy'
+        ... }
 
         Raises
         ------
@@ -216,15 +218,7 @@ class PpmsConnection(object):
         #     u'"+98 (76) 54 3210","","","pumapy",false,false,'
         #     u'true\r\n'
         # )
-        fields, values = response.text.splitlines()
-        fields = fields.split(',')
-        values = values.split(',')
-        if len(fields) != len(values):
-            msg = 'Unable to parse user details: %s' % response.text
-            LOG.warn(msg)
-            raise ValueError(msg)
-
-        details = dict(zip(fields, values))
+        details = dict_from_single_response(response.text)
         LOG.debug("Details for user [%s]: %s", login_name, details)
         return details
 
