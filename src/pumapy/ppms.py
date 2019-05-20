@@ -304,6 +304,11 @@ class PpmsConnection(object):
         response = self.request('getgroup', {'unitlogin': group_id})
         LOG.debug("Group details returned by PPMS (raw): %s", response.text)
 
+        if not response.text:
+            msg = "Group [%s] is unknown to PPMS" % group_id
+            LOG.error(msg)
+            raise KeyError(msg)
+
         details = dict_from_single_response(response.text)
 
         LOG.debug('Details of group %s: %s', group_id, details)
