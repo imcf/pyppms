@@ -23,7 +23,7 @@ class PpmsConnection(object):
 
     """Connection object to communicate with a PPMS instance."""
 
-    def __init__(self, url, api_key):
+    def __init__(self, url, api_key, timeout=10):
         """Constructor for the PPMS connection object.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
@@ -35,6 +35,9 @@ class PpmsConnection(object):
             The URL of the PUMAPI to connect to.
         api_key : str
             The API key to use for authenticating against the PUMAPI.
+        timeout : float, optional
+            How many seconds to wait for the PUMAPI server to send a response
+            before giving up, by default 10.
 
         Raises
         ------
@@ -43,6 +46,7 @@ class PpmsConnection(object):
         """
         self.url = url
         self.api_key = api_key
+        self.timeout = timeout
         self.users = None
         self.systems = None
         self.status = {
@@ -126,7 +130,7 @@ class PpmsConnection(object):
         }
         req_data.update(parameters)
 
-        response = requests.post(self.url, data=req_data)
+        response = requests.post(self.url, data=req_data, timeout=self.timeout)
         if 'request not authorized' in response.text.lower():
             self.status['auth_state'] = 'FAILED'
             msg = 'Not authorized to run action `%s`' % req_data['action']

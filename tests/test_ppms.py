@@ -21,7 +21,11 @@ __license__ = "gpl3"
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
     caplog.set_level(logging.DEBUG)
-    conn = ppms.PpmsConnection(pumapyconf.PUMAPI_URL, pumapyconf.PPMS_API_KEY)
+    conn = ppms.PpmsConnection(
+        pumapyconf.PUMAPI_URL,
+        pumapyconf.PPMS_API_KEY,
+        timeout=1
+    )
     return conn
 
 def test_ppmsconnection(ppms_connection):
