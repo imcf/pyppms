@@ -1,7 +1,10 @@
 .idea/
 .vscode/
 
+# testing
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Python bytecode
 *.pyc
