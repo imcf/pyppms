@@ -129,6 +129,7 @@ class PpmsConnection(object):
 
         response = requests.post(self.url, data=req_data)
         if 'request not authorized' in response.text.lower():
+            self.status['auth_state'] = 'FAILED'
             msg = 'Not authorized to run action `%s`' % req_data['action']
             LOG.error(msg)
             raise requests.exceptions.ConnectionError(msg)
