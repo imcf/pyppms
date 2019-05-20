@@ -43,3 +43,13 @@ def test_ppmsconnection_fail():
     with pytest.raises(ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             pumapyconf.PPMS_API_KEY + 'appendixx')
+
+def test_get_users(ppms_connection):
+    """Test getting a list of user IDs from PPMS."""
+    users = ppms_connection.get_users(active=False)
+    print users
+    assert u'pumapy' in users
+
+    users = ppms_connection.get_users(active=True)
+    print users
+    assert u'pumapy' in users
