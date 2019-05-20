@@ -74,7 +74,8 @@ class PpmsConnection(object):
             LOG.warn('Authentication failed with an error: %s', response.text)
             return False
 
-        if response.status_code == requests.codes.ok:  # pylint: disable-msg=no-member
+        status_ok = requests.codes.ok  # pylint: disable-msg=no-member
+        if response.status_code == status_ok:
             LOG.info('Authentication succeeded, response=[%s]', response.text)
             LOG.debug('HTTP Status: %s', response.status_code)
             return True
