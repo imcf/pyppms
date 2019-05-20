@@ -18,8 +18,9 @@ __license__ = "gpl3"
 
 
 @pytest.fixture
-def ppms_connection():
+def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
+    caplog.set_level(logging.DEBUG)
     conn = ppms.PpmsConnection(pumapyconf.PUMAPI_URL, pumapyconf.PPMS_API_KEY)
     return conn
 
@@ -27,9 +28,8 @@ def test_ppmsconnection(ppms_connection):
     """Test establishing a PPMS connection."""
     assert ppms_connection.status['auth_state'] == 'good'
 
-def test_ppmsconnection_fail(caplog):
+def test_ppmsconnection_fail():
     """Test various ways how establishing a connection could fail."""
-    caplog.set_level(logging.DEBUG)
 
     # wrong PUMAPI URL:
     with pytest.raises(ConnectionError):
