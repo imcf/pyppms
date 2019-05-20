@@ -51,3 +51,23 @@ def test_dict_from_single_response():
     parsed = common.dict_from_single_response(invalid_data, graceful=True)
     with pytest.raises(ValueError):
         common.dict_from_single_response(invalid_data, graceful=False)
+
+
+def test_process_response_values():
+    """Test the data-fields-processing function."""
+    values = ['"doubles"', "'singles'", '0', "'1'", '"2"', 'true', 'false']
+    results = ['doubles', "'singles'", '0', "'1'", '2', True, False]
+
+    common.process_response_values(values)
+
+    for i, val in enumerate(values):
+        print "val (%s) == results[%s] (%s)" % (val, i, results[i])
+        assert val == results[i]
+
+    common.process_response_values([])
+
+    with pytest.raises(TypeError):
+        common.process_response_values('a string')
+
+    with pytest.raises(TypeError):
+        common.process_response_values(None)
