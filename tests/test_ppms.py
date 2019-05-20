@@ -82,3 +82,30 @@ def test_get_user_dict(ppms_connection):
 
     with pytest.raises(KeyError):
         ppms_connection.get_user_dict('_hopefully_unknown_username_')
+
+def test_get_groups(ppms_connection):
+    """Test getting a list of group IDs ("unitlogin") from PPMS."""
+    groups = ppms_connection.get_groups()
+    print groups
+    assert u'pumapy_group' in groups
+
+def test_get_group(ppms_connection):
+    """Test fetching details of a specific group."""
+    expected = {
+        u'heademail': u'group-leader@python-facility.example',
+        u'unitname': u'Python Core Facility',
+        u'unitlogin': u'pumapy_group',
+        u'unitbcode': u'pumapy_group',
+        u'department': u'Scientific Software Support',
+        u'headname': u'PythonGroup Supervisor',
+        u'active': True,
+        u'institution': u'Famous Research Foundation',
+    }
+    print "Expected dict data (subset): %s" % expected
+    details = ppms_connection.get_group('pumapy_group')
+    print "Retrieved dict data: %s" % details
+    for key in expected.keys():
+        assert expected[key] == details[key]
+
+    with pytest.raises(KeyError):
+        ppms_connection.get_group('_hopefully_unknown_unitlogin_name_')
