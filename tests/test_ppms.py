@@ -74,11 +74,11 @@ def test_get_user_dict(ppms_connection):
         u'phone': u'+98 (76) 54 3210',
         u'unitlogin': u'pumapy_group'
     }
-    print expected
+    print "Expected dict data: %s" % expected
 
-    user = ppms_connection.get_user_dict('pumapy')
-    print user
-    assert expected == user
+    details = ppms_connection.get_user_dict('pumapy')
+    print "Retrieved dict data: %s" % details
+    assert expected == details
 
     with pytest.raises(KeyError):
         ppms_connection.get_user_dict('_hopefully_unknown_username_')
