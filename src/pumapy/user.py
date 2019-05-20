@@ -4,6 +4,8 @@
 
 import logging
 
+from .common import dict_from_single_response
+
 LOG = logging.getLogger(__name__)
 
 
@@ -60,26 +62,7 @@ class PpmsUser(object):
         ValueError
             Raised in case parsing the PUMAPI response data fails.
         """
-        try:
-            fields, values = response_text.splitlines()
-            fields = fields.split(',')
-            values = values.split(',')
-            if len(fields) != len(values):
-                raise ValueError('Splitting data fields failed!')
-        except Exception as err:
-            msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
-                   (response_text, err))
-            LOG.error(msg)
-            raise ValueError(msg)
-
-        # process values removing quotes, converting to boolean, ...
-        for i, value in enumerate(values):
-            values[i] = value.strip('"')
-            if value == 'true':
-                values[i] = True
-            if value == 'false':
-                values[i] = False
-        details = dict(zip(fields, values))
+        details = dict_from_single_response(response_text, graceful=True)
 
         user = cls(
             username=details['login'],
