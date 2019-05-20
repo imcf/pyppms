@@ -209,10 +209,12 @@ class PpmsConnection(object):
 
         # EXAMPLE:
         # response.text = (
-        #     u'login,lname,fname,email,phone,bcode,affiliation,unitlogin,'
-        #     u'mustchpwd,mustchbcode,active\r\n'
-        #     u'"pumapy","Python","PumAPI","does-not-reply@facility.xy","","",'
-        #     u'"","Python Core Facility",false,false,true\r\n'
+        #     u'login,lname,fname,email,'
+        #     u'phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,'
+        #     u'active\r\n'
+        #     u'"pumapy","Python","PumAPI","pumapy@python-facility.example",'
+        #     u'"+98 (76) 54 3210","","","pumapy",false,false,'
+        #     u'true\r\n'
         # )
         fields, values = response.text.splitlines()
         fields = fields.split(',')
