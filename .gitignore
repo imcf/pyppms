@@ -3,4 +3,8 @@
 
 .pytest_cache/
 
+# Python bytecode
 *.pyc
+
+# configuration file(s)
+config.py
