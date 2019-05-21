@@ -132,3 +132,21 @@ def test_get_admins(ppms_connection, ppms_user_admin):
 
     print admin_user.details()
     assert admin_user.details() == ppms_user_admin.details()
+
+
+def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
+    """Test the get_group_users() method."""
+    # TODO: that's certainly not the nicest test, it really needs to be
+    # refactored once the get_group_users() method returns a dict instead of a
+    # list of user objects!
+    members = ppms_connection.get_group_users('pumapy_group')
+    for user in members:
+        print user.details()
+        if user.username == 'pumapy':
+            assert user.details() == ppms_user.details()
+        elif user.username == 'pumapy-adm':
+            assert user.details() == ppms_user_admin.details()
+        else:
+            raise KeyError('Unexpected username: %s' % user.username)
+
+    assert ppms_connection.get_group_users('') == list()

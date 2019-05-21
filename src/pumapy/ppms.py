@@ -320,3 +320,27 @@ class PpmsConnection(object):
 
         LOG.debug('Details of group %s: %s', group_id, details)
         return details
+
+    def get_group_users(self, unitlogin):
+        """Get all members of a group in PPMS.
+
+        Parameters
+        ----------
+        unitlogin : str
+            The group's login ("unique login or id" in the PPMS web interface).
+
+        Returns
+        -------
+        list(PpmsUser)
+            A list with PpmsUser objects that are members of this PPMS group.
+        """
+        response = self.request('getgroupusers', {'unitlogin': unitlogin})
+
+        members = response.text.splitlines()
+        users = []
+        for username in members:
+            user = self.get_user(username)
+            users.append(user)
+        LOG.debug('%s members in PPMS group [%s]: %s', len(members), unitlogin,
+                  ', '.join(members))
+        return users
