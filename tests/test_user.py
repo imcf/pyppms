@@ -1,61 +1,34 @@
 """Tests for the PpmsUser class."""
 
-from pumapy.user import PpmsUser
-
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__
 __license__ = "gpl3"
 
 
-USERNAME = 'pumapy'
-LNAME = 'Python'
-FNAME = 'PumAPI'
-EMAIL = 'pumapy@python-facility.example'
-UNITLOGIN = 'Python Core Facility'
-FULLNAME = "%s %s" % (LNAME, FNAME)
-EXPECTED = ('username: %s, email: %s, fullname: %s, ppms_group: %s, active: %s'
-            % (USERNAME, EMAIL, FULLNAME, UNITLOGIN, 'True'))
-API_RESPONSE = (u'login,lname,fname,email,phone,bcode,affiliation,unitlogin,'
-                'mustchpwd,mustchbcode,active\r\n'
-                '"%s","%s","%s","%s","","","","%s",false,false,true\r\n'
-                % (USERNAME, LNAME, FNAME, EMAIL, UNITLOGIN))
+def test_user_details(user_details, ppms_user):
+    """Test the PpmsUser constructor, __str__() and details()."""
+    print user_details['username']
+    print ppms_user.__str__()
+    assert ppms_user.__str__() == user_details['username']
 
-def create_user():
-    """Helper function to create a PpmsUser object with default values.
+    print user_details['expected']
+    print ppms_user.details()
+    assert ppms_user.details() == user_details['expected']
 
-    Returns
-    -------
-    PpmsUser
-    """
-    return PpmsUser(
-        username=USERNAME,
-        email=EMAIL,
-        fullname=FULLNAME,
-        ppms_group=UNITLOGIN,
-    )
 
-def test_ppmsuser():
-    """Test the PpmsUser constructor."""
-    user = create_user()
+def test_user_from_response(user_details, ppms_user_from_response):
+    """Test the PpmsUser.from_response() constructor."""
 
-    assert user.__str__() == USERNAME
+    # default
+    print user_details['api_response']
+    print user_details['expected']
+    user = ppms_user_from_response
+    print user.details()
+    assert user.details() == user_details['expected']
 
-def test_details():
-    """Test the details() method."""
-    user = create_user()
+    # fullname fallback if empty
+    user2 = ppms_user_from_response
+    user2._fullname = ''  # pylint: disable-msg=protected-access
+    print user2.details()
 
-    assert user.details() == EXPECTED
-
-def test_from_response():
-    """Test the from_response() method."""
-    print API_RESPONSE
-    user = PpmsUser.from_response(API_RESPONSE)
-
-    assert user.details() == EXPECTED
-
-def test_fullname():
-    """Test the 'fullname' fallback if empty."""
-    user = PpmsUser.from_response(API_RESPONSE)
-    user._fullname = ''  # pylint: disable-msg=protected-access
-
-    assert user.fullname == USERNAME
+    assert user2.fullname == user_details['username']
