@@ -12,7 +12,7 @@ import logging
 
 import requests
 
-from .common import dict_from_single_response
+from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
 
 
@@ -348,3 +348,32 @@ class PpmsConnection(object):
         LOG.debug('%s members in PPMS group [%s]: %s', len(members), unitlogin,
                   ', '.join(members))
         return users
+
+    def get_user_experience(self, login=None, system_id=None):
+        """Get user experience ("User rights") from PPMS.
+
+        Parameters
+        ----------
+        login : str, optional
+            An optional login name to request the experience / permissions for,
+            by default None
+        system_id : int, optional
+            An optional system ID to request the experience / permissions for,
+            by default None
+
+        Returns
+        -------
+        list(dict)
+            A list with dicts parsed from the user experience response.
+        """
+        data = dict()
+        if login is not None:
+            data['login'] = login
+        if system_id is not None:
+            data['id'] = system_id
+        response = self.request('getuserexp', parameters=data)
+        
+        parsed = parse_multiline_response(response.text)
+        LOG.debug('Received %s experience entries for filters [user:%s] and '
+                  '[id:%s]', len(parsed), login, system_id)
+        return parsed

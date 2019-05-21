@@ -150,3 +150,29 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
             raise KeyError('Unexpected username: %s' % user.username)
 
     assert ppms_connection.get_group_users('') == list()
+
+
+def test_get_user_experience(ppms_connection):
+    """Test the get_user_experience() method."""
+    # TODO: system IDs are currently hard-coded here, so this will fail on any
+    # other PPMS instance!
+
+    # check if we get some experience data after all:
+    assert len(ppms_connection.get_user_experience()) > 0
+
+    # check if a user has access to a specific system:
+    systems = ppms_connection.get_user_experience(login='pumapy')
+    sys_ids = list()
+    for system in systems:
+        sys_ids.append(system['id'])
+    assert '31' in sys_ids
+
+    # check if a system is having a specific user with permission to access it:
+    users = ppms_connection.get_user_experience(system_id=31)
+    usernames = list()
+    for user in users:
+        usernames.append(user['login'])
+    assert 'pumapy' in usernames
+
+    # check if filtering for user *and* system results in exactly one entry:
+    assert len(ppms_connection.get_user_experience('pumapy', 31)) == 1
