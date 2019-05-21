@@ -14,6 +14,43 @@ __copyright__ = __author__
 __license__ = "gpl3"
 
 
+def extend_raw_details(raw_details):
+    """Helper function to extend a details dict with some additional elements.
+
+    Creates a copy of the given dict with user details (created by the
+    user_details_raw() and user_admin_details_raw() fixtures) and extends it
+    with some details that are useful for the related tests.
+
+    Parameters
+    ----------
+    raw_details : dict
+        A dict with user details as created by the `user_details_raw()` and
+        `user_admin_details_raw()` fixtures.
+
+    Returns
+    -------
+    dict
+        A copy of the provided dict extended by the keys 'fullname', 'expected'
+        and 'api_response'.
+    """
+    details = raw_details.copy()
+    details['fullname'] = "%s %s" % (details['lname'], details['fname'])
+    details['expected'] = (
+        'username: %s, email: %s, fullname: %s, ppms_group: %s, active: True' %
+        (details['login'], details['email'], details['fullname'],
+         details['unitlogin'])
+    )
+    details['api_response'] = (
+        u'login,lname,fname,email,phone,bcode,affiliation,'
+        u'unitlogin,mustchpwd,mustchbcode,active\r\n'
+        '"%s","%s","%s","%s","%s","","","%s",false,false,true\r\n' %
+        (details['login'], details['lname'], details['fname'],
+         details['email'], details['phone'], details['unitlogin'])
+    )
+
+    return details
+
+
 @pytest.fixture(scope="module")
 def user_details_raw():
     """A dict with default user details matching a parsed API response.
@@ -42,33 +79,10 @@ def user_details_raw():
 
 @pytest.fixture(scope="module")
 def user_details(user_details_raw):
-    """A dict with user details and some additional details used in testing.
+    """A dict with extended user details."""
+    return extend_raw_details(user_details_raw)
 
-    Provides a dict with user details (same as the user_details_raw() fixture),
-    enriched with some more details that are useful for the related tests.
 
-    Returns
-    -------
-    dict
-        The same dict as provided by the `user_details_raw` fixture extended by
-        the keys 'fullname', 'expected' and 'api_response'.
-    """
-    details = user_details_raw.copy()
-    details['fullname'] = "%s %s" % (details['lname'], details['fname'])
-    details['expected'] = (
-        'username: %s, email: %s, fullname: %s, ppms_group: %s, active: True' %
-        (details['login'], details['email'], details['fullname'],
-         details['unitlogin'])
-    )
-    details['api_response'] = (
-        u'login,lname,fname,email,phone,bcode,affiliation,'
-        u'unitlogin,mustchpwd,mustchbcode,active\r\n'
-        '"%s","%s","%s","%s","%s","","","%s",false,false,true\r\n' %
-        (details['login'], details['lname'], details['fname'],
-         details['email'], details['phone'], details['unitlogin'])
-    )
-
-    return details
 
 
 @pytest.fixture(scope="module")
