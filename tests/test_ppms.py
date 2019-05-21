@@ -63,13 +63,19 @@ def test_get_users(ppms_connection):
     assert u'pumapy' in users
 
 
-def test_get_user_dict(ppms_connection, user_details_raw):
+def test_get_user_dict(ppms_connection,
+                       user_details_raw,
+                       user_admin_details_raw):
     """Test fetching details of a specific user."""
     print "Expected dict data: %s" % user_details_raw
-
     details = ppms_connection.get_user_dict('pumapy')
     print "Retrieved dict data: %s" % details
     assert user_details_raw == details
+
+    print "Expected dict data: %s" % user_admin_details_raw
+    details = ppms_connection.get_user_dict('pumapy-adm')
+    print "Retrieved dict data: %s" % details
+    assert user_admin_details_raw == details
 
     with pytest.raises(KeyError):
         ppms_connection.get_user_dict('_hopefully_unknown_username_')
@@ -94,13 +100,35 @@ def test_get_group(ppms_connection, group_details):
         ppms_connection.get_group('_hopefully_unknown_unitlogin_name_')
 
 
-def test_get_user(ppms_connection, ppms_user):
+def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     """Test the get_user() method."""
     user = ppms_connection.get_user('pumapy')
     print user.details()
     print ppms_user.details()
     assert user.details() == ppms_user.details()
 
+    user = ppms_connection.get_user('pumapy-adm')
+    print user.details()
+    print ppms_user_admin.details()
+    assert user.details() == ppms_user_admin.details()
+
     with pytest.raises(KeyError):
         ppms_connection.get_user('_hopefully_unknown_username_')
 
+
+def test_get_admins(ppms_connection, ppms_user_admin):
+    """Test the get_admins() method."""
+    admins = ppms_connection.get_admins()
+
+    usernames = list()
+    admin_user = None
+    for admin in admins:
+        usernames.append(admin.username)
+        if admin.username == 'pumapy-adm':
+            admin_user = admin
+
+    print usernames
+    assert 'pumapy-adm' in usernames
+
+    print admin_user.details()
+    assert admin_user.details() == ppms_user_admin.details()
