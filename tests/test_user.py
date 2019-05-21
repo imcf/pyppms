@@ -7,9 +7,9 @@ __license__ = "gpl3"
 
 def test_user_details(user_details, ppms_user):
     """Test the PpmsUser constructor, __str__() and details()."""
-    print user_details['username']
+    print user_details['login']
     print ppms_user.__str__()
-    assert ppms_user.__str__() == user_details['username']
+    assert ppms_user.__str__() == user_details['login']
 
     print user_details['expected']
     print ppms_user.details()
@@ -31,4 +31,4 @@ def test_user_from_response(user_details, ppms_user_from_response):
     user2._fullname = ''  # pylint: disable-msg=protected-access
     print user2.details()
 
-    assert user2.fullname == user_details['username']
+    assert user2.fullname == user_details['login']

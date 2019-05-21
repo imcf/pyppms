@@ -63,26 +63,13 @@ def test_get_users(ppms_connection):
     assert u'pumapy' in users
 
 
-def test_get_user_dict(ppms_connection):
+def test_get_user_dict(ppms_connection, user_details_raw):
     """Test fetching details of a specific user."""
-    expected = {
-        u'active': True,
-        u'affiliation': u'',
-        u'bcode': u'',
-        u'email': u'pumapy@python-facility.example',
-        u'fname': u'PumAPI',
-        u'lname': u'Python',
-        u'login': u'pumapy',
-        u'mustchbcode': False,
-        u'mustchpwd': False,
-        u'phone': u'+98 (76) 54 3210',
-        u'unitlogin': u'pumapy_group'
-    }
-    print "Expected dict data: %s" % expected
+    print "Expected dict data: %s" % user_details_raw
 
     details = ppms_connection.get_user_dict('pumapy')
     print "Retrieved dict data: %s" % details
-    assert expected == details
+    assert user_details_raw == details
 
     with pytest.raises(KeyError):
         ppms_connection.get_user_dict('_hopefully_unknown_username_')
