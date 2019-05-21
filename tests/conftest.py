@@ -48,6 +48,27 @@ def user_details():
         ),
     }
 
+
+@pytest.fixture(scope="module")
+def group_details():
+    """Helper function providing a dict with default group details.
+
+    Returns
+    -------
+    dict
+    """
+    return {
+        u'heademail': u'group-leader@python-facility.example',
+        u'unitname': u'Python Core Facility',
+        u'unitlogin': u'pumapy_group',
+        u'unitbcode': u'pumapy_group',
+        u'department': u'Scientific Software Support',
+        u'headname': u'PythonGroup Supervisor',
+        u'active': True,
+        u'institution': u'Famous Research Foundation',
+    }
+
+
 @pytest.fixture(scope="module")
 def ppms_user(user_details):
     """Helper function to create a PpmsUser object with default values.
