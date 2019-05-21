@@ -101,3 +101,15 @@ def test_get_group(ppms_connection, group_details):
 
     with pytest.raises(KeyError):
         ppms_connection.get_group('_hopefully_unknown_unitlogin_name_')
+
+
+def test_get_user(ppms_connection, ppms_user):
+    """Test the get_user() method."""
+    user = ppms_connection.get_user('pumapy')
+    print user.details()
+    print ppms_user.details()
+    assert user.details() == ppms_user.details()
+
+    with pytest.raises(KeyError):
+        ppms_connection.get_user('_hopefully_unknown_username_')
+
