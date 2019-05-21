@@ -25,7 +25,7 @@ def ppms_connection(caplog):
     conn = ppms.PpmsConnection(
         pumapyconf.PUMAPI_URL,
         pumapyconf.PPMS_API_KEY,
-        timeout=1
+        timeout=5
     )
     return conn
 
