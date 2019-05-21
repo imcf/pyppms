@@ -396,11 +396,14 @@ class PpmsConnection(object):
             Email addresses of the users requested.
         """
         emails = list()
-        if users is None:
+        # TODO: add a test for the 'users==None' case as soon as we have
+        # something like 'betamax' or similar in place that speeds up the
+        # requests by caching them locally
+        if users is None:  # pragma: no cover
             users = self.get_users(active=active)
         for user in users:
             email = self.get_user_dict(user)['email']
-            if not email:
+            if not email:  # pragma: no cover
                 LOG.warn("--- WARNING: no email for user %s! ---" % user)
                 continue
             LOG.debug("%s: %s", user, email)
