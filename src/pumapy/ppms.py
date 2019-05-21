@@ -73,10 +73,11 @@ class PpmsConnection(object):
         self.status['auth_response'] = response.text
         self.status['auth_httpstatus'] = response.status_code
 
-        # WARNING: the HTTP status code returned is not correct - it is always
-        # `200` even if authentication failed, so we need to check the actual
-        # response *TEXT* to check if we have succeeded:
-        if 'error' in response.text.lower():
+        # NOTE: an unauthorized request has already been caught be the request()
+        # method above. Our legacy code was additionally testing for 'error' in
+        # the response text - however, there doesn't seem to be a way to trigger
+        # such a response, so we exclude it from testing (and coverage).
+        if 'error' in response.text.lower():  # pragma: no cover
             self.status['auth_state'] = 'FAILED-ERROR'
             msg = 'Authentication failed with an error: %s' % response.text
             LOG.error(msg)
@@ -131,6 +132,9 @@ class PpmsConnection(object):
         req_data.update(parameters)
 
         response = requests.post(self.url, data=req_data, timeout=self.timeout)
+        # NOTE: the HTTP status code returned is always `200` even if
+        # authentication failed, so we need to check the actual response *TEXT*
+        # to figure out if we have succeeded:
         if 'request not authorized' in response.text.lower():
             self.status['auth_state'] = 'FAILED'
             msg = 'Not authorized to run action `%s`' % req_data['action']
