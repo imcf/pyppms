@@ -377,3 +377,33 @@ class PpmsConnection(object):
         LOG.debug('Received %s experience entries for filters [user:%s] and '
                   '[id:%s]', len(parsed), login, system_id)
         return parsed
+
+    def get_users_emails(self, users=None, active=False):
+        """Get a list of user email addresses. WARNING - very slow!
+
+        Parameters
+        ----------
+        users : list(str), optional
+            A list of login names to retrieve the email addresses for, if
+            omitted addresses for all (or active ones) will be requested.
+        active : bool, optional
+            Request only addresses of users marked as active in PPMS, by default
+            False. Will be ignored if a list of usernames is given explicitly.
+
+        Returns
+        -------
+        list(str)
+            Email addresses of the users requested.
+        """
+        emails = list()
+        if users is None:
+            users = self.get_users(active=active)
+        for user in users:
+            email = self.get_user_dict(user)['email']
+            if not email:
+                LOG.warn("--- WARNING: no email for user %s! ---" % user)
+                continue
+            LOG.debug("%s: %s", user, email)
+            emails.append(email)
+
+        return emails

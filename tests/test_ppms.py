@@ -176,3 +176,18 @@ def test_get_user_experience(ppms_connection):
 
     # check if filtering for user *and* system results in exactly one entry:
     assert len(ppms_connection.get_user_experience('pumapy', 31)) == 1
+
+
+def test_get_users_emails(ppms_connection,
+                          user_details_raw,
+                          user_admin_details_raw):
+    """Test the get_users_emails() method."""
+    users = [
+        user_details_raw['login'],
+        user_admin_details_raw['login'],
+    ]
+    print "users: %s" % users
+    emails = ppms_connection.get_users_emails(users)
+    print "emails: %s" % emails
+    assert user_details_raw['email'] in emails
+    assert user_admin_details_raw['email'] in emails
