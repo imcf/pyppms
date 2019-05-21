@@ -29,9 +29,11 @@ def ppms_connection(caplog):
     )
     return conn
 
+
 def test_ppmsconnection(ppms_connection):
     """Test establishing a PPMS connection."""
     assert ppms_connection.status['auth_state'] == 'good'
+
 
 def test_ppmsconnection_fail():
     """Test various ways how establishing a connection could fail."""
@@ -48,6 +50,7 @@ def test_ppmsconnection_fail():
     with pytest.raises(ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             pumapyconf.PPMS_API_KEY + 'appendixx')
+
 
 def test_get_users(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
@@ -83,6 +86,7 @@ def test_get_user_dict(ppms_connection):
 
     with pytest.raises(KeyError):
         ppms_connection.get_user_dict('_hopefully_unknown_username_')
+
 
 def test_get_groups(ppms_connection):
     """Test getting a list of group IDs ("unitlogin") from PPMS."""

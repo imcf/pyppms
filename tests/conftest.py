@@ -89,6 +89,7 @@ def ppms_user(user_details):
         ppms_group=user_details['unitlogin']
     )
 
+
 @pytest.fixture(scope="module")
 def ppms_user_from_response(user_details):
     """Helper function to create a PpmsUser object with default values.

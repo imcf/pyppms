@@ -49,6 +49,7 @@ def create_system():
         autonomy_required_after_hours=False
     )
 
+
 def test_ppmssystem():
     """Test the PpmsSystem constructor."""
     booking = create_system()
