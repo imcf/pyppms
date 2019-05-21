@@ -78,7 +78,7 @@ def dict_from_single_response(text, graceful=True):
         process_response_values(data)
         if len(header) != len(data):
             msg = 'Splitting CSV data failed'
-            LOG.warn('%s, header has %s fields whereas the data has %s fields!',
+            LOG.warn('%s, header has %s fields whereas the data %s fields!',
                      msg, len(header), len(data))
             if not graceful:
                 raise ValueError(msg)
@@ -97,4 +97,80 @@ def dict_from_single_response(text, graceful=True):
         raise ValueError(msg)
 
     parsed = dict(zip(header, data))
+    return parsed
+
+
+def parse_multiline_response(text, graceful=True):
+    """Parse a multi-line CSV response from PUMAPI.
+    
+    Parameters
+    ----------
+    text : str
+        The PUMAPI response with two or more lines, where the first line
+        contains the header field names and the subsequent lines contain data.
+    graceful : bool, optional
+        Whether to continue in case the response text is inconsistent, i.e.
+        having different number of fields in the header line and the data lines,
+        by default True. In graceful mode, any inconsistency detected in the
+        data will be logged as a warning, in non-graceful mode they will raise
+        an Exception.
+    
+    Returns
+    -------
+    list(dict)
+        A list with dicts where the latter ones have the same form as produced
+        by the dict_from_single_response() function. Note that when graceful
+        mode is requested, consistency among the dicts is not guaranteed.
+    
+    Raises
+    ------
+    ValueError
+        Raised when the response text is inconsistent and the `graceful`
+        parameter has been set to false, or if parsing fails for any other
+        unforeseen reason.
+    """
+    parsed = list()
+    try:
+        lines = text.splitlines()
+        if len(lines) < 2:
+            LOG.warn('Response expected to have two or more lines: %s', text)
+            if not graceful:
+                raise ValueError("Invalid response format!")
+            return dict()
+
+        header = lines[0].split(',')
+        lines_max = lines_min = len(header)
+        for line in lines[1:]:
+            data = line.split(',')
+            process_response_values(data)
+            lines_max = max(lines_max, len(data))
+            lines_min = min(lines_min, len(data))
+            if len(header) != len(data):
+                msg = 'Splitting CSV data failed'
+                LOG.warn('%s, header has %s fields whereas data has %s fields!',
+                        msg, len(header), len(data))
+                if not graceful:
+                    raise ValueError(msg)
+
+                minimum = min(len(header), len(data))
+                if minimum < len(header):
+                    LOG.warn('Discarding header-fields: %s', header[minimum:])
+                    header = header[:minimum]
+                else:
+                    LOG.warn('Discarding data-fields: %s', data[minimum:])
+                    data = data[:minimum]
+
+            parsed.append(dict(zip(header, data)))
+
+        if lines_min != lines_max:
+            msg = ('Inconsistent data detected, not all dicts will have the '
+                   'same number of elements!')
+            LOG.warn(msg)
+
+    except Exception as err:
+        msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
+               (text, err))
+        LOG.error(msg)
+        raise ValueError(msg)
+
     return parsed
