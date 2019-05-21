@@ -84,21 +84,24 @@ class PpmsConnection(object):
             raise requests.exceptions.ConnectionError(msg)
 
         status_ok = requests.codes.ok  # pylint: disable-msg=no-member
-        if response.status_code == status_ok:
-            LOG.info('Authentication succeeded, response=[%s]', response.text)
-            LOG.debug('HTTP Status: %s', response.status_code)
-            self.status['auth_state'] = 'good'
-            return
 
-        LOG.warn("Unexpected combination of response [%s] and status code [%s],"
-                 " it's uncelar if the authentication was successful (assuming "
-                 "it wasn't)", response.status_code, response.text)
-        self.status['auth_state'] = 'FAILED-UNKNOWN'
+        if response.status_code != status_ok:  # pragma: no cover
+            # NOTE: branch excluded from coverage as we don't have a known way
+            # to produce such a response from the API
+            LOG.warn("Unexpected combination of response [%s] and status code "
+                     "[%s], it's unclear if authentication succeeded (assuming "
+                     "it didn't)", response.status_code, response.text)
+            self.status['auth_state'] = 'FAILED-UNKNOWN'
 
-        msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
-            self.url, self.api_key[:2], self.api_key[-2:])
-        LOG.error(msg)
-        raise requests.exceptions.ConnectionError(msg)
+            msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
+                self.url, self.api_key[:2], self.api_key[-2:])
+            LOG.error(msg)
+            raise requests.exceptions.ConnectionError(msg)
+
+        LOG.info('Authentication succeeded, response=[%s]', response.text)
+        LOG.debug('HTTP Status: %s', response.status_code)
+        self.status['auth_state'] = 'good'
+        return
 
     def request(self, action, parameters={}):
         """Generic method to submit a request to PPMS and return the result.
