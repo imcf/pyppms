@@ -201,15 +201,8 @@ def test_get_systems(ppms_connection, system_details_raw):
 
     print system_details_raw
 
-    found = None
-    for system in systems:
-        if system.name == system_details_raw['Name']:
-            found = system
-            print "Found system: %s" % system
-            break
-    
-    if found is None:
-        raise KeyError("Couldn't find our system in PUMAPI's response!")
+    found = systems[int(system_details_raw['System id'])]
+    print "Found system: %s" % found
 
     assert found.system_id == system_details_raw['System id']
     assert found.localisation == system_details_raw['Localisation']

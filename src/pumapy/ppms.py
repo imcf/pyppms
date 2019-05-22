@@ -413,18 +413,28 @@ class PpmsConnection(object):
         return emails
 
     def get_systems(self):
-        """Get a list of systems in PPMS.
+        """Get a dict with all systems in PPMS.
 
         Returns
         -------
-        list(PpmsSystem)
-            A list with PpmsSystem objects parsed from the PUMAPI response.
+        dict(PpmsSystem)
+            A dict with PpmsSystem objects parsed from the PUMAPI response where
+            the system ID (int) is used as the dict's key. If the ID of any
+            system cannot be parsed to int, the system is skipped entirely.
         """
-        systems = list()
+        systems = dict()
         response = self.request('getsystems')
         details = parse_multiline_response(response.text, graceful=False)
         for detail in details:
-            systems.append(PpmsSystem.from_parsed_response(detail))
+            system = PpmsSystem.from_parsed_response(detail)
+            try:
+                sys_id = int(system.system_id)
+            except ValueError as err:
+                LOG.error('Unable to parse system ID: %s - %s',
+                          system.system_id, err)
+                continue
+
+            systems[sys_id] = system
 
         LOG.debug('Found %s systems in PPMS', len(systems))
 
