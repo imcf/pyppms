@@ -136,7 +136,7 @@ def parse_multiline_response(text, graceful=True):
             LOG.warn('Response expected to have two or more lines: %s', text)
             if not graceful:
                 raise ValueError("Invalid response format!")
-            return dict()
+            return parsed
 
         header = lines[0].split(',')
         lines_max = lines_min = len(header)
