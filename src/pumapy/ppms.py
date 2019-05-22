@@ -492,3 +492,13 @@ class PpmsConnection(object):
         LOG.info('Found %s bookable %s systems', len(system_ids), loc)
         LOG.debug('PPMS IDs of bookable %s systems: %s', loc, system_ids)
         return system_ids
+
+    ############ deprecated methods ############
+
+    def get_bookable_ids(self, localisation, name_contains):
+        # NOTE: remove with one of the next releases
+        raise NotImplementedError('Use get_systems_matching() instead!')
+
+    def get_system(system_id):
+        # NOTE: remove with one of the next releases
+        raise NotImplementedError('Use get_systems()[system_id] instead!')
