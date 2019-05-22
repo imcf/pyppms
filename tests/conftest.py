@@ -191,3 +191,29 @@ def ppms_user_from_response(user_details):
     pumapy.user.PpmsUser
     """
     return PpmsUser.from_response(user_details['api_response'])
+
+
+@pytest.fixture(scope="module")
+def system_details_raw():
+    """A dict with default system details matching a parsed API response.
+
+    Provides a dict with system details that corresponds to the same format that
+    is consumed by the PpmsSystem.from_parsed_response() constructor.
+
+    Returns
+    -------
+    dict
+    """
+    return {
+        u'System id': u'31',
+        u'Name': u'Python Development System',
+        u'Localisation': u'VDI (Development)',
+        u'Type': u'Virtualized Workstation',
+        u'Core facility ref': u'2',
+        u'Schedules': u'True',
+        u'Active': u'True',
+        u'Stats': u'True',
+        u'Bookable': u'True',
+        u'Autonomy Required': u'True',
+        u'Autonomy Required After Hours': u'False',
+    }
