@@ -14,6 +14,7 @@ import requests
 
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
+from .system import PpmsSystem
 
 
 LOG = logging.getLogger(__name__)
@@ -410,3 +411,21 @@ class PpmsConnection(object):
             emails.append(email)
 
         return emails
+
+    def get_systems(self):
+        """Get a list of systems in PPMS.
+
+        Returns
+        -------
+        list(PpmsSystem)
+            A list with PpmsSystem objects parsed from the PUMAPI response.
+        """
+        systems = list()
+        response = self.request('getsystems')
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            systems.append(PpmsSystem.from_parsed_response(detail))
+
+        LOG.debug('Found %s systems in PPMS', len(systems))
+
+        return systems

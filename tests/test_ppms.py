@@ -191,3 +191,26 @@ def test_get_users_emails(ppms_connection,
     print "emails: %s" % emails
     assert user_details_raw['email'] in emails
     assert user_admin_details_raw['email'] in emails
+
+
+def test_get_systems(ppms_connection, system_details_raw):
+    systems = ppms_connection.get_systems()
+
+    # check if we got some systems after all:
+    assert len(systems) > 0
+
+    print system_details_raw
+
+    found = None
+    for system in systems:
+        if system.name == system_details_raw['Name']:
+            found = system
+            print "Found system: %s" % system
+            break
+    
+    if found is None:
+        raise KeyError("Couldn't find our system in PUMAPI's response!")
+
+    assert found.system_id == system_details_raw['System id']
+    assert found.localisation == system_details_raw['Localisation']
+    assert found.system_type == system_details_raw['Type']
