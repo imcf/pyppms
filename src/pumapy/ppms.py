@@ -28,6 +28,8 @@ class PpmsConnection(object):
     # get_admins, ...) should be refactored to return a dict with those objects
     # instead, having the username ('login') as the key.
 
+    # TODO: implement caching systems, users, ... during the object's lifetime
+
     def __init__(self, url, api_key, timeout=10):
         """Constructor for the PPMS connection object.
 
