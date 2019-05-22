@@ -412,6 +412,8 @@ class PpmsConnection(object):
 
         return emails
 
+    ############ resources ############
+
     def get_systems(self):
         """Get a dict with all systems in PPMS.
 
