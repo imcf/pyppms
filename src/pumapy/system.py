@@ -64,9 +64,14 @@ class PpmsSystem(object):
         self.autonomy_required = autonomy_required
         self.autonomy_required_after_hours = autonomy_required_after_hours
         self.machine_catalogue = None
-        LOG.debug('PpmsSystem initialized: id=%s, name=[%s], localisation=[%s],'
-                  ' system_type=[%s]', system_id, name, localisation,
+        LOG.debug('PpmsSystem initialized: id=%s, name=[%s], localisation=[%s], '
+                  'system_type=[%s]', system_id, name, localisation,
                   system_type)
+        # LOG.debug('PpmsSystem details: core_facility_ref=%s, schedules=%s, '
+        #           'active=%s, stats=%s, bookable=%s, autonomy_required=%s, '
+        #           'autonomy_required_after_hours=%s', core_facility_ref,
+        #           schedules, active, stats, bookable, autonomy_required,
+        #           autonomy_required_after_hours)
 
     def __str__(self):
         return ('system_id: %s, name: %s, localisation: %s, system_type: %s, '
