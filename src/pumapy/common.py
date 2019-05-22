@@ -160,7 +160,9 @@ def parse_multiline_response(text, graceful=True):
                     LOG.warn('Discarding data-fields: %s', data[minimum:])
                     data = data[:minimum]
 
-            parsed.append(dict(zip(header, data)))
+            details = dict(zip(header, data))
+            # LOG.debug(details)
+            parsed.append(details)
 
         if lines_min != lines_max:
             msg = ('Inconsistent data detected, not all dicts will have the '
