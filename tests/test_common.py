@@ -71,3 +71,40 @@ def test_process_response_values():
 
     with pytest.raises(TypeError):
         common.process_response_values(None)
+
+
+def test_parse_multiline_response():
+    # testing empty input, non-graceful:
+    with pytest.raises(ValueError):
+        common.parse_multiline_response('', graceful=False)
+    
+    # testing empty input, graceful:
+    assert len(common.parse_multiline_response('', graceful=True)) == 0
+
+    # testing valid input:
+    valid = 'one,two,thr\nasdf,"qwr",true\n"true","nothing","eleven"'
+    valid_parsed = [
+        {
+            'one': 'asdf',
+            'two': 'qwr',
+            'thr': True,
+        },
+        {
+            'one': True,
+            'two': 'nothing',
+            'thr': 'eleven',
+        }
+    ]
+    assert common.parse_multiline_response(valid, graceful=True) == valid_parsed
+
+    # testing input with too many header fields:
+    invalid_header = 'zero,' + valid
+    parsed = common.parse_multiline_response(invalid_header, graceful=True)
+    with pytest.raises(ValueError):
+        common.parse_multiline_response(invalid_header, graceful=False)
+
+    # testing input with too many data fields:
+    invalid_data = valid + ',"evenmore"'
+    parsed = common.parse_multiline_response(invalid_data, graceful=True)
+    with pytest.raises(ValueError):
+        common.parse_multiline_response(invalid_data, graceful=False)
