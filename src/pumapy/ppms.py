@@ -419,22 +419,20 @@ class PpmsConnection(object):
         -------
         dict(PpmsSystem)
             A dict with PpmsSystem objects parsed from the PUMAPI response where
-            the system ID (int) is used as the dict's key. If the ID of any
-            system cannot be parsed to int, the system is skipped entirely.
+            the system ID (int) is used as the dict's key. If parsing a system
+            fails for any reason, the system is skipped entirely.
         """
         systems = dict()
         response = self.request('getsystems')
         details = parse_multiline_response(response.text, graceful=False)
         for detail in details:
-            system = PpmsSystem.from_parsed_response(detail)
             try:
-                sys_id = int(system.system_id)
-            except ValueError as err:
-                LOG.error('Unable to parse system ID: %s - %s',
-                          system.system_id, err)
+                system = PpmsSystem.from_parsed_response(detail)
+            except ValueError as err:  # pragma: no cover
+                LOG.error('Error processing `getsystems` response: %s', err)
                 continue
 
-            systems[sys_id] = system
+            systems[system.system_id] = system
 
         LOG.debug('Found %s systems in PPMS', len(systems))
 

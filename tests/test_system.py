@@ -1,5 +1,7 @@
 """Tests for the PpmsSystem class."""
 
+import pytest
+
 from pumapy.system import PpmsSystem
 
 __author__ = "Niko Ehrenfeuchter"
@@ -28,7 +30,7 @@ EXPECTED = ('system_id: %s, name: %s, localisation: %s, system_type: %s, '
             (SYS_ID, NAME, LOC, SYS_TYPE, CORE_REF))
 
 
-def create_system():
+def create_system(system_id=SYS_ID):
     """Helper function to create a PpmsSystem object with default values.
 
     Returns
@@ -36,7 +38,7 @@ def create_system():
     PpmsSystem
     """
     return PpmsSystem(
-        system_id=SYS_ID,
+        system_id=system_id,
         name=NAME,
         localisation=LOC,
         system_type=SYS_TYPE,
@@ -55,3 +57,9 @@ def test_ppmssystem():
     booking = create_system()
 
     assert booking.__str__() == EXPECTED
+
+
+def test_ppmssystem_invalid_id():
+    """Test the PpmsSystem constructor raising a ValueError."""
+    with pytest.raises(ValueError):
+        create_system(system_id='cannot-parse-to-int')

@@ -204,6 +204,6 @@ def test_get_systems(ppms_connection, system_details_raw):
     found = systems[int(system_details_raw['System id'])]
     print "Found system: %s" % found
 
-    assert found.system_id == system_details_raw['System id']
+    assert found.system_id == int(system_details_raw['System id'])
     assert found.localisation == system_details_raw['Localisation']
     assert found.system_type == system_details_raw['Type']

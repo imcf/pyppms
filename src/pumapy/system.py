@@ -18,7 +18,7 @@ class PpmsSystem(object):
 
         Parameters
         ----------
-        system_id : str
+        system_id : int or any type that can automatically be cast to int
             The system's unique identifier.
         name : str
             The system's (human friendly) name.
@@ -51,7 +51,12 @@ class PpmsSystem(object):
             description given what that actually means - probably it refers to
             the "after hours" / "non-peak hours".
         """
-        self.system_id = system_id
+        try:
+            self.system_id = int(system_id)
+        except ValueError as err:
+            LOG.error('Unable to parse system ID: %s - %s', system_id, err)
+            raise
+
         self.name = name
         self.localisation = localisation
         self.system_type = system_type
