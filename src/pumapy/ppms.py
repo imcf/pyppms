@@ -439,3 +439,56 @@ class PpmsConnection(object):
         LOG.debug('Found %s systems in PPMS', len(systems))
 
         return systems
+
+    def get_systems_matching(self, localisation, name_contains):
+        """Query PPMS for systems with a specific location and name.
+
+        This method assembles a list of PPMS system IDs whose "localisation"
+        (room) field matches a given string and where the system name contains
+        at least one of the strings given as the `name_contains` parameter.
+
+        Parameters
+        ----------
+        localisation : str
+            A string that the system's "localisation" (i.e. the "Room" field in
+            the PPMS web interface) has to match.
+        name_contains : list(str)
+            A list of valid names (categories) of which the system's name has to
+            match at least one for being included. Supply an empty list for
+            skipping this filter.
+
+        Returns
+        -------
+        list(int)
+            A list with PPMS system IDs matching all of the given criteria.
+        """
+        loc = localisation
+        LOG.info('Querying PPMS for systems with location matching [%s] and '
+                 'name matching any of %s', localisation, name_contains)
+        system_ids = []
+        systems = self.get_systems()
+        for sys_id in systems:
+            system = systems[sys_id]
+            # LOG.debug(system)
+            if loc.lower() not in str(system.localisation).lower():
+                LOG.debug('PPMS system [%s] location (%s) is NOT matching '
+                          '(%s), ignoring', system.name,
+                          system.localisation, loc)
+                continue
+
+            LOG.debug('System [%s] is matching location [%s], checking if the '
+                      'name is matching any of the valid pattern %s',
+                      system.name, loc, name_contains)
+            for valid_name in name_contains:
+                if valid_name in system.name:
+                    LOG.debug('System [%s] matches all criteria', system.name)
+                    system_ids.append(sys_id)
+                    break
+
+            if sys_id not in system_ids:
+                LOG.debug('System [%s] does NOT match a valid name: %s',
+                          system.name, name_contains)
+
+        LOG.info('Found %s bookable %s systems', len(system_ids), loc)
+        LOG.debug('PPMS IDs of bookable %s systems: %s', loc, system_ids)
+        return system_ids

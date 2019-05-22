@@ -207,3 +207,24 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert found.system_id == int(system_details_raw['System id'])
     assert found.localisation == system_details_raw['Localisation']
     assert found.system_type == system_details_raw['Type']
+
+
+def test_get_systems_matching(ppms_connection, system_details_raw):
+    loc = system_details_raw['Localisation']
+    name = system_details_raw['Name']
+
+    # test with partial matches
+    sys_ids = ppms_connection.get_systems_matching(loc[:3], [name[:6]])
+    assert sys_ids == [int(system_details_raw['System id'])]
+
+    # test with full matches
+    sys_ids = ppms_connection.get_systems_matching(loc, [name])
+    assert sys_ids == [int(system_details_raw['System id'])]
+
+    # test with non-existing localisation
+    sys_ids = ppms_connection.get_systems_matching('__non_existing__', [name])
+    assert sys_ids == []
+
+    # test with non-existing name
+    sys_ids = ppms_connection.get_systems_matching(loc, ['__non_existing__'])
+    assert sys_ids == []
