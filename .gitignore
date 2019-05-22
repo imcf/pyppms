@@ -6,8 +6,9 @@
 .coverage
 htmlcov/
 
-# Python bytecode
+# Python bytecode, eggs, ...
 *.pyc
+src/pumapy.egg-info/
 
 # configuration file(s)
 pumapyconf.py
