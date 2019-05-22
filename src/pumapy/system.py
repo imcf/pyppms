@@ -51,7 +51,6 @@ class PpmsSystem(object):
             description given what that actually means - probably it refers to
             the "after hours" / "non-peak hours".
         """
-        # TODO: add a constructor dealing with a PUMAPI response
         self.system_id = system_id
         self.name = name
         self.localisation = localisation
@@ -72,6 +71,35 @@ class PpmsSystem(object):
         #           'autonomy_required_after_hours=%s', core_facility_ref,
         #           schedules, active, stats, bookable, autonomy_required,
         #           autonomy_required_after_hours)
+
+    @classmethod
+    def from_parsed_response(cls, details):
+        """Alternative constructor using a parsed dict with system details.
+        
+        Parameters
+        ----------
+        details : dict
+            A dict with the parsed response from a `getsystems` request.
+        
+        Returns
+        -------
+        PpmsSystem
+            The object constructed with the given details.
+        """
+        system = cls(
+            details['System id'],
+            details['Name'],
+            details['Localisation'],
+            details['Type'],
+            details['Core facility ref'],
+            details['Schedules'],
+            details['Active'],
+            details['Stats'],
+            details['Bookable'],
+            details['Autonomy Required'],
+            details['Autonomy Required After Hours']
+        )
+        return system
 
     def __str__(self):
         return ('system_id: %s, name: %s, localisation: %s, system_type: %s, '
