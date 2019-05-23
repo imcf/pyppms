@@ -505,7 +505,7 @@ class PpmsConnection(object):
         """
         raise NotImplementedError('Use get_systems_matching() instead!')
 
-    def get_system(system_id):
+    def get_system(self, system_id):
         """Legacy method for getting details of a specific system.
 
         This method is not implemented any more, use get_systems()[sys_id] with
