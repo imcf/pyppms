@@ -6,7 +6,10 @@
 # pytest fixtures, this is supposed to be fixed in newer versions, so it should
 # be checked again after migration to Python3 (see pylint issue #1535):
 # pylint: disable-msg=redefined-outer-name
+# pylint: disable-msg=invalid-name
 # pylint: disable-msg=consider-iterating-dictionary
+# pylint: disable-msg=len-as-condition
+# pylint: disable-msg=protected-access
 
 import logging
 import pytest
