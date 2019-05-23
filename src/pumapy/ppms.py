@@ -497,7 +497,67 @@ class PpmsConnection(object):
         LOG.debug('PPMS IDs of bookable %s systems: %s', loc, system_ids)
         return system_ids
 
+    ############ system / user permissions ############
+
     ############ deprecated methods ############
+
+    # TODO: remove methods below with one of the next releases
+
+    def _get_system_with_name(self, system_name):
+        """Get the system ID from the system's name.
+
+        Parameters
+        ----------
+        system_name : str
+            The system name to look for in PPMS.
+
+        Returns
+        -------
+        int
+            The ID of the system with the given name or '-1' if no system with
+            that name could be found.
+
+        Raises
+        ------
+        DeprecationWarning
+            This method will be removed in one of the next releases.
+        """
+        # raise DeprecationWarning('Use get_systems_matching() instead!')
+        sys_ids = self.get_systems_matching('', [system_name])
+        if sys_ids:
+            return sys_ids[0]
+
+        return -1
+
+    def _get_machine_catalogue_from_system(self, system_name,
+                                           catalogue_names=[]):
+        """Get the machine catalog (location / category) of a system.
+
+        WARNING: deprecated method from the legacy API!
+
+        Parameters
+        ----------
+        system_name : str
+            The name of the system to check PPMS for.
+        catalogue_names : list(str), optional
+            [description], by default []
+
+        Returns
+        -------
+        str
+            The machine catalog / location / category of the system. Will be an
+            empty string ('') if none is found.
+        """
+        # raise DeprecationWarning('Use get_systems_matching() instead!')
+        for category in catalogue_names:
+            sys_ids = self.get_systems_matching(category, [system_name])
+            if sys_ids:
+                LOG.debug('Found system(s) %s to be in category [%s]',
+                          sys_ids, category)
+                return category
+
+        LOG.warn('No category found for system [%s]', system_name)
+        return ''
 
     def get_bookable_ids(self, localisation, name_contains):
         """Legacy method for getting IDs of specific systems (name + location).

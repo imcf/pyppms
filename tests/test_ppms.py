@@ -232,3 +232,36 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
     # test with non-existing name
     sys_ids = ppms_connection.get_systems_matching(loc, ['__non_existing__'])
     assert sys_ids == []
+
+
+def test__get_system_with_name(ppms_connection, system_details_raw):
+    """Test the (deprecated) _get_system_with_name() method."""
+    name = system_details_raw['Name']
+    sys_id = ppms_connection._get_system_with_name(name)
+    print "_get_system_with_name: %s" % sys_id
+    assert sys_id == int(system_details_raw['System id'])
+
+
+def test__get_machine_catalogue_from_system(ppms_connection,
+                                            system_details_raw):
+    """Test the (deprecated) _get_machine_catalogue_from_system() method."""
+    name = system_details_raw['Name']
+
+    # define a list of categories we are interested in:
+    categories = ['VDI (Development)', 'VDI (CAD)', 'VDI (BigMemory)']
+
+    # ask to which one the given machine belongs:
+    cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
+
+    # expected be the first one:
+    assert cat == categories[0]
+
+    # test when no category is found:
+    cat = ppms_connection._get_machine_catalogue_from_system(name,
+                                                             categories[1:])
+    assert cat == ''
+
+    # test with a system name that doesn't exist
+    name = '_invalid_pumapy_system_name_'
+    cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
+    assert cat == ''
