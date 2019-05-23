@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# pylint: disable-msg=fixme
+
 """Common functions related to Stratocore's PPMS Utility Management API.
 
 Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
