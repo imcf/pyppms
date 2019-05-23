@@ -527,9 +527,8 @@ class PpmsConnection(object):
             for line in lines:
                 permission, username = line.split(':')
                 if permission.upper() == 'D':
-                    LOG.debug('User [%s] has permission to book system [%s] '
-                              'but is deactivated in PPMS, skipping',
-                              username, system_id)
+                    LOG.debug('User [%s] is deactivated for booking system '
+                              '[%s], skipping', username, system_id)
                     continue
 
                 LOG.debug('User [%s] has permission to book system [%s]',
