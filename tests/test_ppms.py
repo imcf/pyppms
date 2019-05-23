@@ -237,6 +237,24 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
     assert sys_ids == []
 
 
+def test_get_users_with_access_to_system(ppms_connection,
+                                         system_details_raw,
+                                         user_details_raw,
+                                         user_admin_details_raw):
+    """Test the get_users_with_access_to_system() method."""
+    sys_id = system_details_raw['System id']
+    username = user_details_raw['login']
+    username_adm = user_admin_details_raw['login']
+
+    # get the list of usernames allowed to access the system:
+    allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
+    print allowed_users
+    assert username in allowed_users
+    assert username_adm in allowed_users
+
+
+############ deprecated methods ############
+
 def test__get_system_with_name(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_system_with_name() method."""
     name = system_details_raw['Name']

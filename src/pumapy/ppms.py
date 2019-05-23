@@ -499,6 +499,51 @@ class PpmsConnection(object):
 
     ############ system / user permissions ############
 
+    def get_users_with_access_to_system(self, system_id):
+        """Get a list of usernames allowed to book the system with the given ID.
+
+        Parameters
+        ----------
+        system_id : int or int-like
+            The ID of the system to query permitted users for.
+
+        Returns
+        -------
+        list(str)
+            A list of usernames ('login') with permissions to book the system
+            with the given ID in PPMS.
+
+        Raises
+        ------
+        ValueError
+            Raised in case parsing the response failes for any reason.
+        """
+        users = list()
+
+        response = self.request('getsysrights', {'id': system_id})
+        # this response has a unique format, so parse it directly here:
+        try:
+            lines = response.text.splitlines()
+            for line in lines:
+                permission, username = line.split(':')
+                if permission.upper() == 'D':
+                    LOG.debug('User [%s] has permission to book system [%s] '
+                              'but is deactivated in PPMS, skipping',
+                              username, system_id)
+                    continue
+
+                LOG.debug('User [%s] has permission to book system [%s]',
+                          username, system_id)
+                users.append(username)
+
+        except Exception as err:  # pragma: no cover
+            msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
+                   (response.text, err))
+            LOG.error(msg)
+            raise ValueError(msg)
+
+        return users
+
     ############ deprecated methods ############
 
     # TODO: remove methods below with one of the next releases
