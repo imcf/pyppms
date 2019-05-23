@@ -544,6 +544,104 @@ class PpmsConnection(object):
 
         return users
 
+    def set_system_booking_permissions(self, login, system_id, permission):
+        """Set permissions for a user on a given system in PPMS.
+
+        Parameters
+        ----------
+        username : str
+            The username ('login') to allow for booking the system.
+        system_id : int or int-like
+            The ID of the system to add the permission for.
+        permission : str
+            The permission level to set for the user, one of:
+            - 'D' (deactivated)
+            - 'A' (autonomous)
+            - 'N' (novice)
+            - 'S' (superuser)
+
+        Returns
+        -------
+        bool
+            True in case setting permissions for the given username on the
+            system with the specified ID succeeded (or if the user already had
+            those permissions before), False otherwise.
+        """
+
+        def permission_name(shortname):
+            """Closure to validate a permission level and return its long name.
+
+            Parameters
+            ----------
+            shortname : str
+                A single character defining the permission level.
+
+            Returns
+            -------
+            str
+                The long (human-readable) name of the permission level.
+
+            Raises
+            ------
+            KeyError
+                Raised in case an invalid permission level was given.
+            """
+            mapping = {
+                'D': 'deactivated',
+                'A': 'autonomous',
+                'N': 'novice',
+                'S': 'superuser',
+            }
+            try:
+                return mapping[shortname]
+            except KeyError as err:
+                raise KeyError('Invalid permission level [%s] given', shortname)
+
+        LOG.debug('Setting permission level [%s] for user [%s] on system [%s]',
+                  permission_name(permission), login, system_id)
+
+        parameters = {
+            'id': system_id,
+            'login': login,
+           	'type': permission,
+        }
+        response = self.request('setright', parameters)
+
+        # LOG.debug('Request returned text: %s', response.text)
+        if response.text.lower().strip() == 'done':
+            LOG.debug('User [%s] now has permission level [%s] on system [%s]',
+                      login, permission_name(permission), system_id)
+            return True
+
+        if 'invalid user' in response.text.lower():
+            LOG.warn("User [%s] doesn't seem to exist in PPMS", login)
+        elif 'error: ' in response.text.lower():  # pragma: no cover
+            LOG.error('Request resulted in an error: %s', response.text)
+        else:  # pragma: no cover
+            LOG.warn('Unexpected response, assuming the request failed: %s',
+                     response.text)
+
+        return False
+
+    def give_user_access_to_system(self, username, system_id):
+        """Add permissions for a user to book a given system in PPMS.
+
+        Parameters
+        ----------
+        username : str
+            The username ('login') to allow for booking the system.
+        system_id : int or int-like
+            The ID of the system to add the permission for.
+
+        Returns
+        -------
+        bool
+            True in case the given username now has the permissions to book the
+            system with the specified ID (or if the user already had them
+            before), False otherwise.
+        """
+        return self.set_system_booking_permissions(username, system_id, 'A')
+
     ############ deprecated methods ############
 
     # TODO: remove methods below with one of the next releases

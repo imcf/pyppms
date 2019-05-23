@@ -253,6 +253,19 @@ def test_get_users_with_access_to_system(ppms_connection,
     assert username_adm in allowed_users
 
 
+def test_give_user_access_to_system(ppms_connection,
+                                    system_details_raw,
+                                    user_details_raw):
+    """Test the give_user_access_to_system() method."""
+    sys_id = system_details_raw['System id']
+    username = user_details_raw['login']
+
+    success = ppms_connection.give_user_access_to_system(username, sys_id)
+    assert success
+
+    success = ppms_connection.give_user_access_to_system('_invalidusr_', sys_id)
+    assert not success
+
 ############ deprecated methods ############
 
 def test__get_system_with_name(ppms_connection, system_details_raw):
