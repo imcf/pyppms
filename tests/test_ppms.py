@@ -194,6 +194,7 @@ def test_get_users_emails(ppms_connection,
 
 
 def test_get_systems(ppms_connection, system_details_raw):
+    """Test the get_systems() method."""
     systems = ppms_connection.get_systems()
 
     # check if we got some systems after all:
@@ -210,6 +211,7 @@ def test_get_systems(ppms_connection, system_details_raw):
 
 
 def test_get_systems_matching(ppms_connection, system_details_raw):
+    """Test the get_systems_matching() method."""
     loc = system_details_raw['Localisation']
     name = system_details_raw['Name']
 

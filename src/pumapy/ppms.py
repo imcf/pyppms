@@ -375,7 +375,7 @@ class PpmsConnection(object):
         if system_id is not None:
             data['id'] = system_id
         response = self.request('getuserexp', parameters=data)
-        
+
         parsed = parse_multiline_response(response.text)
         LOG.debug('Received %s experience entries for filters [user:%s] and '
                   '[id:%s]', len(parsed), login, system_id)
@@ -407,7 +407,7 @@ class PpmsConnection(object):
         for user in users:
             email = self.get_user_dict(user)['email']
             if not email:  # pragma: no cover
-                LOG.warn("--- WARNING: no email for user %s! ---" % user)
+                LOG.warn("--- WARNING: no email for user %s! ---", user)
                 continue
             LOG.debug("%s: %s", user, email)
             emails.append(email)
@@ -498,9 +498,17 @@ class PpmsConnection(object):
     ############ deprecated methods ############
 
     def get_bookable_ids(self, localisation, name_contains):
-        # NOTE: remove with one of the next releases
+        """Legacy method for getting IDs of specific systems (name + location).
+
+        This method is not implemented any more, use get_systems_matching() with
+        appropriate parameters to select the desired systems instead.
+        """
         raise NotImplementedError('Use get_systems_matching() instead!')
 
     def get_system(system_id):
-        # NOTE: remove with one of the next releases
+        """Legacy method for getting details of a specific system.
+
+        This method is not implemented any more, use get_systems()[sys_id] with
+        the related system ID instead.
+        """
         raise NotImplementedError('Use get_systems()[system_id] instead!')
