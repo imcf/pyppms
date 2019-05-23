@@ -260,6 +260,9 @@ def test_system_booking_permissions(ppms_connection,
     sys_id = system_details_raw['System id']
     username = user_details_raw['login']
 
+    with pytest.raises(KeyError):
+        ppms_connection.set_system_booking_permissions('none', 42, 'X')
+
     success = ppms_connection.give_user_access_to_system('_invalidusr_', sys_id)
     assert not success
 

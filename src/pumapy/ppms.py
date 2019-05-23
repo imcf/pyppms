@@ -593,8 +593,8 @@ class PpmsConnection(object):
             }
             try:
                 return mapping[shortname]
-            except KeyError as err:
-                raise KeyError('Invalid permission level [%s] given', shortname)
+            except KeyError:
+                raise KeyError('Invalid permission [%s] given' % shortname)
 
         LOG.debug('Setting permission level [%s] for user [%s] on system [%s]',
                   permission_name(permission), login, system_id)
