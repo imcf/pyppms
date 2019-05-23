@@ -104,7 +104,7 @@ def dict_from_single_response(text, graceful=True):
 
 def parse_multiline_response(text, graceful=True):
     """Parse a multi-line CSV response from PUMAPI.
-    
+
     Parameters
     ----------
     text : str
@@ -116,14 +116,14 @@ def parse_multiline_response(text, graceful=True):
         by default True. In graceful mode, any inconsistency detected in the
         data will be logged as a warning, in non-graceful mode they will raise
         an Exception.
-    
+
     Returns
     -------
     list(dict)
         A list with dicts where the latter ones have the same form as produced
         by the dict_from_single_response() function. Note that when graceful
         mode is requested, consistency among the dicts is not guaranteed.
-    
+
     Raises
     ------
     ValueError
@@ -150,7 +150,7 @@ def parse_multiline_response(text, graceful=True):
             if len(header) != len(data):
                 msg = 'Splitting CSV data failed'
                 LOG.warn('%s, header has %s fields whereas data has %s fields!',
-                        msg, len(header), len(data))
+                         msg, len(header), len(data))
                 if not graceful:
                     raise ValueError(msg)
 
