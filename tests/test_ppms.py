@@ -253,18 +253,29 @@ def test_get_users_with_access_to_system(ppms_connection,
     assert username_adm in allowed_users
 
 
-def test_give_user_access_to_system(ppms_connection,
+def test_system_booking_permissions(ppms_connection,
                                     system_details_raw,
                                     user_details_raw):
-    """Test the give_user_access_to_system() method."""
+    """Test the set_system_booking_permissions() method."""
     sys_id = system_details_raw['System id']
     username = user_details_raw['login']
+
+    success = ppms_connection.give_user_access_to_system('_invalidusr_', sys_id)
+    assert not success
+
+    success = ppms_connection.remove_user_access_from_system(username, sys_id)
+    assert success
+
+    allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
+    print allowed_users
+    assert username not in allowed_users
 
     success = ppms_connection.give_user_access_to_system(username, sys_id)
     assert success
 
-    success = ppms_connection.give_user_access_to_system('_invalidusr_', sys_id)
-    assert not success
+    allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
+    print allowed_users
+    assert username in allowed_users
 
 ############ deprecated methods ############
 

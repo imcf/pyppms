@@ -641,6 +641,25 @@ class PpmsConnection(object):
         """
         return self.set_system_booking_permissions(username, system_id, 'A')
 
+    def remove_user_access_from_system(self, username, system_id):
+        """Remove permissions for a user to book a given system in PPMS.
+
+        Parameters
+        ----------
+        username : str
+            The username ('login') to remove booking permissions on the system.
+        system_id : int or int-like
+            The ID of the system to modify the permission for.
+
+        Returns
+        -------
+        bool
+            True in case the given username now has the permissions to book the
+            system with the specified ID (or if the user already had them
+            before), False otherwise.
+        """
+        return self.set_system_booking_permissions(username, system_id, 'D')
+
     ############ deprecated methods ############
 
     # TODO: remove methods below with one of the next releases
