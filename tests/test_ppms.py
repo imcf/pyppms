@@ -57,6 +57,8 @@ def test_ppmsconnection_fail():
                             pumapyconf.PPMS_API_KEY + 'appendixx')
 
 
+############ users / groups ############
+
 def test_get_users(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
     users = ppms_connection.get_users(active=False)
@@ -198,6 +200,8 @@ def test_get_users_emails(ppms_connection,
     assert user_admin_details_raw['email'] in emails
 
 
+############ resources ############
+
 def test_get_systems(ppms_connection, system_details_raw):
     """Test the get_systems() method."""
     systems = ppms_connection.get_systems()
@@ -236,6 +240,8 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
     sys_ids = ppms_connection.get_systems_matching(loc, ['__non_existing__'])
     assert sys_ids == []
 
+
+############ system / user permissions ############
 
 def test_get_users_with_access_to_system(ppms_connection,
                                          system_details_raw,
@@ -280,6 +286,8 @@ def test_system_booking_permissions(ppms_connection,
     print allowed_users
     assert username in allowed_users
 
+
+############ bookings ############
 ############ deprecated methods ############
 
 def test__get_system_with_name(ppms_connection, system_details_raw):
