@@ -153,6 +153,8 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
             assert user.details() == ppms_user.details()
         elif user.username == 'pumapy-adm':
             assert user.details() == ppms_user_admin.details()
+        elif user.username == 'pumapy-deact':
+            assert not user.active
         else:
             raise KeyError('Unexpected username: %s' % user.username)
 
