@@ -44,6 +44,7 @@ def test_ppmsbooking():
 
     assert booking.__str__() == EXPECTED % (START, END)
 
+
 def test_starttime_fromstr__time():
     """Test changing the starting time of a booking."""
     booking = create_booking()
@@ -53,6 +54,7 @@ def test_starttime_fromstr__time():
 
     newstart = '%s %s' % (DAY, newtime)
     assert booking.__str__() == EXPECTED % (newstart, END)
+
 
 def test_starttime_fromstr__date():
     """Test changing the starting date of a booking."""
@@ -66,6 +68,7 @@ def test_starttime_fromstr__date():
     newstart = '%s %s' % (newdate, newtime)
     assert booking.__str__() == EXPECTED % (newstart, END)
 
+
 def test_endtime_fromstr__time():
     """Test changing the ending time of a booking."""
     booking = create_booking()
@@ -75,6 +78,7 @@ def test_endtime_fromstr__time():
 
     newend = '%s %s' % (DAY, newtime)
     assert booking.__str__() == EXPECTED % (START, newend)
+
 
 def test_endtime_fromstr__date():
     """Test changing the ending date of a booking."""

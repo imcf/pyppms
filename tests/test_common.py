@@ -77,7 +77,7 @@ def test_parse_multiline_response():
     # testing empty input, non-graceful:
     with pytest.raises(ValueError):
         common.parse_multiline_response('', graceful=False)
-    
+
     # testing empty input, graceful:
     assert len(common.parse_multiline_response('', graceful=True)) == 0
 

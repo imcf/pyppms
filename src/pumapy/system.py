@@ -80,12 +80,12 @@ class PpmsSystem(object):
     @classmethod
     def from_parsed_response(cls, details):
         """Alternative constructor using a parsed dict with system details.
-        
+
         Parameters
         ----------
         details : dict
             A dict with the parsed response from a `getsystems` request.
-        
+
         Returns
         -------
         PpmsSystem
