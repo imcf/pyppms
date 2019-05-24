@@ -74,6 +74,7 @@ def test_process_response_values():
 
 
 def test_parse_multiline_response():
+    """Test the multiline response parsing function."""
     # testing empty input, non-graceful:
     with pytest.raises(ValueError):
         common.parse_multiline_response('', graceful=False)
@@ -100,11 +101,13 @@ def test_parse_multiline_response():
     # testing input with too many header fields:
     invalid_header = 'zero,' + valid
     parsed = common.parse_multiline_response(invalid_header, graceful=True)
+    print parsed
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_header, graceful=False)
 
     # testing input with too many data fields:
     invalid_data = valid + ',"evenmore"'
     parsed = common.parse_multiline_response(invalid_data, graceful=True)
+    print parsed
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_data, graceful=False)
