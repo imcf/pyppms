@@ -7,6 +7,7 @@
 Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
 """
 
+from datetime import datetime, timedelta
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -178,3 +179,21 @@ def parse_multiline_response(text, graceful=True):
         raise ValueError(msg)
 
     return parsed
+
+
+def time_rel_to_abs(minutes_from_now):
+    """Convert a relative time given in minutes from now to a datetime object.
+
+    Parameters
+    ----------
+    minutes_from_now : int or int-like
+        The relative time in minutes to be converted.
+
+    Returns
+    -------
+    datetime
+        The absolute time point as a datetime object.
+    """
+    now = datetime.now().replace(second=0, microsecond=0)
+    abstime = now + timedelta(minutes=int(minutes_from_now))
+    return abstime
