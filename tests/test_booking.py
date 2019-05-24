@@ -2,7 +2,9 @@
 
 import pytest
 from datetime import datetime
+
 from pumapy.booking import PpmsBooking
+from pumapy.common import time_rel_to_abs
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__
@@ -109,3 +111,36 @@ def test_booking_with_session():
     expected = EXPECTED + ' - session: ' + session
 
     assert booking.__str__() == expected % (START, END)
+
+
+def test_booking_from_request():
+    """Test the alternative from_booking_request() constructor."""
+    time_delta = 15
+    time_abs = time_rel_to_abs(time_delta)
+    response = '%s\n%s\n%s\n' % (USERNAME, time_delta, 'some_session_id')
+
+    # test parsing a 'getbooking' response
+    booking = PpmsBooking.from_booking_request(response, 'get', SYS_ID)
+    print booking
+    print time_abs
+    assert booking.endtime == time_abs
+
+    # test parsing a 'nextbooking' response, note that the booking will not have
+    # an endtime then as PUMAPI doesn't provide this information
+    booking = PpmsBooking.from_booking_request(response, 'next', SYS_ID)
+    print booking
+    print time_abs
+    assert booking.starttime == time_abs
+    assert booking.endtime is None
+
+    # test with an invalid booking type
+    with pytest.raises(ValueError):
+        PpmsBooking.from_booking_request('', booking_type='', system_id=23)
+
+    # test with an invalid response text
+    with pytest.raises(IndexError):
+        PpmsBooking.from_booking_request('invalid', 'next', SYS_ID)
+
+    # test with an invalid text type
+    with pytest.raises(AttributeError):
+        PpmsBooking.from_booking_request(23, 'next', SYS_ID)

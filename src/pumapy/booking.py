@@ -5,6 +5,8 @@
 import logging
 from datetime import datetime
 
+from .common import time_rel_to_abs
+
 LOG = logging.getLogger(__name__)
 
 
@@ -26,7 +28,7 @@ class PpmsBooking(object):
         endtime : datetime.date
             The booking's ending time.
         """
-        # TODO: add a constructor dealing with a PUMAPI response
+        # TODO: add a constructor dealing with a PUMAPI runningsheet response
         self.username = username
         self.system_id = int(system_id)
         self.starttime = starttime
@@ -36,6 +38,55 @@ class PpmsBooking(object):
         LOG.debug('PpmsBooking initialized: username=[%s], system=[%s], '
                   'reservation start=[%s] end=[%s]', username, system_id,
                   starttime, endtime)
+
+    @classmethod
+    def from_booking_request(cls, text, booking_type, system_id):
+        """Alternative constructor using a getbooking / nextbooking response.
+
+        Parameters
+        ----------
+        text : str
+            The response text of a PUMAPI `getbooking` or `nextbooking` request,
+            should consist of three lines: username, time_delta, session.
+            Example: 'pumapy\n42\n12345\n'
+        booking_type : str
+            Either 'get' (for a currently running booking) or 'next' (for the
+            next upcoming booking).
+        system_id : int or int-like
+            The ID of the system the booking refers to.
+
+        Returns
+        -------
+        PpmsBooking
+            The object constructed with the parsed response.
+        """
+        valid = ['get', 'next']
+        if booking_type not in valid:
+            raise ValueError("Parameter 'booking_type' has to be one of %s but "
+                             "was given as [%s]" % (valid, booking_type))
+
+        try:
+            lines = text.splitlines()
+            starttime = time_rel_to_abs(lines[1])
+            endtime = None
+
+            if booking_type == 'get':
+                endtime = starttime
+                starttime = datetime.now().replace(second=0, microsecond=0)
+
+            booking = cls(
+                username=lines[0],
+                system_id=system_id,
+                starttime=starttime,
+                endtime=endtime
+            )
+            booking.session = lines[2]
+        except Exception as err:
+            LOG.error('Parsing booking response failed (%s), text was:\n%s',
+                      err, text)
+            raise
+
+        return booking
 
     def starttime_fromstr(self, time_str, date=datetime.now()):
         """Change the starting time and / or day of a booking.
