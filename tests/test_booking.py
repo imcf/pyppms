@@ -1,5 +1,6 @@
 """Tests for the PpmsBooking class."""
 
+import pytest
 from datetime import datetime
 from pumapy.booking import PpmsBooking
 
@@ -38,9 +39,17 @@ def create_booking(username=USERNAME,
 
 def test_ppmsbooking():
     """Test the PpmsBooking constructor."""
+    # run constructor with 'system_id' being a str
     booking = create_booking()
-
     assert booking.__str__() == EXPECTED % (START, END)
+
+    # run constructor with 'system_id' being an int
+    booking = create_booking(system_id=42)
+    assert booking.__str__() == EXPECTED % (START, END)
+
+    # run constructor with 'system_id' being something not int-like
+    with pytest.raises(ValueError):
+        create_booking(system_id='eleven')
 
 
 def test_starttime_fromstr__time():

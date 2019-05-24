@@ -19,7 +19,7 @@ class PpmsBooking(object):
         ----------
         username : str
             The user's account / login name for PPMS.
-        system_id : str
+        system_id : int or int-like
             The system ID to which this booking refers to.
         starttime : datetime.date
             The booking's starting time.
@@ -28,7 +28,7 @@ class PpmsBooking(object):
         """
         # TODO: add a constructor dealing with a PUMAPI response
         self.username = username
-        self.system_id = system_id
+        self.system_id = int(system_id)
         self.starttime = starttime
         self.endtime = endtime
         self.session = None
