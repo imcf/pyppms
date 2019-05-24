@@ -18,8 +18,8 @@ class PpmsSystem(object):
 
         Parameters
         ----------
-        system_id : int or any type that can automatically be cast to int
-            The system's unique identifier.
+        system_id : int or int-like
+            The ID of the system in PPMS (the system's unique identifier).
         name : str
             The system's (human friendly) name.
         localisation : str
