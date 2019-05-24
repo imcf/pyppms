@@ -5,6 +5,14 @@ the booking system as well as changing its state and properties.
 
 This is a Python 2 package for talking to the so-called *PUMAPI*.
 
+## Usage Instructions
+
+TODO! Until then you may have a look at the testing instructions.
+
+## Testing
+
+Automated testing is described in the [TESTING](TESTING.md) document.
+
 ## Note
 
 The PPMS API is not quite clean or consistent. During development of the
