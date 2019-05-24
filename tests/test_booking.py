@@ -23,19 +23,17 @@ EXPECTED = 'username: %s - system: %s - ' % (USERNAME, SYS_ID)
 EXPECTED += 'reservation_start: %s - reservation_end: %s'
 
 
-def create_booking():
+def create_booking(username=USERNAME,
+                   system_id=SYS_ID,
+                   starttime=datetime.strptime(START, FMT),
+                   endtime=datetime.strptime(END, FMT)):
     """Helper function to create a PpmsBooking object with default values.
 
     Returns
     -------
     PpmsBooking
     """
-    return PpmsBooking(
-        username=USERNAME,
-        system_id=SYS_ID,
-        starttime=datetime.strptime(START, FMT),
-        endtime=datetime.strptime(END, FMT)
-    )
+    return PpmsBooking(username, system_id, starttime, endtime)
 
 
 def test_ppmsbooking():
