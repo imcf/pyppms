@@ -288,6 +288,46 @@ def test_system_booking_permissions(ppms_connection,
 
 
 ############ bookings ############
+
+def test_get_booking(ppms_connection, system_details_raw):
+    """Test the get_booking() method.
+
+    Raises
+    ------
+    RuntimeError
+        Raised in case no booking in PPMS could be found so one can be created
+        manaully (the API doesn't provide a way to do this).
+    """
+    # test with a (hopefully) non-existing system ID:
+    sys_id = 7777777
+    assert ppms_connection.get_booking(sys_id) is None
+
+    sys_id = system_details_raw['System id']
+    # try to get the current booking, usually this will be None, but it depends
+    # on the system state in PPMS, so we don't assert any result here but rather
+    # run the code to see if it raises any exception (which it shouldn't)
+    ppms_connection.get_booking(sys_id)
+    # do the same using the get_current_booking() wrapper:
+    ppms_connection.get_current_booking(sys_id)
+
+    # this is a difficult one: in best case we would be able to create a
+    # booking in PPMS, but the PUMAPI doesn't provide a way to do this - so the
+    # only reasonable thing to do is to check if the 'next' booking is None and
+    # give instructions to the tester (which will of course be useless in any
+    # automated / CI scenario...)
+    booking = ppms_connection.get_booking(sys_id, booking_type='next')
+    if booking is None:
+        raise RuntimeError('Please make sure system [%s] has at least one '
+                           'booking in the future!' % sys_id)
+    assert booking.system_id == int(sys_id)
+
+    # do the same using the get_next_booking() wrapper:
+    booking = ppms_connection.get_next_booking(sys_id)
+    assert booking.system_id == int(sys_id)
+
+    with pytest.raises(ValueError):
+        ppms_connection.get_booking(sys_id, booking_type='invalid')
+
 ############ deprecated methods ############
 
 def test__get_system_with_name(ppms_connection, system_details_raw):

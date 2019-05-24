@@ -17,6 +17,7 @@ import requests
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
 from .system import PpmsSystem
+from .booking import PpmsBooking
 
 
 LOG = logging.getLogger(__name__)
@@ -659,6 +660,53 @@ class PpmsConnection(object):
             before), False otherwise.
         """
         return self.set_system_booking_permissions(username, system_id, 'D')
+
+    ############ bookings ############
+
+    def get_booking(self, system_id, booking_type='get'):
+        """Get the current or next booking of a system.
+
+        Parameters
+        ----------
+        system_id : int or int-like
+            The ID of the system in PPMS.
+        booking_type : str, optional
+            The type of booking to request, one of 'get' (requesting the
+            currently running booking) and 'next' (requesting the next upcoming
+            booking), by default 'get'.
+
+        Returns
+        -------
+        PpmsBooking or None
+            The booking object, or None if there is no booking for the system.
+
+        Raises
+        ------
+        ValueError
+            Raised if the specified `booking_type` is invalid.
+        """
+        valid = ['get', 'next']
+        if booking_type not in valid:
+            raise ValueError("Parameter 'booking_type' has to be one of %s but "
+                             "was given as [%s]" % (valid, booking_type))
+
+        response = self.request(booking_type + 'booking', {'id': system_id})
+
+        if not response.text.strip():
+            LOG.debug("System [%s] doesn't have upcoming bookings", system_id)
+            return None
+
+        return PpmsBooking.from_booking_request(response.text,
+                                                booking_type,
+                                                system_id)
+
+    def get_current_booking(self, system_id):
+        """Wrapper for get_booking() with 'booking_type' set to 'get'."""
+        return self.get_booking(system_id, 'get')
+
+    def get_next_booking(self, system_id):
+        """Wrapper for get_booking() with 'booking_type' set to 'next'."""
+        return self.get_booking(system_id, 'next')
 
     ############ deprecated methods ############
 
