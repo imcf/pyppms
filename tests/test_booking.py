@@ -91,3 +91,14 @@ def test_endtime_fromstr__date():
 
     newend = '%s %s' % (newdate, newtime)
     assert booking.__str__() == EXPECTED % (START, newend)
+
+
+def test_booking_with_session():
+    """Test adding a session string to a booking."""
+    session = '123456789'
+    booking = create_booking()
+
+    booking.session = session
+    expected = EXPECTED + ' - session: ' + session
+
+    assert booking.__str__() == expected % (START, END)
