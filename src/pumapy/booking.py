@@ -33,7 +33,7 @@ class PpmsBooking(object):
         self.system_id = int(system_id)
         self.starttime = starttime
         self.endtime = endtime
-        self.session = None
+        self.session = ''
 
         LOG.debug('PpmsBooking initialized: username=[%s], system=[%s], '
                   'reservation start=[%s] end=[%s]', username, system_id,
@@ -130,7 +130,7 @@ class PpmsBooking(object):
         msg = ('username: %s - system: %s - reservation_start: %s - '
                'reservation_end: %s' % (self.username, self.system_id,
                                         self.starttime, self.endtime))
-        if self.session is not None:
+        if self.session:
             msg += ' - session: %s' % self.session
 
         return msg
