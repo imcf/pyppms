@@ -1,5 +1,7 @@
 """Tests for the 'ppms.common' module."""
 
+# pylint: disable-msg=len-as-condition
+
 import pytest
 
 from pumapy import common
