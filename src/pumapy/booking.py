@@ -12,7 +12,21 @@ LOG = logging.getLogger(__name__)
 
 class PpmsBooking(object):
 
-    """Object representing a booking (reservation) in PPMS."""
+    """Object representing a booking (reservation) in PPMS.
+
+    Instance Variables
+    ------------------
+    username : str
+        The user's account / login name the booking is linked to.
+    system_id : int
+        The PPMS system ID to which this booking refers to.
+    starttime : datetime.date
+        The booking's starting time.
+    endtime : datetime.date or NoneType
+        The booking's ending time, can be 'None'.
+    session : str
+        A string referring to a session ID in PPMS, can be empty.
+    """
 
     def __init__(self, username, system_id, starttime, endtime):
         """Initialize the booking object.
