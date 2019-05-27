@@ -158,7 +158,7 @@ class PpmsConnection(object):
 
     ############ users / groups ############
 
-    def get_users(self, active=False):
+    def get_user_ids(self, active=False):
         """Get a list with all user IDs in the PPMS system.
 
         Parameters
@@ -406,7 +406,7 @@ class PpmsConnection(object):
         # something like 'betamax' or similar in place that speeds up the
         # requests by caching them locally
         if users is None:  # pragma: no cover
-            users = self.get_users(active=active)
+            users = self.get_user_ids(active=active)
         for user in users:
             email = self.get_user_dict(user)['email']
             if not email:  # pragma: no cover

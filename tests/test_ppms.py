@@ -59,13 +59,13 @@ def test_ppmsconnection_fail():
 
 ############ users / groups ############
 
-def test_get_users(ppms_connection):
+def test_get_user_ids(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
-    users = ppms_connection.get_users(active=False)
+    users = ppms_connection.get_user_ids(active=False)
     print users
     assert u'pumapy' in users
 
-    users = ppms_connection.get_users(active=True)
+    users = ppms_connection.get_user_ids(active=True)
     print users
     assert u'pumapy' in users
 
