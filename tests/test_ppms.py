@@ -123,6 +123,31 @@ def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
         ppms_connection.get_user('_hopefully_unknown_username_')
 
 
+def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
+    """Test the get_users() method."""
+    testusers = [ppms_user, ppms_user_admin]
+    testusers_logins = [x.username for x in testusers]
+
+    # first add some users to the connection object to avoid the
+    # ultra-time-consuming requesting step:
+    ppms_connection.update_users(user_ids=testusers_logins)
+
+    # now ask the connection object for the (cached) user objects:
+    users = ppms_connection.get_users()
+
+    # check if the references match:
+    for testuser in testusers:
+        username = users[testuser.username].username
+        print username
+        assert testuser.username == username
+        email = users[testuser.username].email
+        print email
+        assert testuser.email == email
+        fullname = users[testuser.username].fullname
+        assert testuser.fullname == fullname
+        print "%s: %s (%s)" % (username, email, fullname)
+
+
 def test_get_admins(ppms_connection, ppms_user_admin):
     """Test the get_admins() method."""
     admins = ppms_connection.get_admins()

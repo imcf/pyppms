@@ -31,7 +31,7 @@ class PpmsConnection(object):
     # get_admins, ...) should be refactored to return a dict with those objects
     # instead, having the username ('login') as the key.
 
-    # TODO: implement caching systems, users, ... during the object's lifetime
+    # TODO: implement caching systems, ... during the object's lifetime
 
     def __init__(self, url, api_key, timeout=10):
         """Constructor for the PPMS connection object.
@@ -57,7 +57,7 @@ class PpmsConnection(object):
         self.url = url
         self.api_key = api_key
         self.timeout = timeout
-        self.users = None
+        self.users = {}
         self.systems = None
         self.status = {
             'auth_state': 'NOT_TRIED',
@@ -254,7 +254,9 @@ class PpmsConnection(object):
         Returns
         -------
         PpmsUser
-            The user object created from the PUMAPI response.
+            The user object created from the PUMAPI response. The object will be
+            additionally stored in the self.users dict using the login_name as
+            the dict's key.
 
         Raises
         ------
@@ -268,7 +270,51 @@ class PpmsConnection(object):
             LOG.error(msg)
             raise KeyError(msg)
 
-        return PpmsUser.from_response(response.text)
+        user = PpmsUser.from_response(response.text)
+        self.users[user.username] = user  # update / add to the cached user objs
+        return user
+
+    def get_users(self, force_refresh=False):
+        """Get user objects for all (or cached) PPMS users.
+
+        Parameters
+        ----------
+        force_refresh : bool, optional
+            Re-request information from PPMS even if user details have been
+            cached locally before, by default False.
+
+        Returns
+        -------
+        dict(PpmsUser)
+            A dict of PpmsUser objects with the username (login) as key.
+        """
+        if self.users and not force_refresh:
+            LOG.debug("Using cached details for %s users", len(self.users))
+        else:  # pragma: no cover
+            self.update_users()
+
+        return self.users
+
+    def update_users(self, user_ids=[]):
+        """Update cached details for a list of users from PPMS.
+
+        Get the user details on a list of users (or all active ones) from PPMS
+        and store them in the local cache. WARNING - very slow!
+
+        Parameters
+        ----------
+        user_ids : list(str), optional
+            A list of user IDs (login names) to request the cache for, by
+            default [] which will result in all *active* users to be requested.
+        """
+        if not user_ids:
+            self.get_user_ids(active=True)
+
+        LOG.debug("Updating details on %s users", len(user_ids))
+        for user_id in user_ids:
+            self.get_user(user_id)
+
+        LOG.debug("Collected details on %s users", len(self.users))
 
     def get_admins(self):
         """Get all PPMS administrator users.
