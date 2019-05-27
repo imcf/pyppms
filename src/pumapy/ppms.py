@@ -450,9 +450,7 @@ class PpmsConnection(object):
             Email addresses of the users requested.
         """
         emails = list()
-        # TODO: add a test for the 'users==None' case as soon as we have
-        # something like 'betamax' or similar in place that speeds up the
-        # requests by caching them locally
+        # TODO: use the cached user objects and remove the "no cover" pragma
         if users is None:  # pragma: no cover
             users = self.get_user_ids(active=active)
         for user in users:
