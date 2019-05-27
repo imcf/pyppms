@@ -147,6 +147,10 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
         assert testuser.fullname == fullname
         print "%s: %s (%s)" % (username, email, fullname)
 
+        # check if the fullname_mapping has been updated correctly:
+        assert fullname in ppms_connection.fullname_mapping
+        assert ppms_connection.fullname_mapping[fullname] == testuser.username
+
 
 def test_get_admins(ppms_connection, ppms_user_admin):
     """Test the get_admins() method."""

@@ -58,6 +58,7 @@ class PpmsConnection(object):
         self.api_key = api_key
         self.timeout = timeout
         self.users = {}
+        self.fullname_mapping = {}
         self.systems = None
         self.status = {
             'auth_state': 'NOT_TRIED',
@@ -272,6 +273,7 @@ class PpmsConnection(object):
 
         user = PpmsUser.from_response(response.text)
         self.users[user.username] = user  # update / add to the cached user objs
+        self.fullname_mapping[user.fullname] = user.username
         return user
 
     def get_users(self, force_refresh=False):
