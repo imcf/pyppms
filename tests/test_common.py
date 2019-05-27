@@ -115,6 +115,14 @@ def test_parse_multiline_response():
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_data, graceful=False)
 
+    # testing leading / trailing whitespace in header fields:
+    text = 'foo , bar\n"some","thing"'
+    parsed = common.parse_multiline_response(text)
+    assert parsed[0].keys() == ['foo', 'bar']
+    text = 'foo,bar\n"some","thing"'
+    parsed = common.parse_multiline_response(text)
+    assert parsed[0].keys() == ['foo', 'bar']
+
 
 def test_time_rel_to_abs():
     """Test the relatitve-to-absolute timestamp converter function."""

@@ -142,6 +142,9 @@ def parse_multiline_response(text, graceful=True):
             return parsed
 
         header = lines[0].split(',')
+        for i, entry in enumerate(header):
+            header[i] = entry.strip()
+
         lines_max = lines_min = len(header)
         for line in lines[1:]:
             data = line.split(',')
