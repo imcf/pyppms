@@ -49,7 +49,7 @@ command line and give it a go. The output should look something like this:
 ```pytest
 ========================== test session starts ==========================
 platform linux2 -- Python 2.7.15+, pytest-4.5.0, py-1.8.0, pluggy-0.11.0
-rootdir: /home/noenc_ehrenfeu/usr/packages/IMCF/pumapy-testing
+rootdir: /tmp/imcf/pumapy-testing
 plugins: cov-2.7.1
 collected 32 items
 
