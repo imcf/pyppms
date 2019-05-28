@@ -121,28 +121,6 @@ def user_admin_details(user_admin_details_raw):
     return extend_raw_details(user_admin_details_raw)
 
 
-### group details ###
-
-@pytest.fixture(scope="module")
-def group_details():
-    """Helper function providing a dict with default group details.
-
-    Returns
-    -------
-    dict
-    """
-    return {
-        u'heademail': u'group-leader@python-facility.example',
-        u'unitname': u'Python Core Facility',
-        u'unitlogin': u'pumapy_group',
-        u'unitbcode': u'pumapy_group',
-        u'department': u'Scientific Software Support',
-        u'headname': u'PythonGroup Supervisor',
-        u'active': True,
-        u'institution': u'Famous Research Foundation',
-    }
-
-
 ### PpmsUser objects ###
 
 @pytest.fixture(scope="module")
@@ -201,6 +179,28 @@ def ppms_user_from_response(user_details):
     pumapy.user.PpmsUser
     """
     return PpmsUser.from_response(user_details['api_response'])
+
+
+### group details ###
+
+@pytest.fixture(scope="module")
+def group_details():
+    """Helper function providing a dict with default group details.
+
+    Returns
+    -------
+    dict
+    """
+    return {
+        u'heademail': u'group-leader@python-facility.example',
+        u'unitname': u'Python Core Facility',
+        u'unitlogin': u'pumapy_group',
+        u'unitbcode': u'pumapy_group',
+        u'department': u'Scientific Software Support',
+        u'headname': u'PythonGroup Supervisor',
+        u'active': True,
+        u'institution': u'Famous Research Foundation',
+    }
 
 
 ### system detail dicts ###
