@@ -40,18 +40,22 @@ def ppms_connection(caplog):
 
 ############ connection ############
 
-def test_ppmsconnection(ppms_connection):
+@pytest.mark.online
+def test_ppmsconnection_online(ppms_connection):
     """Test establishing a PPMS connection."""
     assert ppms_connection.status['auth_state'] == 'good'
 
 
-def test_ppmsconnection_fail():
-    """Test various ways how establishing a connection could fail."""
+def test_ppmsconnection(ppms_connection):
+    """Test instantiating a PpmsConnection object in online or offline mode."""
+    auth_state = ppms_connection.status['auth_state']
+    print auth_state
+    assert auth_state in ['good', 'NOT_TRIED']
 
-    # wrong PUMAPI URL:
-    with pytest.raises(ConnectionError):
-        ppms.PpmsConnection('https://url.example', '')
 
+@pytest.mark.online
+def test_ppmsconnection_fail_online(ppms_connection):
+    """Test how establishing connections to an online PUMAPI could fail."""
     # no API key:
     with pytest.raises(ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='dummy')
@@ -60,6 +64,13 @@ def test_ppmsconnection_fail():
     with pytest.raises(ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             pumapyconf.PPMS_API_KEY + 'appendixx')
+
+
+def test_ppmsconnection_fail():
+    """Test various ways how establishing a connection could fail."""
+    # wrong PUMAPI URL:
+    with pytest.raises(ConnectionError):
+        ppms.PpmsConnection('https://url.example', 'dummykey')
 
     # no API key and no cache path:
     with pytest.raises(RuntimeError):
