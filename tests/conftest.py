@@ -250,3 +250,30 @@ def systemname_mapping(system_details_raw):
         system_details_raw['Name']: int(system_details_raw['System id']),
     }
     return mapping
+
+
+### booking / runningsheet details ###
+
+@pytest.fixture(scope="module")
+def runningsheet_response():
+    """Example response text of a 'getrunningsheet' request.
+
+    The runningsheet returned by this function has entries of four bookings
+    (13:00-14:00, 18:00-19:00, 20:00-21:00, 22:00-23:00), all of the same
+    user (pumapy) for the same system.
+
+    Returns
+    -------
+    str
+        The full (multi-line) text as produced by a getrunningsheet request.
+    """
+    txt = ('Location, Start time, End time, Object, User, Training, Assisted\n'
+           '"VDI (Development)","13:00","14:00","Python Development System",'
+           '"Python PumAPI","",""\n'
+           '"VDI (Development)","18:00","19:00","Python Development System",'
+           '"Python PumAPI","",""\n'
+           '"VDI (Development)","20:00","21:00","Python Development System",'
+           '"Python PumAPI","",""\n'
+           '"VDI (Development)","22:00","23:00","Python Development System",'
+           '"Python PumAPI","",""\n')
+    return txt

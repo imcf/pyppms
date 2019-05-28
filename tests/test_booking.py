@@ -1,10 +1,10 @@
 """Tests for the PpmsBooking class."""
 
+from datetime import datetime, timedelta
 import pytest
-from datetime import datetime
 
 from pumapy.booking import PpmsBooking
-from pumapy.common import time_rel_to_abs
+from pumapy.common import time_rel_to_abs, parse_multiline_response
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__
@@ -144,3 +144,31 @@ def test_booking_from_request():
     # test with an invalid text type
     with pytest.raises(AttributeError):
         PpmsBooking.from_booking_request(23, 'next', SYS_ID)
+
+
+def test_runningsheet(runningsheet_response,
+                      user_details_raw,
+                      system_details_raw,
+                      fullname_mapping,
+                      systemname_mapping):
+    """Test the PpmsBooking.from_runningsheet() constructor."""
+    d_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    d_end = d_start + timedelta(days=1)
+
+    print fullname_mapping
+    print runningsheet_response
+    print systemname_mapping
+    parsed = parse_multiline_response(runningsheet_response)
+    for entry in parsed:
+        booking = PpmsBooking.from_runningsheet(
+            entry=entry,
+            system_id=systemname_mapping[entry['Object']],
+            username=fullname_mapping[entry['User']],
+            date=datetime.now()
+        )
+        print booking.__str__()
+        assert booking.username == user_details_raw['login']
+        assert booking.system_id == int(system_details_raw['System id'])
+        assert booking.starttime > d_start
+        assert booking.endtime < d_end
+        assert booking.starttime < booking.endtime

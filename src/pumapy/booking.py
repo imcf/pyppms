@@ -42,7 +42,6 @@ class PpmsBooking(object):
         endtime : datetime.date
             The booking's ending time.
         """
-        # TODO: add a constructor dealing with a PUMAPI runningsheet response
         self.username = username
         self.system_id = int(system_id)
         self.starttime = starttime
@@ -98,6 +97,45 @@ class PpmsBooking(object):
         except Exception as err:
             LOG.error('Parsing booking response failed (%s), text was:\n%s',
                       err, text)
+            raise
+
+        return booking
+
+    @classmethod
+    def from_runningsheet(cls, entry, system_id, username, date):
+        """Alternative constructor using a (parsed) getrunningsheet response.
+
+        Parameters
+        ----------
+        entry : dict
+            One item of a 'getrunningsheet' response processed by the
+            parse_multiline_response function.
+        system_id : int or int-like
+            The system ID to which this booking refers to.
+        username : str
+            The user's account / login name for PPMS.
+        date : datetime.date
+            The date object of the *DAY* this booking is linked to. Note that
+            the exact start- and end-time of the booking will be taken from the
+            'entry' dict above.
+
+        Returns
+        -------
+        PpmsBooking
+            The object constructed with the parsed response.
+        """
+        try:
+            booking = cls(
+                username=username,
+                system_id=system_id,
+                starttime=date,
+                endtime=date
+            )
+            booking.starttime_fromstr(entry['Start time'], date)
+            booking.endtime_fromstr(entry['End time'], date)
+        except Exception as err:
+            LOG.error('Parsing runningsheet entry failed (%s), text was:\n%s',
+                      err, entry)
             raise
 
         return booking
