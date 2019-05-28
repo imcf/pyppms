@@ -54,7 +54,7 @@ def test_ppmsconnection_fail():
 
     # no API key:
     with pytest.raises(ConnectionError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, '')
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='dummy')
 
     # wrong API key (trailing characters):
     with pytest.raises(ConnectionError):
@@ -63,7 +63,7 @@ def test_ppmsconnection_fail():
 
     # no API key and no cache path:
     with pytest.raises(RuntimeError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key=None, cache=None)
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='')
 
 
 ############ users / groups ############

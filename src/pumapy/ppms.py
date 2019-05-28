@@ -36,15 +36,15 @@ class PpmsConnection(object):
 
     # TODO: implement caching systems, ... during the object's lifetime
 
-    def __init__(self, url, api_key, timeout=10, cache=None):
+    def __init__(self, url, api_key, timeout=10, cache=''):
         """Constructor for the PPMS connection object.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
-        against it using the given API key (or use cache-only mode if key is
-        None). If an optional path to a caching location is specified, responses
-        will be read from that location unless no matching file can be found
-        there, in which case an on-line request will be done (with the response
-        being saved to the cache path).
+        against it using the given API key (or use cache-only mode if key is an
+        empty string). If an optional path to a caching location is specified,
+        responses will be read from that location unless no matching file can be
+        found there, in which case an on-line request will be done (with the
+        response being saved to the cache path).
 
         Parameters
         ----------
@@ -52,15 +52,16 @@ class PpmsConnection(object):
             The URL of the PUMAPI to connect to.
         api_key : str
             The API key to use for authenticating against the PUMAPI. If
-            specified as 'None' authentication will be skipped and the
-            connection is running in cache-only (local) mode.
+            specified as '' authentication will be skipped and the connection is
+            running in cache-only (local) mode.
         timeout : float, optional
             How many seconds to wait for the PUMAPI server to send a response
             before giving up, by default 10.
         cache : str, optional
             A path to a local directory for caching responses from PUMAPI in
             individual text files. Useful for testing and for speeding up
-            slow requests like 'getusers'
+            slow requests like 'getusers'. By default empty, which will result
+            in no caching being done.
 
         Raises
         ------
@@ -82,9 +83,9 @@ class PpmsConnection(object):
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
-        if api_key is not None:
+        if api_key != '':
             self.__authenticate()
-        elif cache is None:
+        elif cache == '':
             raise RuntimeError("No API key *and* no cache path given, at least "
                                "one of them is required!")
 
@@ -260,7 +261,7 @@ class PpmsConnection(object):
                 self.text = text
                 self.status_code = 200
 
-        if self.cache_path is None:
+        if self.cache_path == '':
             raise LookupError("No cache path configured")
 
         intercept_file = self.__interception_path(req_data, create_dir=False)
@@ -283,7 +284,7 @@ class PpmsConnection(object):
         response : requests.Response
             The response object to store in the local cache.
         """
-        if self.cache_path is None:
+        if self.cache_path == '':
             return
 
         intercept_file = self.__interception_path(req_data, create_dir=True)
