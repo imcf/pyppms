@@ -13,6 +13,7 @@ Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
 import logging
 import os
 import os.path
+from datetime import datetime
 
 import requests
 
@@ -888,6 +889,66 @@ class PpmsConnection(object):
     def get_next_booking(self, system_id):
         """Wrapper for get_booking() with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, 'next')
+
+    def get_running_sheet(self, core_facility_ref, date=datetime.now()):
+        """Get the running sheet for a specific day on the given facility.
+
+        The so-called "running-sheet" consists of all bookings / reservations of
+        a facility on a specifc day.
+
+        WARNING: PUMAPI doesn't return a proper unique user identifier with the
+        'getrunningsheet' request, instead the so called "full name" is given to
+        identify the user - unfortunately this can lead to ambiguities as
+        multiple different accounts can have the same full name.
+
+        Parameters
+        ----------
+        core_facility_ref : int or int-like
+            The core facility ID for PPMS.
+        date : datetime.datetime, optional
+            The date to request the running sheet for, by default datetime.now()
+
+        Returns
+        -------
+        list(PpmsBooking)
+            A list with PpmsBooking objects for the given day. Empty in case
+            there are no bookings or parsing the response failed.
+        """
+        bookings = list()
+        parameters = {
+            'plateformid': '%s' % core_facility_ref,
+            'day': date.strftime("%Y-%m-%d"),
+        }
+        LOG.debug("Requesting runningsheet for %s", parameters['day'])
+        response = self.request('getrunningsheet', parameters)
+        try:
+            entries = parse_multiline_response(response.text, graceful=False)
+        except Exception as err:  # pylint: disable-msg=broad-except
+            LOG.error("Parsing runningsheet details failed: %s", err)
+            LOG.debug("Runningsheet PUMPAI response was: %s", response.text)
+            return bookings
+
+        for entry in entries:
+            full = entry['User']
+            if full not in self.fullname_mapping:
+                LOG.debug("Booking for an uncached user (%s) found!", full)
+                self.update_users()
+
+            if full not in self.fullname_mapping:
+                LOG.error("PPMS doesn't seem to know user [%s], skipping", full)
+                continue
+
+            LOG.info("Booking for user '%s' (%s) found",
+                     self.fullname_mapping[full], full)
+            booking = PpmsBooking.from_runningsheet(
+                entry,
+                self._get_system_with_name(entry['Object']),
+                self.fullname_mapping[full],
+                date
+            )
+            bookings.append(booking)
+
+        return bookings
 
     ############ deprecated methods ############
 

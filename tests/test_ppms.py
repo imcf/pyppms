@@ -11,7 +11,10 @@
 # pylint: disable-msg=len-as-condition
 # pylint: disable-msg=protected-access
 
+from __future__ import print_function
+
 import logging
+from datetime import datetime
 import pytest
 from requests.exceptions import ConnectionError
 
@@ -366,6 +369,79 @@ def test_get_booking(ppms_connection, system_details_raw):
 
     with pytest.raises(ValueError):
         ppms_connection.get_booking(sys_id, booking_type='invalid')
+
+
+def test_get_running_sheet(ppms_connection, ppms_user, system_details_raw):
+    """Test the `get_running_sheet` method.
+
+    As it is currently impossible to create bookings through PUMAPI, we need to rely on
+    either cached / mocked responses or for the selected bookings to actually be created
+    manually through the PPMS web interface (which is why the test is using a day that
+    is long time in the future so we do not have to adjust this test for too often).
+
+    Still not quite optimal though.
+    """
+    # take an arbitrary date long time in the future (unfortunately the web interface
+    # of PPMS doesn't let us go much beyond 10 years from now):
+    date = '2028-12-24'
+    # that day is expected to have four 60-minute-bookings, starting at the full hour:
+    sessions_start = [9, 11, 13, 15]
+    # use the start times to assemble a list of datetime tuples with start and end time
+    # of the sessions on that day:
+    sessions = list()
+    for shour in sessions_start:
+        sessions.append(
+            [
+                datetime.strptime("%sT%s" % (date, shour), r'%Y-%m-%dT%H'),
+                datetime.strptime("%sT%s" % (date, shour + 1), r'%Y-%m-%dT%H')
+            ]
+        )
+    # hard-coding the list would look like this:
+    """Example:
+    >>> sessions = [
+    ...     [datetime(2028, 12, 24, 9, 0), datetime(2028, 12, 24, 10, 0)],
+    ...     [datetime(2028, 12, 24, 11, 0), datetime(2028, 12, 24, 12, 0)],
+    ...     [datetime(2028, 12, 24, 13, 0), datetime(2028, 12, 24, 14, 0)],
+    ...     [datetime(2028, 12, 24, 15, 0), datetime(2028, 12, 24, 16, 0)],
+    ... ]
+    """
+
+    def find_endtime(session_times, start_time):
+        """Scan a list of tuples for the first elements, return the second on match.
+
+        Parameters
+        ----------
+        session_times : list([datetime.datetime, datetime.datetime])
+            A list of tuples of datetime objects.
+        start_time : datetime.datetime
+            The datetime object to be matched against the first element of the tuples.
+
+        Returns
+        -------
+        datetime.datetime or None
+            The second element of the first matching tuple, None when nothing matches.
+        """
+        for times in session_times:
+            if start_time == times[0]:
+                return times[1]
+        return None
+
+    day = datetime.strptime(date, r'%Y-%m-%d')
+    testusers = [ppms_user]
+    testusers_logins = [x.username for x in testusers]
+
+    # first add some users to the connection object to avoid the
+    # ultra-time-consuming requesting step:
+    ppms_connection.update_users(user_ids=testusers_logins)
+
+    for booking in ppms_connection.get_running_sheet('2', date=day):
+        assert booking.system_id == int(system_details_raw['System id'])
+        endtime = find_endtime(sessions, booking.starttime)
+        assert endtime is not None
+        print("matching booking end time: %s" % endtime)
+        assert booking.endtime == endtime
+        print(booking.__str__())
+
 
 ############ deprecated methods ############
 
