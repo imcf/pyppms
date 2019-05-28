@@ -229,3 +229,24 @@ def system_details_raw():
         u'Autonomy Required': u'True',
         u'Autonomy Required After Hours': u'False',
     }
+
+
+### mapping dicts for user fullname, system name, ... ###
+
+@pytest.fixture(scope="module")
+def fullname_mapping(ppms_user, ppms_user_admin):
+    """A dict to map user "fullnames" to login / account names."""
+    mapping = {
+        ppms_user.fullname: ppms_user.username,
+        ppms_user_admin.fullname: ppms_user_admin.username,
+    }
+    return mapping
+
+
+@pytest.fixture(scope="module")
+def systemname_mapping(system_details_raw):
+    """A dict to map the system name to its ID."""
+    mapping = {
+        system_details_raw['Name']: int(system_details_raw['System id']),
+    }
+    return mapping
