@@ -16,6 +16,27 @@ __copyright__ = __author__
 __license__ = "gpl3"
 
 
+### pytest setup ###
+
+def pytest_addoption(parser):
+    """Add a command line option '--online' to pytest."""
+    parser.addoption('--online', action='store_true', default=False,
+                     help="enable online tests talking to a PUMAPI instance")
+
+
+def pytest_collection_modifyitems(config, items):
+    """Add the 'skip' marker to tests decorated with 'pytest.mark.online'."""
+    if config.getoption("--online"):
+        # --online given in cli: do not skip online tests
+        return
+    skip_online = pytest.mark.skip(reason="need --online option to run")
+    for item in items:
+        if "online" in item.keywords:
+            item.add_marker(skip_online)
+
+
+### common helper functions to be used in fixtures below ###
+
 def extend_raw_details(raw_details):
     """Helper function to extend a details dict with some additional elements.
 

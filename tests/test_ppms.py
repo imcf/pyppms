@@ -280,6 +280,7 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
 
 ############ system / user permissions ############
 
+@pytest.mark.online
 def test_get_users_with_access_to_system(ppms_connection,
                                          system_details_raw,
                                          user_details_raw,
@@ -296,6 +297,7 @@ def test_get_users_with_access_to_system(ppms_connection,
     assert username_adm in allowed_users
 
 
+@pytest.mark.online
 def test_system_booking_permissions(ppms_connection,
                                     system_details_raw,
                                     user_details_raw):
