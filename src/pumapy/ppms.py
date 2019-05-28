@@ -310,7 +310,7 @@ class PpmsConnection(object):
             default [] which will result in all *active* users to be requested.
         """
         if not user_ids:
-            self.get_user_ids(active=True)
+            user_ids = self.get_user_ids(active=True)
 
         LOG.debug("Updating details on %s users", len(user_ids))
         for user_id in user_ids:
