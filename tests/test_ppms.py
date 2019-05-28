@@ -31,9 +31,10 @@ def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
     caplog.set_level(logging.DEBUG)
     conn = ppms.PpmsConnection(
-        pumapyconf.PUMAPI_URL,
-        pumapyconf.PPMS_API_KEY,
-        timeout=5
+        url=pumapyconf.PUMAPI_URL,
+        api_key=pumapyconf.PPMS_API_KEY,
+        timeout=pumapyconf.TIMEOUT,
+        cache=pumapyconf.CACHE_PATH,
     )
     return conn
 
