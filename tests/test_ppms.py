@@ -56,6 +56,10 @@ def test_ppmsconnection_fail():
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             pumapyconf.PPMS_API_KEY + 'appendixx')
 
+    # no API key and no cache path:
+    with pytest.raises(RuntimeError):
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key=None, cache=None)
+
 
 ############ users / groups ############
 

@@ -11,6 +11,8 @@ Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
 # pylint: disable-msg=dangerous-default-value
 
 import logging
+import os
+import os.path
 
 import requests
 
@@ -33,21 +35,31 @@ class PpmsConnection(object):
 
     # TODO: implement caching systems, ... during the object's lifetime
 
-    def __init__(self, url, api_key, timeout=10):
+    def __init__(self, url, api_key, timeout=10, cache=None):
         """Constructor for the PPMS connection object.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
-        against it using the given API Key.
+        against it using the given API key (or use cache-only mode if key is
+        None). If an optional path to a caching location is specified, responses
+        will be read from that location unless no matching file can be found
+        there, in which case an on-line request will be done (with the response
+        being saved to the cache path).
 
         Parameters
         ----------
         url : str
             The URL of the PUMAPI to connect to.
         api_key : str
-            The API key to use for authenticating against the PUMAPI.
+            The API key to use for authenticating against the PUMAPI. If
+            specified as 'None' authentication will be skipped and the
+            connection is running in cache-only (local) mode.
         timeout : float, optional
             How many seconds to wait for the PUMAPI server to send a response
             before giving up, by default 10.
+        cache : str, optional
+            A path to a local directory for caching responses from PUMAPI in
+            individual text files. Useful for testing and for speeding up
+            slow requests like 'getusers'
 
         Raises
         ------
@@ -65,8 +77,15 @@ class PpmsConnection(object):
             'auth_response': None,
             'auth_httpstatus': -1,
         }
+        self.cache_path = cache
 
-        self.__authenticate()
+        # run in cache-only mode (e.g. for testing or off-line usage) if no API
+        # key has been specified, skip authentication then:
+        if api_key is not None:
+            self.__authenticate()
+        elif cache is None:
+            raise RuntimeError("No API key *and* no cache path given, at least "
+                               "one of them is required!")
 
     def __authenticate(self):
         """Try to authenticate to PPMS using the `auth` request.
@@ -114,7 +133,7 @@ class PpmsConnection(object):
         self.status['auth_state'] = 'good'
         return
 
-    def request(self, action, parameters={}):
+    def request(self, action, parameters={}, skip_cache=False):
         """Generic method to submit a request to PPMS and return the result.
 
         This convenience method deals with adding the API key to a given
@@ -128,6 +147,10 @@ class PpmsConnection(object):
         parameters : dict, optional
             A dictionary with additional parameters to be submitted with the
             request.
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local cache,
+            independent whether a matching response file exists there, by
+            default False.
 
         Returns
         -------
@@ -145,7 +168,23 @@ class PpmsConnection(object):
         }
         req_data.update(parameters)
 
-        response = requests.post(self.url, data=req_data, timeout=self.timeout)
+        response = None
+        read_from_cache = False
+        try:
+            if skip_cache:  # pragma: no cover
+                raise LookupError("Skipping the cache has been requested")
+            response = self.__intercept_read(req_data)
+            read_from_cache = True
+        except LookupError as err:
+            LOG.debug("Doing an on-line request: %s", err)
+            response = requests.post(self.url,
+                                     data=req_data,
+                                     timeout=self.timeout)
+
+        # store the response if it hasn't been read from the cache before:
+        if not read_from_cache:
+            self.__intercept_store(req_data, response)
+
         # NOTE: the HTTP status code returned is always `200` even if
         # authentication failed, so we need to check the actual response *TEXT*
         # to figure out if we have succeeded:
@@ -156,6 +195,102 @@ class PpmsConnection(object):
             raise requests.exceptions.ConnectionError(msg)
 
         return response
+
+    def __interception_path(self, req_data, create_dir=False):
+        """Derive the path for a local cache file from a request's parameters.
+
+        Parameters
+        ----------
+        req_data : dict
+            The request's parameters, used to derive the name of the cache file.
+        create_dir : bool, optional
+            If set to True the cache directory will be created if necessary.
+            Useful when adding responses to the cache. By default False.
+
+        Returns
+        -------
+        str
+            The full path to a file name identified by all parameters of the
+            request (except credentials like 'apikey').
+        """
+        action = req_data['action']
+        intercept_dir = os.path.join(self.cache_path, action)
+        if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
+            os.makedirs(intercept_dir)
+            LOG.debug('Created dir to store response: %s', intercept_dir)
+
+        signature = ""
+        for key, value in req_data.iteritems():
+            if key == 'action' or key == 'apikey':
+                continue
+            signature += "__%s--%s" % (key, value)
+        if signature == '':
+            signature = "__response"
+        signature = signature[2:] + ".txt"
+        intercept_file = os.path.join(intercept_dir, signature)
+        return intercept_file
+
+    def __intercept_read(self, req_data):
+        """Try to read a cached response from a local file.
+
+        Parameters
+        ----------
+        req_data : dict
+            The request's parameters, used to derive the name of the cache file.
+
+        Returns
+        -------
+        PseudoResponse
+            The response text read from the cache file wrapped in a
+            PseudoResponse object, or None in case no matching file was found in
+            the local cache.
+
+        Raises
+        ------
+        LookupError
+            Raised in case no cache path has been set or no cache file matching
+            the request parameters could be found in the cache.
+        """
+
+        # pylint: disable-msg=too-few-public-methods
+        class PseudoResponse(object):
+            """Dummy response object with attribs 'text' and 'status_code'."""
+            def __init__(self, text):
+                self.text = text
+                self.status_code = 200
+
+        if self.cache_path is None:
+            raise LookupError("No cache path configured")
+
+        intercept_file = self.__interception_path(req_data, create_dir=False)
+        if not os.path.exists(intercept_file):  # pragma: no cover
+            raise LookupError("No cache hit for [%s]" % intercept_file)
+
+        with open(intercept_file, 'r') as infile:
+            text = infile.read()
+        LOG.debug('Read intercepted response text from [%s]', intercept_file)
+        return PseudoResponse(text)
+
+    def __intercept_store(self, req_data, response):
+        """Store the response in a local cache file named after the request.
+
+        Parameters
+        ----------
+        req_data : dict
+            The request's parameters, used to derive the name of the cache file
+            so it can be matched later when running the same request again.
+        response : requests.Response
+            The response object to store in the local cache.
+        """
+        if self.cache_path is None:
+            return
+
+        intercept_file = self.__interception_path(req_data, create_dir=True)
+
+        with open(intercept_file, 'w') as outfile:
+            outfile.write(response.text)
+        LOG.debug('Wrote response text to [%s]', intercept_file)
+
 
     ############ users / groups ############
 
