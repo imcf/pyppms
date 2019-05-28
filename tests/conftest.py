@@ -53,6 +53,8 @@ def extend_raw_details(raw_details):
     return details
 
 
+### raw user dicts ###
+
 @pytest.fixture(scope="module")
 def user_details_raw():
     """A dict with default user details matching a parsed API response.
@@ -105,6 +107,8 @@ def user_admin_details_raw():
     }
 
 
+### extended user dicts (with keys 'fullname', 'api_response', 'expected') ###
+
 @pytest.fixture(scope="module")
 def user_details(user_details_raw):
     """A dict with extended user details."""
@@ -116,6 +120,8 @@ def user_admin_details(user_admin_details_raw):
     """A dict with extended administrator user details."""
     return extend_raw_details(user_admin_details_raw)
 
+
+### group details ###
 
 @pytest.fixture(scope="module")
 def group_details():
@@ -136,6 +142,8 @@ def group_details():
         u'institution': u'Famous Research Foundation',
     }
 
+
+### PpmsUser objects ###
 
 @pytest.fixture(scope="module")
 def ppms_user(user_details):
@@ -194,6 +202,8 @@ def ppms_user_from_response(user_details):
     """
     return PpmsUser.from_response(user_details['api_response'])
 
+
+### system detail dicts ###
 
 @pytest.fixture(scope="module")
 def system_details_raw():
