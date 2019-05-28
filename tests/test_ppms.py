@@ -35,6 +35,8 @@ def ppms_connection(caplog):
     return conn
 
 
+############ connection ############
+
 def test_ppmsconnection(ppms_connection):
     """Test establishing a PPMS connection."""
     assert ppms_connection.status['auth_state'] == 'good'
