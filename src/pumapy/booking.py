@@ -14,8 +14,8 @@ class PpmsBooking(object):
 
     """Object representing a booking (reservation) in PPMS.
 
-    Instance Variables
-    ------------------
+    Attributes
+    ----------
     username : str
         The user's account / login name the booking is linked to.
     system_id : int
@@ -36,7 +36,7 @@ class PpmsBooking(object):
         username : str
             The user's account / login name for PPMS.
         system_id : int or int-like
-            The system ID to which this booking refers to.
+            The PPMS system ID to which this booking refers to.
         starttime : datetime.date
             The booking's starting time.
         endtime : datetime.date
@@ -54,17 +54,17 @@ class PpmsBooking(object):
 
     @classmethod
     def from_booking_request(cls, text, booking_type, system_id):
-        """Alternative constructor using a getbooking / nextbooking response.
+        r"""Alternative constructor using a getbooking / nextbooking response.
 
         Parameters
         ----------
         text : str
             The response text of a PUMAPI `getbooking` or `nextbooking` request,
             should consist of three lines: username, time_delta, session.
-            Example: 'pumapy\n42\n12345\n'
+            Example: ``pumapy\n42\n12345\n``
         booking_type : str
-            Either 'get' (for a currently running booking) or 'next' (for the
-            next upcoming booking).
+            Either ``get`` (for a currently running booking) or ``next`` (for
+            the next upcoming booking).
         system_id : int or int-like
             The ID of the system the booking refers to.
 
@@ -117,7 +117,7 @@ class PpmsBooking(object):
         date : datetime.date
             The date object of the *DAY* this booking is linked to. Note that
             the exact start- and end-time of the booking will be taken from the
-            'entry' dict above.
+            ``entry`` dict above.
 
         Returns
         -------
@@ -146,7 +146,7 @@ class PpmsBooking(object):
         Parameters
         ----------
         time_str : str
-            The new starting time in format '%H:%M:%S' (e.g. "13:45:00").
+            The new starting time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
         date : datetime.date, optional
             The new starting day, by default datetime.now()
         """
@@ -165,7 +165,7 @@ class PpmsBooking(object):
         Parameters
         ----------
         time_str : str
-            The new ending time in format '%H:%M:%S' (e.g. "13:45:00").
+            The new ending time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
         date : datetime.date, optional
             The new ending day, by default datetime.now()
         """
