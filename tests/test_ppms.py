@@ -321,22 +321,28 @@ def test_system_booking_permissions(ppms_connection,
     sys_id = system_details_raw['System id']
     username = user_details_raw['login']
 
+    # invalid permission level:
     with pytest.raises(KeyError):
         ppms_connection.set_system_booking_permissions('none', 42, 'X')
 
-    success = ppms_connection.give_user_access_to_system('_invalidusr_', sys_id)
+    # non-existing user:
+    success = ppms_connection.give_user_access_to_system('invalidlogin', sys_id)
     assert not success
 
+    # remove permissions of the user to book the system:
     success = ppms_connection.remove_user_access_from_system(username, sys_id)
     assert success
 
+    # check if the user is in the list of allowed ones (should NOT be):
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
     print allowed_users
     assert username not in allowed_users
 
+    # restore permissions of the user to book the system:
     success = ppms_connection.give_user_access_to_system(username, sys_id)
     assert success
 
+    # check again if the user is in the list of allowed ones (should be now):
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
     print allowed_users
     assert username in allowed_users
