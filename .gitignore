@@ -12,3 +12,6 @@ src/pumapy.egg-info/
 
 # configuration file(s)
 pumapyconf.py
+
+# documentation (auto-generated and build results)
+docs/build/
