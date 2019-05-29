@@ -2,8 +2,9 @@
 
 """Access Stratocore's PPMS Utility Management API.
 
-Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
-         Basil Neff <basil.neff@unibas.ch>
+Authors:
+ - Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
+ - Basil Neff <basil.neff@unibas.ch>
 """
 
 # pylint: disable-msg=fixme
