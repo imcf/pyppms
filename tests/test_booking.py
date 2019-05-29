@@ -182,3 +182,18 @@ def test_runningsheet(runningsheet_response,
         assert booking.starttime > d_start
         assert booking.endtime < d_end
         assert booking.starttime < booking.endtime
+
+
+def test_runningsheet_fail(runningsheet_response):
+    """Test the runningsheet constructor with a malformed dict."""
+    parsed = parse_multiline_response(runningsheet_response)
+    for entry in parsed:
+        entry.pop('Start time')  # required by the constructor, will fail:
+        with pytest.raises(Exception):
+            # NOTE: system ID and username don't matter here
+            PpmsBooking.from_runningsheet(
+                entry=entry,
+                system_id=42,
+                username='someone',
+                date=datetime.now()
+            )
