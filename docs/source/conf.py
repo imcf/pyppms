@@ -181,3 +181,4 @@ epub_exclude_files = ['search.html']
 
 napoleon_include_init_with_doc = True
 napoleon_include_private_with_doc = False
+napoleon_use_ivar = True
