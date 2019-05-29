@@ -57,9 +57,10 @@ def test_ppmsconnection(ppms_connection):
 @pytest.mark.online
 def test_ppmsconnection_fail_online(ppms_connection):
     """Test how establishing connections to an online PUMAPI could fail."""
-    # no API key:
+    # incomplete (short) API key:
     with pytest.raises(ConnectionError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='dummy')
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
+                            api_key=pumapyconf.PPMS_API_KEY[:5])
 
     # wrong API key (trailing characters):
     with pytest.raises(ConnectionError):
