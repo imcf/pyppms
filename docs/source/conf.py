@@ -41,6 +41,7 @@ release = u'1.0.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -178,3 +179,5 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = True
