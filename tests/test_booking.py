@@ -77,6 +77,11 @@ def test_starttime_fromstr__date():
     newstart = '%s %s' % (newdate, newtime)
     assert booking.__str__() == EXPECTED % (newstart, END)
 
+    # test with date set to 'None' (resulting in current date to be used)
+    booking.starttime_fromstr(newtime, date=None)
+    newstart = '%s %s' % (datetime.now().strftime(FMT_DATE), newtime)
+    assert booking.__str__() == EXPECTED % (newstart, END)
+
 
 def test_endtime_fromstr__time():
     """Test changing the ending time of a booking."""
@@ -99,6 +104,11 @@ def test_endtime_fromstr__date():
     booking.endtime_fromstr(newtime, enddate)
 
     newend = '%s %s' % (newdate, newtime)
+    assert booking.__str__() == EXPECTED % (START, newend)
+
+    # test with date set to 'None' (resulting in current date to be used)
+    booking.endtime_fromstr(newtime, date=None)
+    newend = '%s %s' % (datetime.now().strftime(FMT_DATE), newtime)
     assert booking.__str__() == EXPECTED % (START, newend)
 
 

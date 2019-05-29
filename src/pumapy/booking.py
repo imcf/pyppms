@@ -140,7 +140,7 @@ class PpmsBooking(object):
 
         return booking
 
-    def starttime_fromstr(self, time_str, date=datetime.now()):
+    def starttime_fromstr(self, time_str, date=None):
         """Change the starting time and / or day of a booking.
 
         Parameters
@@ -148,8 +148,11 @@ class PpmsBooking(object):
         time_str : str
             The new starting time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
         date : datetime.date, optional
-            The new starting day, by default datetime.now()
+            The new starting day, by default ``None`` which will result in the
+            current date to be used.
         """
+        if date is None:
+            date = datetime.now()
         start = date.replace(
             hour=int(time_str.split(':')[0]),
             minute=int(time_str.split(':')[1]),
@@ -159,7 +162,7 @@ class PpmsBooking(object):
         self.starttime = start
         LOG.debug("Updated booking starttime: %s", self)
 
-    def endtime_fromstr(self, time_str, date=datetime.now()):
+    def endtime_fromstr(self, time_str, date=None):
         """Change the ending time and / or day of a booking.
 
         Parameters
@@ -167,8 +170,11 @@ class PpmsBooking(object):
         time_str : str
             The new ending time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
         date : datetime.date, optional
-            The new ending day, by default datetime.now()
+            The new ending day, by default ``None`` which will result in the
+            current date to be used.
         """
+        if date is None:
+            date = datetime.now()
         end = date.replace(
             hour=int(time_str.split(':')[0]),
             minute=int(time_str.split(':')[1]),
