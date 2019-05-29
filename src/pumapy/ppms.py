@@ -29,7 +29,33 @@ LOG = logging.getLogger(__name__)
 
 class PpmsConnection(object):
 
-    """Connection object to communicate with a PPMS instance."""
+    """Connection object to communicate with a PPMS instance.
+
+    Attributes
+    ----------
+    url : str
+        The URL of the PUMAPI instance.
+    api_key : str
+        The API key used for authenticating against the PUMAPI.
+    timeout : float
+        The timeout value used in the ``requests.post`` calls.
+    cache_path : str
+        A path to a local directory used for caching responses.
+    users : dict
+        A dict with usernames as keys, mapping to the related ``PpmsUser``
+        object, serves as a cache during the object's lifetime (can be empty if
+        no calls to :py:meth:`get_user()` have been done yet).
+    fullname_mapping : dict
+        A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
+        corresponding username. Entries are filled in dynamically by the
+        :py:meth:`get_user()` method.
+    systems
+        TODO: currently unused, should serve as a lifetime-cache similar to the
+        ``users`` dict above.
+    status : dict
+        A dict with keys ``auth_state``, ``auth_response`` and
+        ``auth_httpstatus``
+    """
 
     # TODO: all methods returning a list of user objects (get_group_users,
     # get_admins, ...) should be refactored to return a dict with those objects
