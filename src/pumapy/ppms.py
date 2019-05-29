@@ -763,12 +763,12 @@ class PpmsConnection(object):
             The username ('login') to allow for booking the system.
         system_id : int or int-like
             The ID of the system to add the permission for.
-        permission : str
+        permission : {'D', 'A', 'N', 'S'}
             The permission level to set for the user, one of:
-            - 'D' (deactivated)
-            - 'A' (autonomous)
-            - 'N' (novice)
-            - 'S' (superuser)
+              - ``D`` : deactivated
+              - ``A`` : autonomous
+              - ``N`` : novice
+              - ``S`` : superuser
 
         Returns
         -------
