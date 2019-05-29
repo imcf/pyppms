@@ -13,6 +13,7 @@
 
 from __future__ import print_function
 
+import os.path
 import logging
 from datetime import datetime
 import pytest
@@ -30,13 +31,34 @@ __license__ = "gpl3"
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
     caplog.set_level(logging.DEBUG)
+    cache_path = os.path.join(pumapyconf.CACHE_PATH, 'stage_0')
     conn = ppms.PpmsConnection(
         url=pumapyconf.PUMAPI_URL,
         api_key=pumapyconf.PPMS_API_KEY,
         timeout=pumapyconf.TIMEOUT,
-        cache=pumapyconf.CACHE_PATH,
+        cache=cache_path,
     )
     return conn
+
+
+### common helper functions ###
+
+def switch_cache_post_change(conn, level):
+    """Update the connection's cache path to reflect changes to responses.
+
+    This helper function switches the path used for caching the connection's
+    responses to a different (post-update) location, which is required when
+    running the same request (again) will result in a different response e.g.
+    after updating PUMAPI's state (for example when adjusting booking
+    permissions or similar).
+
+    Parameters
+    ----------
+    conn : PpmsConnection
+    level : int
+    """
+    new_path = os.path.join(pumapyconf.CACHE_PATH, 'stage_%s' % level)
+    conn.cache_path = new_path
 
 
 ############ connection ############
@@ -55,7 +77,7 @@ def test_ppmsconnection(ppms_connection):
 
 
 @pytest.mark.online
-def test_ppmsconnection_fail_online(ppms_connection):
+def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
     with pytest.raises(ConnectionError):
@@ -296,7 +318,6 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
 
 ############ system / user permissions ############
 
-@pytest.mark.online
 def test_get_users_with_access_to_system(ppms_connection,
                                          system_details_raw,
                                          user_details_raw,
@@ -313,7 +334,6 @@ def test_get_users_with_access_to_system(ppms_connection,
     assert username_adm in allowed_users
 
 
-@pytest.mark.online
 def test_system_booking_permissions(ppms_connection,
                                     system_details_raw,
                                     user_details_raw):
@@ -325,11 +345,19 @@ def test_system_booking_permissions(ppms_connection,
     with pytest.raises(KeyError):
         ppms_connection.set_system_booking_permissions('none', 42, 'X')
 
+def test_system_booking_permissions_online(ppms_connection,
+                                           system_details_raw,
+                                           user_details_raw):
+    """Test the set_system_booking_permissions() method."""
+    sys_id = system_details_raw['System id']
+    username = user_details_raw['login']
+
     # non-existing user:
     success = ppms_connection.give_user_access_to_system('invalidlogin', sys_id)
     assert not success
 
     # remove permissions of the user to book the system:
+    switch_cache_post_change(ppms_connection, 1)
     success = ppms_connection.remove_user_access_from_system(username, sys_id)
     assert success
 
@@ -339,6 +367,7 @@ def test_system_booking_permissions(ppms_connection,
     assert username not in allowed_users
 
     # restore permissions of the user to book the system:
+    switch_cache_post_change(ppms_connection, 2)
     success = ppms_connection.give_user_access_to_system(username, sys_id)
     assert success
 
