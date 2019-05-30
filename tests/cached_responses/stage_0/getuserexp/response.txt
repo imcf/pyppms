@@ -1,0 +1,5 @@
+login,id,booked_hours,used_hours,last_res,last_train
+"pumapy",26,0,0,n/a,n/a
+"pumapy",31,29,0,2019/06/02,n/a
+"pumapy-adm",31,0,0,n/a,n/a
+"pumapy-deact",31,0,0,n/a,n/a

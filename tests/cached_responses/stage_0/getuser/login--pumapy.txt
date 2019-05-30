@@ -1,0 +1,2 @@
+login,lname,fname,email,phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,active
+"pumapy","Python","PumAPI","pumapy@python-facility.example","+98 (76) 54 3210","","","pumapy_group",false,false,true

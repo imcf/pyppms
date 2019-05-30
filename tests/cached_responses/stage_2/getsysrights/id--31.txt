@@ -1,0 +1,5 @@
+S:admin
+A:pumapy
+A:pumapy-adm
+D:pumapy-deact
+S:pumapy-adm
