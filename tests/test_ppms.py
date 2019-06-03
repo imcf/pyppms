@@ -351,6 +351,7 @@ def test_system_booking_permissions(ppms_connection,
     with pytest.raises(KeyError):
         ppms_connection.set_system_booking_permissions('none', 42, 'X')
 
+
 def test_system_booking_permissions_online(ppms_connection,
                                            system_details_raw,
                                            user_details_raw):
