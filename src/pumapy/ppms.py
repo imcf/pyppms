@@ -880,10 +880,10 @@ class PpmsConnection(object):
         ----------
         system_id : int or int-like
             The ID of the system in PPMS.
-        booking_type : str, optional
-            The type of booking to request, one of 'get' (requesting the
-            currently running booking) and 'next' (requesting the next upcoming
-            booking), by default 'get'.
+        booking_type : {'get', 'next'}, optional
+            The type of booking to request, one of `get` (requesting the
+            currently running booking) and `next` (requesting the next upcoming
+            booking), by default `get`.
 
         Returns
         -------
@@ -1055,5 +1055,9 @@ class PpmsConnection(object):
 
         This method is not implemented any more, use get_systems()[sys_id] with
         the related system ID instead.
+
+        Raises
+        ------
+        NotImplementedError
         """
         raise NotImplementedError('Use get_systems()[system_id] instead!')
