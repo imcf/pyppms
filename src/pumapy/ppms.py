@@ -678,16 +678,19 @@ class PpmsConnection(object):
             A list with PPMS system IDs matching all of the given criteria.
         """
         loc = localisation
-        LOG.info('Querying PPMS for systems with location matching [%s] and '
-                 'name matching any of %s', localisation, name_contains)
+        loc_desc = "with location matching [%s]" % localisation
+        if localisation == "":
+            loc_desc = "(no location filter given)"
+
+        LOG.info('Querying PPMS for systems %s, name matching any of %s',
+                 loc_desc, name_contains)
         system_ids = []
         systems = self.get_systems()
         for sys_id in systems:
             system = systems[sys_id]
             if loc.lower() not in str(system.localisation).lower():
-                LOG.debug('PPMS system [%s] location (%s) is NOT matching '
-                          '(%s), ignoring', system.name,
-                          system.localisation, loc)
+                LOG.debug('System [%s] location (%s) is NOT matching (%s), ignoring',
+                          system.name, system.localisation, loc)
                 continue
 
             # LOG.debug('System [%s] is matching location [%s], checking if '
@@ -703,8 +706,8 @@ class PpmsConnection(object):
             #     LOG.debug('System [%s] does NOT match a valid name: %s',
             #               system.name, name_contains)
 
-        LOG.info('Found %s bookable %s systems', len(system_ids), loc)
-        LOG.debug('PPMS IDs of bookable %s systems: %s', loc, system_ids)
+        LOG.info('Found %s bookable systems %s', len(system_ids), loc_desc)
+        LOG.debug('IDs of matching bookable systems %s: %s', loc_desc, system_ids)
         return system_ids
 
     ############ system / user permissions ############
