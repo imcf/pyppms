@@ -2,6 +2,8 @@
 
 # pylint: disable-msg=len-as-condition
 
+from __future__ import print_function
+
 import pytest
 
 from datetime import datetime, timedelta
@@ -64,7 +66,7 @@ def test_process_response_values():
     common.process_response_values(values)
 
     for i, val in enumerate(values):
-        print "val (%s) == results[%s] (%s)" % (val, i, results[i])
+        print("val (%s) == results[%s] (%s)" % (val, i, results[i]))
         assert val == results[i]
 
     common.process_response_values([])
@@ -104,14 +106,14 @@ def test_parse_multiline_response():
     # testing input with too many header fields:
     invalid_header = 'zero,' + valid
     parsed = common.parse_multiline_response(invalid_header, graceful=True)
-    print parsed
+    print(parsed)
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_header, graceful=False)
 
     # testing input with too many data fields:
     invalid_data = valid + ',"evenmore"'
     parsed = common.parse_multiline_response(invalid_data, graceful=True)
-    print parsed
+    print(parsed)
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_data, graceful=False)
 

@@ -72,7 +72,7 @@ def test_ppmsconnection_online(ppms_connection):
 def test_ppmsconnection(ppms_connection):
     """Test instantiating a PpmsConnection object in online or offline mode."""
     auth_state = ppms_connection.status['auth_state']
-    print auth_state
+    print(auth_state)
     assert auth_state in ['good', 'NOT_TRIED']
 
 
@@ -106,11 +106,11 @@ def test_ppmsconnection_fail():
 def test_get_user_ids(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
     users = ppms_connection.get_user_ids(active=False)
-    print users
+    print(users)
     assert u'pumapy' in users
 
     users = ppms_connection.get_user_ids(active=True)
-    print users
+    print(users)
     assert u'pumapy' in users
 
 
@@ -118,14 +118,14 @@ def test_get_user_dict(ppms_connection,
                        user_details_raw,
                        user_admin_details_raw):
     """Test fetching details of a specific user."""
-    print "Expected dict data: %s" % user_details_raw
+    print("Expected dict data: %s" % user_details_raw)
     details = ppms_connection.get_user_dict('pumapy')
-    print "Retrieved dict data: %s" % details
+    print("Retrieved dict data: %s" % details)
     assert user_details_raw == details
 
-    print "Expected dict data: %s" % user_admin_details_raw
+    print("Expected dict data: %s" % user_admin_details_raw)
     details = ppms_connection.get_user_dict('pumapy-adm')
-    print "Retrieved dict data: %s" % details
+    print("Retrieved dict data: %s" % details)
     assert user_admin_details_raw == details
 
     with pytest.raises(KeyError):
@@ -135,15 +135,15 @@ def test_get_user_dict(ppms_connection,
 def test_get_groups(ppms_connection):
     """Test getting a list of group IDs ("unitlogin") from PPMS."""
     groups = ppms_connection.get_groups()
-    print groups
+    print(groups)
     assert u'pumapy_group' in groups
 
 
 def test_get_group(ppms_connection, group_details):
     """Test fetching details of a specific group."""
-    print "Expected dict data (subset): %s" % group_details
+    print("Expected dict data (subset): %s" % group_details)
     details = ppms_connection.get_group('pumapy_group')
-    print "Retrieved dict data: %s" % details
+    print("Retrieved dict data: %s" % details)
     for key in group_details.keys():
         assert group_details[key] == details[key]
 
@@ -154,13 +154,13 @@ def test_get_group(ppms_connection, group_details):
 def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     """Test the get_user() method."""
     user = ppms_connection.get_user('pumapy')
-    print user.details()
-    print ppms_user.details()
+    print(user.details())
+    print(ppms_user.details())
     assert user.details() == ppms_user.details()
 
     user = ppms_connection.get_user('pumapy-adm')
-    print user.details()
-    print ppms_user_admin.details()
+    print(user.details())
+    print(ppms_user_admin.details())
     assert user.details() == ppms_user_admin.details()
 
     with pytest.raises(KeyError):
@@ -182,14 +182,14 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     # check if the references match:
     for testuser in testusers:
         username = users[testuser.username].username
-        print username
+        print(username)
         assert testuser.username == username
         email = users[testuser.username].email
-        print email
+        print(email)
         assert testuser.email == email
         fullname = users[testuser.username].fullname
         assert testuser.fullname == fullname
-        print "%s: %s (%s)" % (username, email, fullname)
+        print("%s: %s (%s)" % (username, email, fullname))
 
         # check if the fullname_mapping has been updated correctly:
         assert fullname in ppms_connection.fullname_mapping
@@ -207,10 +207,10 @@ def test_get_admins(ppms_connection, ppms_user_admin):
         if admin.username == 'pumapy-adm':
             admin_user = admin
 
-    print usernames
+    print(usernames)
     assert 'pumapy-adm' in usernames
 
-    print admin_user.details()
+    print(admin_user.details())
     assert admin_user.details() == ppms_user_admin.details()
 
 
@@ -221,7 +221,7 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
     # list of user objects!
     members = ppms_connection.get_group_users('pumapy_group')
     for user in members:
-        print user.details()
+        print(user.details())
         if user.username == 'pumapy':
             assert user.details() == ppms_user.details()
         elif user.username == 'pumapy-adm':
@@ -268,9 +268,9 @@ def test_get_users_emails(ppms_connection,
         user_details_raw['login'],
         user_admin_details_raw['login'],
     ]
-    print "users: %s" % users
+    print("users: %s" % users)
     emails = ppms_connection.get_users_emails(users)
-    print "emails: %s" % emails
+    print("emails: %s" % emails)
     assert user_details_raw['email'] in emails
     assert user_admin_details_raw['email'] in emails
 
@@ -284,10 +284,10 @@ def test_get_systems(ppms_connection, system_details_raw):
     # check if we got some systems after all:
     assert len(systems) > 0
 
-    print system_details_raw
+    print(system_details_raw)
 
     found = systems[int(system_details_raw['System id'])]
-    print "Found system: %s" % found
+    print("Found system: %s" % found)
 
     assert found.system_id == int(system_details_raw['System id'])
     assert found.localisation == system_details_raw['Localisation']
@@ -329,7 +329,7 @@ def test_get_users_with_access_to_system(ppms_connection,
 
     # get the list of usernames allowed to access the system:
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
-    print allowed_users
+    print(allowed_users)
     assert username in allowed_users
     assert username_adm in allowed_users
 
@@ -363,7 +363,7 @@ def test_system_booking_permissions_online(ppms_connection,
 
     # check if the user is in the list of allowed ones (should NOT be):
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
-    print allowed_users
+    print(allowed_users)
     assert username not in allowed_users
 
     # restore permissions of the user to book the system:
@@ -373,7 +373,7 @@ def test_system_booking_permissions_online(ppms_connection,
 
     # check again if the user is in the list of allowed ones (should be now):
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
-    print allowed_users
+    print(allowed_users)
     assert username in allowed_users
 
 
@@ -497,7 +497,7 @@ def test__get_system_with_name(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_system_with_name() method."""
     name = system_details_raw['Name']
     sys_id = ppms_connection._get_system_with_name(name)
-    print "_get_system_with_name: %s" % sys_id
+    print("_get_system_with_name: %s" % sys_id)
     assert sys_id == int(system_details_raw['System id'])
 
 

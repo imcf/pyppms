@@ -1,5 +1,7 @@
 """Tests for the PpmsBooking class."""
 
+from __future__ import print_function
+
 from datetime import datetime, timedelta
 import pytest
 
@@ -131,15 +133,15 @@ def test_booking_from_request():
 
     # test parsing a 'getbooking' response
     booking = PpmsBooking.from_booking_request(response, 'get', SYS_ID)
-    print booking
-    print time_abs
+    print(booking)
+    print(time_abs)
     assert booking.endtime == time_abs
 
     # test parsing a 'nextbooking' response, note that the booking will not have
     # an endtime then as PUMAPI doesn't provide this information
     booking = PpmsBooking.from_booking_request(response, 'next', SYS_ID)
-    print booking
-    print time_abs
+    print(booking)
+    print(time_abs)
     assert booking.starttime == time_abs
     assert booking.endtime is None
 
@@ -165,9 +167,9 @@ def test_runningsheet(runningsheet_response,
     d_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     d_end = d_start + timedelta(days=1)
 
-    print fullname_mapping
-    print runningsheet_response
-    print systemname_mapping
+    print(fullname_mapping)
+    print(runningsheet_response)
+    print(systemname_mapping)
     parsed = parse_multiline_response(runningsheet_response)
     for entry in parsed:
         booking = PpmsBooking.from_runningsheet(
@@ -176,7 +178,7 @@ def test_runningsheet(runningsheet_response,
             username=fullname_mapping[entry['User']],
             date=datetime.now()
         )
-        print booking.__str__()
+        print(booking.__str__())
         assert booking.username == user_details_raw['login']
         assert booking.system_id == int(system_details_raw['System id'])
         assert booking.starttime > d_start
