@@ -293,6 +293,12 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert found.localisation == system_details_raw['Localisation']
     assert found.system_type == system_details_raw['Type']
 
+    # test refreshing the systems cache:
+    systems = ppms_connection.get_systems(force_refresh=True)
+
+    # check if we got some systems after all:
+    assert len(systems) > 0
+
 
 def test_get_systems_matching(ppms_connection, system_details_raw):
     """Test the get_systems_matching() method."""

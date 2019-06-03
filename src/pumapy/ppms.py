@@ -50,8 +50,9 @@ class PpmsConnection(object):
         corresponding username. Entries are filled in dynamically by the
         :py:meth:`get_user()` method.
     systems
-        TODO: currently unused, should serve as a lifetime-cache similar to the
-        ``users`` dict above.
+        A dict with system IDs as keys, mapping to the related ``PpmsSystem`` object.
+        Serves as a cache during the object's lifetime (can be empty if no calls to the
+        :py:meth:`get_systems()` have been done yet).
     status : dict
         A dict with keys ``auth_state``, ``auth_response`` and
         ``auth_httpstatus``
@@ -60,8 +61,6 @@ class PpmsConnection(object):
     # TODO: all methods returning a list of user objects (get_group_users,
     # get_admins, ...) should be refactored to return a dict with those objects
     # instead, having the username ('login') as the key.
-
-    # TODO: implement caching systems, ... during the object's lifetime
 
     def __init__(self, url, api_key, timeout=10, cache=''):
         """Constructor for the PPMS connection object.
@@ -100,7 +99,7 @@ class PpmsConnection(object):
         self.timeout = timeout
         self.users = {}
         self.fullname_mapping = {}
-        self.systems = None
+        self.systems = {}
         self.status = {
             'auth_state': 'NOT_TRIED',
             'auth_response': None,
@@ -629,7 +628,7 @@ class PpmsConnection(object):
 
     ############ resources ############
 
-    def get_systems(self):
+    def get_systems(self, force_refresh=False):
         """Get a dict with all systems in PPMS.
 
         Returns
@@ -639,7 +638,23 @@ class PpmsConnection(object):
             the system ID (int) is used as the dict's key. If parsing a system
             fails for any reason, the system is skipped entirely.
         """
+        if self.systems and not force_refresh:
+            LOG.debug("Using cached details for %s systems", len(self.systems))
+        else:
+            self.update_systems()
+
+        return self.systems
+
+    def update_systems(self):
+        """Update cached details for all bookable systems from PPMS.
+
+        Get the details on all bookable systems from PPMS and store them in the local
+        cache. If parsing the PUMAPI response for a system fails for any reason, the
+        system is skipped entirely.
+        """
+        LOG.debug("Updating list of bookable systems...")
         systems = dict()
+        parse_fails = 0
         response = self.request('getsystems')
         details = parse_multiline_response(response.text, graceful=False)
         for detail in details:
@@ -647,13 +662,17 @@ class PpmsConnection(object):
                 system = PpmsSystem.from_parsed_response(detail)
             except ValueError as err:  # pragma: no cover
                 LOG.error('Error processing `getsystems` response: %s', err)
+                parse_fails += 1
                 continue
 
             systems[system.system_id] = system
 
-        LOG.debug("Updated %s bookable systems from PPMS", len(systems))
+        LOG.debug("Updated %s bookable systems from PPMS (%s systems failed parsing)",
+                  len(systems),
+                  parse_fails,
+                 )
 
-        return systems
+        self.systems = systems
 
     def get_systems_matching(self, localisation, name_contains):
         """Query PPMS for systems with a specific location and name.
