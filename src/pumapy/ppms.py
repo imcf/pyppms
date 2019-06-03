@@ -651,7 +651,7 @@ class PpmsConnection(object):
 
             systems[system.system_id] = system
 
-        LOG.debug('Found %s systems in PPMS', len(systems))
+        LOG.debug("Updated %s bookable systems from PPMS", len(systems))
 
         return systems
 
@@ -684,25 +684,24 @@ class PpmsConnection(object):
         systems = self.get_systems()
         for sys_id in systems:
             system = systems[sys_id]
-            # LOG.debug(system)
             if loc.lower() not in str(system.localisation).lower():
                 LOG.debug('PPMS system [%s] location (%s) is NOT matching '
                           '(%s), ignoring', system.name,
                           system.localisation, loc)
                 continue
 
-            LOG.debug('System [%s] is matching location [%s], checking if the '
-                      'name is matching any of the valid pattern %s',
-                      system.name, loc, name_contains)
+            # LOG.debug('System [%s] is matching location [%s], checking if '
+            #           'the name is matching any of the valid pattern %s',
+            #           system.name, loc, name_contains)
             for valid_name in name_contains:
                 if valid_name in system.name:
                     LOG.debug('System [%s] matches all criteria', system.name)
                     system_ids.append(sys_id)
                     break
 
-            if sys_id not in system_ids:
-                LOG.debug('System [%s] does NOT match a valid name: %s',
-                          system.name, name_contains)
+            # if sys_id not in system_ids:
+            #     LOG.debug('System [%s] does NOT match a valid name: %s',
+            #               system.name, name_contains)
 
         LOG.info('Found %s bookable %s systems', len(system_ids), loc)
         LOG.debug('PPMS IDs of bookable %s systems: %s', loc, system_ids)
