@@ -929,8 +929,11 @@ class PpmsConnection(object):
 
         response = self.request(booking_type + 'booking', {'id': system_id})
 
+        desc = "any future bookings"
+        if booking_type == "get":
+            desc = "a currently active booking"
         if not response.text.strip():
-            LOG.debug("System [%s] doesn't have upcoming bookings", system_id)
+            LOG.debug("System [%s] doesn't have %s", system_id, desc)
             return None
 
         return PpmsBooking.from_booking_request(response.text,
