@@ -399,6 +399,10 @@ def test_get_booking(ppms_connection, system_details_raw):
     sys_id = 0
     assert ppms_connection.get_booking(sys_id) is None
 
+    # test with an invalid system ID (string):
+    sys_id = "invalid-id"
+    assert ppms_connection.get_booking(sys_id) is None
+
     sys_id = system_details_raw['System id']
     # try to get the current booking, usually this will be None, but it depends
     # on the system state in PPMS, so we don't assert any result here but rather
