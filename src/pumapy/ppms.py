@@ -897,6 +897,12 @@ class PpmsConnection(object):
     def get_booking(self, system_id, booking_type='get'):
         """Get the current or next booking of a system.
 
+        WARNING: if the next booking is requested but it is too far in the future,
+        PUMAPI silently ignores it - the response is identical to a system that has no
+        future bookings and there is no error reported either. Currently it is unclear
+        where the cutoff is (e.g. lookups for a booking that is two years from now still
+        work fine, but a booking in about 10 years is silenlty skipped).
+
         Parameters
         ----------
         system_id : int or int-like
