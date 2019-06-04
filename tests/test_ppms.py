@@ -148,7 +148,7 @@ def test_get_group(ppms_connection, group_details):
         assert group_details[key] == details[key]
 
     with pytest.raises(KeyError):
-        ppms_connection.get_group('_hopefully_unknown_unitlogin_name_')
+        ppms_connection.get_group('invalid-unitlogin')
 
 
 def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
@@ -395,8 +395,8 @@ def test_get_booking(ppms_connection, system_details_raw):
         Raised in case no booking in PPMS could be found so one can be created
         manaully (the API doesn't provide a way to do this).
     """
-    # test with a (hopefully) non-existing system ID:
-    sys_id = 7777777
+    # test with a non-existing system ID:
+    sys_id = 0
     assert ppms_connection.get_booking(sys_id) is None
 
     sys_id = system_details_raw['System id']
