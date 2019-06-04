@@ -17,6 +17,7 @@ import os.path
 from datetime import datetime
 
 import requests
+from requests.exceptions import ConnectionError
 
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
@@ -915,7 +916,8 @@ class PpmsConnection(object):
         Returns
         -------
         PpmsBooking or None
-            The booking object, or None if there is no booking for the system.
+            The booking object, or None if there is no booking for the system or the
+            request is refused by PUMAPI (e.g. "not authorized").
 
         Raises
         ------
@@ -927,7 +929,11 @@ class PpmsConnection(object):
             raise ValueError("Parameter 'booking_type' has to be one of %s but "
                              "was given as [%s]" % (valid, booking_type))
 
-        response = self.request(booking_type + 'booking', {'id': system_id})
+        try:
+            response = self.request(booking_type + 'booking', {'id': system_id})
+        except ConnectionError:
+            LOG.error("Requesting booking status for system %s failed!", system_id)
+            return None
 
         desc = "any future bookings"
         if booking_type == "get":
