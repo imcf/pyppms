@@ -129,7 +129,7 @@ def test_get_user_dict(ppms_connection,
     assert user_admin_details_raw == details
 
     with pytest.raises(KeyError):
-        ppms_connection.get_user_dict('_hopefully_unknown_username_')
+        ppms_connection.get_user_dict('invalidlogin')
 
 
 def test_get_groups(ppms_connection):
@@ -164,7 +164,7 @@ def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     assert user.details() == ppms_user_admin.details()
 
     with pytest.raises(KeyError):
-        ppms_connection.get_user('_hopefully_unknown_username_')
+        ppms_connection.get_user('invalidlogin')
 
 
 def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
