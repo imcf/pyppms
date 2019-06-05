@@ -318,7 +318,8 @@ class PpmsConnection(object):
 
         with open(intercept_file, 'w') as outfile:
             outfile.write(response.text)
-        LOG.debug('Wrote response text to [%s]', intercept_file)
+        LOG.debug('Wrote response text to [%s] (%s lines)',
+                  intercept_file, len(response.text.splitlines()))
 
 
     ############ users / groups ############
