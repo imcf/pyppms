@@ -213,7 +213,7 @@ class PpmsConnection(object):
                                      timeout=self.timeout)
 
         # store the response if it hasn't been read from the cache before:
-        if not read_from_cache:
+        if not read_from_cache:  # pragma: no cover
             self.__intercept_store(req_data, response)
 
         # NOTE: the HTTP status code returned is always `200` even if
@@ -302,7 +302,7 @@ class PpmsConnection(object):
         LOG.debug('Read intercepted response text from [%s]', intercept_file)
         return PseudoResponse(text)
 
-    def __intercept_store(self, req_data, response):
+    def __intercept_store(self, req_data, response):  # pragma: no cover
         """Store the response in a local cache file named after the request.
 
         Parameters
@@ -313,6 +313,9 @@ class PpmsConnection(object):
         response : requests.Response
             The response object to store in the local cache.
         """
+        # NOTE: this method is excluded from coverage measurements as it can only be
+        # triggered when testing in online mode with at least one request not being
+        # served from the cache (which is orthogonal to off-line testing)
         if self.cache_path == '':
             return
 
@@ -459,7 +462,7 @@ class PpmsConnection(object):
         """
         if self.users and not force_refresh:
             LOG.debug("Using cached details for %s users", len(self.users))
-        else:  # pragma: no cover
+        else:
             self.update_users()
 
         return self.users
