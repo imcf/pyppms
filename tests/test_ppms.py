@@ -430,7 +430,7 @@ def test_get_booking(ppms_connection, system_details_raw):
         ppms_connection.get_booking(sys_id, booking_type='invalid')
 
 
-def test_get_running_sheet(ppms_connection, ppms_user, system_details_raw):
+def test_get_running_sheet(ppms_connection, system_details_raw):
     """Test the `get_running_sheet` method.
 
     As it is currently impossible to create bookings through PUMAPI, we need to rely on
@@ -486,12 +486,6 @@ def test_get_running_sheet(ppms_connection, ppms_user, system_details_raw):
         return None
 
     day = datetime.strptime(date, r'%Y-%m-%d')
-    testusers = [ppms_user]
-    testusers_logins = [x.username for x in testusers]
-
-    # first add some users to the connection object to avoid the
-    # ultra-time-consuming requesting step:
-    ppms_connection.update_users(user_ids=testusers_logins)
 
     for booking in ppms_connection.get_running_sheet('2', date=day):
         assert booking.system_id == int(system_details_raw['System id'])
