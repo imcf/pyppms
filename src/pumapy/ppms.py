@@ -955,7 +955,7 @@ class PpmsConnection(object):
         """Wrapper for get_booking() with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, 'next')
 
-    def get_running_sheet(self, core_facility_ref, date=None):
+    def get_running_sheet(self, core_facility_ref, date):
         """Get the running sheet for a specific day on the given facility.
 
         The so-called "running-sheet" consists of all bookings / reservations of
@@ -970,9 +970,9 @@ class PpmsConnection(object):
         ----------
         core_facility_ref : int or int-like
             The core facility ID for PPMS.
-        date : datetime.datetime, optional
-            The date to request the running sheet for, by default ``None`` which
-            will result in the current date to be used.
+        date : datetime.datetime
+            The date to request the running sheet for, e.g. ``datetime.now()`` or
+            similar. Note that only the date part is relevant, time will be ignored.
 
         Returns
         -------
@@ -980,9 +980,6 @@ class PpmsConnection(object):
             A list with PpmsBooking objects for the given day. Empty in case
             there are no bookings or parsing the response failed.
         """
-        if date is None:
-            date = datetime.now()
-
         bookings = list()
         parameters = {
             'plateformid': '%s' % core_facility_ref,
