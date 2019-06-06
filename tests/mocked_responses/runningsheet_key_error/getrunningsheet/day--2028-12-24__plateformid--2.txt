@@ -1,0 +1,5 @@
+LocationStarttimeEndtimeObjectUserTrainingAssisted
+VDI(Development)09:0010:00PythonDevelopmentSystemPythonPumAPI
+VDI(Development)11:0012:00PythonDevelopmentSystemPythonPumAPI
+VDI(Development)13:0014:00PythonDevelopmentSystemPythonPumAPI
+VDI(Development)15:0016:00PythonDevelopmentSystemPythonPumAPI

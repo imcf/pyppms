@@ -520,6 +520,23 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     switch_cache_mocks(ppms_connection, 'runningsheet_single_unknown_fullname')
     assert len(ppms_connection.get_running_sheet('2', date=day)) == 2
 
+
+def test_get_running_sheet_fail(ppms_connection):
+    """Test cases where no runningsheet can be assembled from the responses."""
+    date = '2028-12-24'
+    day = datetime.strptime(date, r'%Y-%m-%d')
+
+    LOG.debug("\n>>> Testing with mock-response that is missing the key 'User'")
+    switch_cache_mocks(ppms_connection, 'runningsheet_key_error')
+    with pytest.raises(KeyError):
+        ppms_connection.get_running_sheet('2', date=day)
+
+    LOG.debug("\n>>> Testing with mock-response that fails parsing into a dict, "
+        "expected result is an empty list of bookings")
+    switch_cache_mocks(ppms_connection, 'runningsheet_invalid_multiline_response')
+    assert ppms_connection.get_running_sheet('2', date=day) == list()
+
+
 ############ deprecated methods ############
 
 def test__get_system_with_name(ppms_connection, system_details_raw):
