@@ -376,11 +376,17 @@ def test_get_users_with_access_to_system(ppms_connection,
     username = user_details_raw['login']
     username_adm = user_admin_details_raw['login']
 
-    # get the list of usernames allowed to access the system:
+    LOG.debug("\n>>> Testing 'getsysrights' for specific users on a fixed system")
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
     print(allowed_users)
     assert username in allowed_users
     assert username_adm in allowed_users
+
+    LOG.debug("\n>>> Testing 'getsysrights' response that is partially malformed")
+    switch_cache_mocks(ppms_connection,
+                       'get_users_with_access_to_system__invalid_response')
+    with pytest.raises(ValueError):
+        ppms_connection.get_users_with_access_to_system(sys_id)
 
 
 def test_system_booking_permissions(ppms_connection,

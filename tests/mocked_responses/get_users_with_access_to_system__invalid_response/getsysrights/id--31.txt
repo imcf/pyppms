@@ -1,0 +1,6 @@
+S:admin
+A:pumapy
+malformed-entry
+A:pumapy-adm
+D:pumapy-deact
+

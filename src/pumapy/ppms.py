@@ -773,7 +773,7 @@ class PpmsConnection(object):
                           username, system_id)
                 users.append(username)
 
-        except Exception as err:  # pragma: no cover
+        except Exception as err:
             msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
                    (response.text, err))
             LOG.error(msg)
