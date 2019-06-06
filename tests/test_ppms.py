@@ -604,3 +604,12 @@ def test__get_machine_catalogue_from_system(ppms_connection,
     name = '_invalid_pumapy_system_name_'
     cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
     assert cat == ''
+
+
+def test_not_implemented_errors(ppms_connection):
+    """Test methods raising a NotImplementedError."""
+    with pytest.raises(NotImplementedError):
+        ppms_connection.get_bookable_ids('', '')
+
+    with pytest.raises(NotImplementedError):
+        ppms_connection.get_system(99)
