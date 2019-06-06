@@ -620,8 +620,7 @@ class PpmsConnection(object):
             Email addresses of the users requested.
         """
         emails = list()
-        # TODO: use the cached user objects and remove the "no cover" pragma
-        if users is None:  # pragma: no cover
+        if users is None:
             users = self.get_user_ids(active=active)
         for user in users:
             email = self.get_user_dict(user)['email']

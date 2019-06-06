@@ -287,6 +287,11 @@ def test_get_users_emails(ppms_connection,
                           user_details_raw,
                           user_admin_details_raw):
     """Test the get_users_emails() method."""
+    LOG.debug("\n>>> Testing with users=None (WARNING: very time-consuming when no "
+              "cache is present!)")
+    ppms_connection.get_users_emails(users=None, active=True)
+
+    LOG.debug("\n>>> Testing with specific users")
     users = [
         user_details_raw['login'],
         user_admin_details_raw['login'],
