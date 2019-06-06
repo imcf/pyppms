@@ -27,6 +27,9 @@ __copyright__ = __author__
 __license__ = "gpl3"
 
 
+LOG = logging.getLogger()
+
+
 @pytest.fixture
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
@@ -504,6 +507,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     day = datetime.strptime(date, r'%Y-%m-%d')
 
+    LOG.debug("\n>>> Testing runningsheet details for %s", date)
     for booking in ppms_connection.get_running_sheet('2', date=day):
         assert booking.system_id == int(system_details_raw['System id'])
         endtime = find_endtime(sessions, booking.starttime)
@@ -512,6 +516,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
         assert booking.endtime == endtime
         print(booking.__str__())
 
+    LOG.debug("\n>>> Testing fullname that cannot be mapped to a user")
     switch_cache_mocks(ppms_connection, 'runningsheet_single_unknown_fullname')
     assert len(ppms_connection.get_running_sheet('2', date=day)) == 2
 
