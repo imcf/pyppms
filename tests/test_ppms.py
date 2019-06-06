@@ -61,6 +61,23 @@ def switch_cache_post_change(conn, level):
     conn.cache_path = new_path
 
 
+def switch_cache_mocks(conn, mocktype):
+    """Update the connection's cache path to use mocked responses.
+
+    Use mocked responses during tests to simulate various invalid replies from PUMAPI
+    that will cause downstream errors during parsing etc.
+
+    Parameters
+    ----------
+    conn : PpmsConnection
+    mocktype : str
+        Used to distinguish various types of mocks, e.g. ``key_error`` for responses
+        that will trigger a `KeyError` exception in *pumapy*.
+    """
+    new_path = os.path.join(pumapyconf.MOCKS_PATH, mocktype)
+    conn.cache_path = new_path
+
+
 ############ connection ############
 
 @pytest.mark.online
