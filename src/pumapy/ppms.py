@@ -624,7 +624,7 @@ class PpmsConnection(object):
             users = self.get_user_ids(active=active)
         for user in users:
             email = self.get_user_dict(user)['email']
-            if not email:  # pragma: no cover
+            if not email:
                 LOG.warn("--- WARNING: no email for user [%s]! ---", user)
                 continue
             # LOG.debug("%s: %s", user, email)

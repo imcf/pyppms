@@ -302,6 +302,12 @@ def test_get_users_emails(ppms_connection,
     assert user_details_raw['email'] in emails
     assert user_admin_details_raw['email'] in emails
 
+    LOG.debug("\n>>> Testing with mock-response where some users have no email")
+    switch_cache_mocks(ppms_connection, 'get_users_emails__no_email')
+    emails = ppms_connection.get_users_emails(users)
+    assert user_details_raw['email'] not in emails
+    assert user_admin_details_raw['email'] in emails
+
 
 ############ resources ############
 
