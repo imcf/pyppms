@@ -192,11 +192,14 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
 
-    # first add some users to the connection object to avoid the
-    # ultra-time-consuming requesting step:
+    LOG.debug(">>> Requesting users without pre-seeding the connection (WARNING: very "
+              "time-consuming when no cache is present!)")
+    ppms_connection.get_users()
+
+    LOG.debug(">>> Adding users to the connection to avoid the requesting step")
     ppms_connection.update_users(user_ids=testusers_logins)
 
-    # now ask the connection object for the (cached) user objects:
+    LOG.debug(">>> Asking the connection for the (pre-seeded / cached) users:")
     users = ppms_connection.get_users()
 
     # check if the references match:
