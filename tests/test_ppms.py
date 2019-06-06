@@ -334,6 +334,15 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert len(systems) > 0
 
 
+def test_update_systems(ppms_connection):
+    """Test the get_systems() method."""
+    switch_cache_mocks(ppms_connection, 'update_systems__broken_id')
+    systems = ppms_connection.get_systems()
+
+    # results should contain exaclty one system:
+    assert len(systems) == 1
+
+
 def test_get_systems_matching(ppms_connection, system_details_raw):
     """Test the get_systems_matching() method."""
     loc = system_details_raw['Localisation']

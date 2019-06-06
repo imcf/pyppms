@@ -666,7 +666,7 @@ class PpmsConnection(object):
         for detail in details:
             try:
                 system = PpmsSystem.from_parsed_response(detail)
-            except ValueError as err:  # pragma: no cover
+            except ValueError as err:
                 LOG.error('Error processing `getsystems` response: %s', err)
                 parse_fails += 1
                 continue
