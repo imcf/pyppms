@@ -997,7 +997,7 @@ class PpmsConnection(object):
         for entry in entries:
             full = entry['User']
             if full not in self.fullname_mapping:
-                LOG.debug("Booking for an uncached user (%s) found!", full)
+                LOG.info("Booking for an uncached user (%s) found!", full)
                 self.update_users()
 
             if full not in self.fullname_mapping:
