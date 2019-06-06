@@ -10,6 +10,8 @@ Authors:
 # pylint: disable-msg=fixme
 
 # pylint: disable-msg=dangerous-default-value
+# pylint: disable-msg=too-many-instance-attributes
+# pylint: disable-msg=too-many-public-methods
 
 import logging
 import os
