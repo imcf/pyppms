@@ -570,10 +570,15 @@ def test_get_running_sheet_fail(ppms_connection):
 
 def test__get_system_with_name(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_system_with_name() method."""
+    LOG.debug("\n>>> Testing with a well-known system name")
     name = system_details_raw['Name']
     sys_id = ppms_connection._get_system_with_name(name)
     print("_get_system_with_name: %s" % sys_id)
     assert sys_id == int(system_details_raw['System id'])
+
+    LOG.debug("\n>>> Testing with a non-existing system name")
+    sys_id = ppms_connection._get_system_with_name('invalid-system-name')
+    assert sys_id == -1
 
 
 def test__get_machine_catalogue_from_system(ppms_connection,
