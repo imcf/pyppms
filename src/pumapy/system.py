@@ -11,6 +11,9 @@ class PpmsSystem(object):
 
     """Object representing a bookable system in PPMS."""
 
+    # TODO: merge the alternative constructor(s) into __init__() (where applicable)
+    # TODO: document instance attributes
+
     def __init__(self, system_id, name, localisation, system_type,
                  core_facility_ref, schedules, active, stats, bookable,
                  autonomy_required, autonomy_required_after_hours):

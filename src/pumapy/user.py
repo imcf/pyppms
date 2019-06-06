@@ -13,6 +13,9 @@ class PpmsUser(object):
 
     """Object representing a user in PPMS."""
 
+    # TODO: merge the alternative constructor(s) into __init__() (where applicable)
+    # TODO: document instance attributes
+
     def __init__(self, username, email, fullname='',
                  ppms_group='', active=True):
         """Initialize the user object.

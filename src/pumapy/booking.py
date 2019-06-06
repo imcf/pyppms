@@ -28,6 +28,8 @@ class PpmsBooking(object):
         A string referring to a session ID in PPMS, can be empty.
     """
 
+    # TODO: merge the alternative constructor(s) into __init__() (where applicable)
+
     def __init__(self, username, system_id, starttime, endtime):
         """Initialize the booking object.
 
