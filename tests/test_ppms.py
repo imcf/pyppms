@@ -512,6 +512,8 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
         assert booking.endtime == endtime
         print(booking.__str__())
 
+    switch_cache_mocks(ppms_connection, 'runningsheet_single_unknown_fullname')
+    assert len(ppms_connection.get_running_sheet('2', date=day)) == 2
 
 ############ deprecated methods ############
 
