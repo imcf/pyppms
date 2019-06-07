@@ -197,6 +197,7 @@ class PpmsConnection(object):
             'apikey': self.api_key,
         }
         req_data.update(parameters)
+        # LOG.debug("Request parameters: %s", parameters)
 
         response = None
         read_from_cache = False
