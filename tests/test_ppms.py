@@ -416,6 +416,11 @@ def test_system_booking_permissions(ppms_connection):
     with pytest.raises(KeyError):
         ppms_connection.set_system_booking_permissions('none', 42, 'X')
 
+    logd("Testing with an unexpected mock-response")
+    switch_cache_mocks(ppms_connection, 'setright_unexpected_response')
+    success = ppms_connection.set_system_booking_permissions('someuser', 42, 'N')
+    assert not success
+
 
 def test_user_access_to_system(ppms_connection, system_details_raw, user_details_raw):
     """Test the (give|remove)_user_access_to_system() methods."""

@@ -865,11 +865,8 @@ class PpmsConnection(object):
         elif 'system right not authorized' in response.text.lower():
             LOG.error("Unable to set permissions for system %s: %s",
                       system_id, response.text)
-        elif 'error: ' in response.text.lower():  # pragma: no cover
-            LOG.error('Request resulted in an error: %s', response.text)
-        else:  # pragma: no cover
-            LOG.warn('Unexpected response, assuming the request failed: %s',
-                     response.text)
+        else:
+            LOG.error('Unexpected response, assuming request failed: %s', response.text)
 
         return False
 
