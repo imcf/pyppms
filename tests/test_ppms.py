@@ -115,13 +115,15 @@ def test_ppmsconnection_fail_online():
                             pumapyconf.PPMS_API_KEY + 'appendixx')
 
 
-def test_ppmsconnection_fail():
+def test_ppmsconnection_fail(caplog):
     """Test various ways how establishing a connection could fail."""
-    # wrong PUMAPI URL:
+    caplog.set_level(logging.DEBUG)
+
+    logd("Testing with a wrong PUMAPI URL")
     with pytest.raises(ConnectionError):
         ppms.PpmsConnection('https://url.example', 'dummykey')
 
-    # no API key and no cache path:
+    logd("Testing with no API key and no cache path")
     with pytest.raises(RuntimeError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='')
 
