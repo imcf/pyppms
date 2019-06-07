@@ -285,9 +285,9 @@ class PpmsConnection(object):
         # pylint: disable-msg=too-few-public-methods
         class PseudoResponse(object):
             """Dummy response object with attribs 'text' and 'status_code'."""
-            def __init__(self, text):
+            def __init__(self, text, status_code):
                 self.text = text
-                self.status_code = 200
+                self.status_code = int(status_code)
 
         if self.cache_path == '':
             raise LookupError("No cache path configured")
@@ -299,7 +299,14 @@ class PpmsConnection(object):
         with open(intercept_file, 'r') as infile:
             text = infile.read()
         LOG.debug('Read intercepted response text from [%s]', intercept_file)
-        return PseudoResponse(text)
+
+        status_code = 200
+        status_file = os.path.splitext(intercept_file)[0] + '_status-code.txt'
+        if os.path.exists(status_file):
+            with open(status_file, 'r') as infile:
+                status_code = infile.read()
+            LOG.debug('Read intercepted response status code from [%s]', status_file)
+        return PseudoResponse(text, status_code)
 
     def __intercept_store(self, req_data, response):  # pragma: no cover
         """Store the response in a local cache file named after the request.
