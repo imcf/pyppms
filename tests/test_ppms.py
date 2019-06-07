@@ -215,7 +215,7 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     testusers_logins = [x.username for x in testusers]
 
     logd("Requesting users without pre-seeding the connection (WARNING: very "
-              "time-consuming when no cache is present!)")
+         "time-consuming when no cache is present!)")
     ppms_connection.get_users()
 
     logd("Adding users to the connection to avoid the requesting step")
@@ -584,7 +584,7 @@ def test_get_running_sheet_fail(ppms_connection):
         ppms_connection.get_running_sheet('2', date=day)
 
     logd("Testing with mock-response that fails parsing into a dict, "
-        "expected result is an empty list of bookings")
+         "expected result is an empty list of bookings")
     switch_cache_mocks(ppms_connection, 'runningsheet_invalid_multiline_response')
     assert ppms_connection.get_running_sheet('2', date=day) == list()
 

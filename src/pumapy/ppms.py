@@ -16,7 +16,6 @@ Authors:
 import logging
 import os
 import os.path
-from datetime import datetime
 
 import requests
 from requests.exceptions import ConnectionError
