@@ -309,8 +309,7 @@ def test_get_users_emails(ppms_connection,
                           user_details_raw,
                           user_admin_details_raw):
     """Test the get_users_emails() method."""
-    logd("Testing with users=None (WARNING: very time-consuming when no "
-              "cache is present!)")
+    logd("Testing users=None (WARNING: very time-consuming when no cache is present!)")
     ppms_connection.get_users_emails(users=None, active=True)
 
     logd("Testing with specific users")
