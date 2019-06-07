@@ -27,7 +27,7 @@ __copyright__ = __author__
 __license__ = "gpl3"
 
 
-LOG = logging.getLogger()
+_logger = logging.getLogger()
 
 
 @pytest.fixture
@@ -79,6 +79,11 @@ def switch_cache_mocks(conn, mocktype):
     """
     new_path = os.path.join(pumapyconf.MOCKS_PATH, mocktype)
     conn.cache_path = new_path
+
+
+def logd(msg, *args):
+    """Simple logging wrapper for log messages from test functions."""
+    _logger.debug('\n>>> ' + msg, *args)
 
 
 ############ connection ############
@@ -192,14 +197,14 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
 
-    LOG.debug(">>> Requesting users without pre-seeding the connection (WARNING: very "
+    logd("Requesting users without pre-seeding the connection (WARNING: very "
               "time-consuming when no cache is present!)")
     ppms_connection.get_users()
 
-    LOG.debug(">>> Adding users to the connection to avoid the requesting step")
+    logd("Adding users to the connection to avoid the requesting step")
     ppms_connection.update_users(user_ids=testusers_logins)
 
-    LOG.debug(">>> Asking the connection for the (pre-seeded / cached) users:")
+    logd("Asking the connection for the (pre-seeded / cached) users:")
     users = ppms_connection.get_users()
 
     # check if the references match:
@@ -287,11 +292,11 @@ def test_get_users_emails(ppms_connection,
                           user_details_raw,
                           user_admin_details_raw):
     """Test the get_users_emails() method."""
-    LOG.debug("\n>>> Testing with users=None (WARNING: very time-consuming when no "
+    logd("Testing with users=None (WARNING: very time-consuming when no "
               "cache is present!)")
     ppms_connection.get_users_emails(users=None, active=True)
 
-    LOG.debug("\n>>> Testing with specific users")
+    logd("Testing with specific users")
     users = [
         user_details_raw['login'],
         user_admin_details_raw['login'],
@@ -302,7 +307,7 @@ def test_get_users_emails(ppms_connection,
     assert user_details_raw['email'] in emails
     assert user_admin_details_raw['email'] in emails
 
-    LOG.debug("\n>>> Testing with mock-response where some users have no email")
+    logd("Testing with mock-response where some users have no email")
     switch_cache_mocks(ppms_connection, 'get_users_emails__no_email')
     emails = ppms_connection.get_users_emails(users)
     assert user_details_raw['email'] not in emails
@@ -376,13 +381,13 @@ def test_get_users_with_access_to_system(ppms_connection,
     username = user_details_raw['login']
     username_adm = user_admin_details_raw['login']
 
-    LOG.debug("\n>>> Testing 'getsysrights' for specific users on a fixed system")
+    logd("Testing 'getsysrights' for specific users on a fixed system")
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
     print(allowed_users)
     assert username in allowed_users
     assert username_adm in allowed_users
 
-    LOG.debug("\n>>> Testing 'getsysrights' response that is partially malformed")
+    logd("Testing 'getsysrights' response that is partially malformed")
     switch_cache_mocks(ppms_connection,
                        'get_users_with_access_to_system__invalid_response')
     with pytest.raises(ValueError):
@@ -536,7 +541,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     day = datetime.strptime(date, r'%Y-%m-%d')
 
-    LOG.debug("\n>>> Testing runningsheet details for %s", date)
+    logd("Testing runningsheet details for %s", date)
     for booking in ppms_connection.get_running_sheet('2', date=day):
         assert booking.system_id == int(system_details_raw['System id'])
         endtime = find_endtime(sessions, booking.starttime)
@@ -545,7 +550,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
         assert booking.endtime == endtime
         print(booking.__str__())
 
-    LOG.debug("\n>>> Testing fullname that cannot be mapped to a user")
+    logd("Testing fullname that cannot be mapped to a user")
     switch_cache_mocks(ppms_connection, 'runningsheet_single_unknown_fullname')
     assert len(ppms_connection.get_running_sheet('2', date=day)) == 2
 
@@ -555,12 +560,12 @@ def test_get_running_sheet_fail(ppms_connection):
     date = '2028-12-24'
     day = datetime.strptime(date, r'%Y-%m-%d')
 
-    LOG.debug("\n>>> Testing with mock-response that is missing the key 'User'")
+    logd("Testing with mock-response that is missing the key 'User'")
     switch_cache_mocks(ppms_connection, 'runningsheet_key_error')
     with pytest.raises(KeyError):
         ppms_connection.get_running_sheet('2', date=day)
 
-    LOG.debug("\n>>> Testing with mock-response that fails parsing into a dict, "
+    logd("Testing with mock-response that fails parsing into a dict, "
         "expected result is an empty list of bookings")
     switch_cache_mocks(ppms_connection, 'runningsheet_invalid_multiline_response')
     assert ppms_connection.get_running_sheet('2', date=day) == list()
@@ -570,13 +575,13 @@ def test_get_running_sheet_fail(ppms_connection):
 
 def test__get_system_with_name(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_system_with_name() method."""
-    LOG.debug("\n>>> Testing with a well-known system name")
+    logd("Testing with a well-known system name")
     name = system_details_raw['Name']
     sys_id = ppms_connection._get_system_with_name(name)
     print("_get_system_with_name: %s" % sys_id)
     assert sys_id == int(system_details_raw['System id'])
 
-    LOG.debug("\n>>> Testing with a non-existing system name")
+    logd("Testing with a non-existing system name")
     sys_id = ppms_connection._get_system_with_name('invalid-system-name')
     assert sys_id == -1
 
