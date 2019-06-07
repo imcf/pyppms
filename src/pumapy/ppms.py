@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Access Stratocore's PPMS Utility Management API.
-
-Authors:
- - Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
- - Basil Neff <basil.neff@unibas.ch>
-"""
+"""Core connection module for the PUMAPI communication."""
 
 # pylint: disable-msg=fixme
 

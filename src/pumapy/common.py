@@ -2,10 +2,7 @@
 
 # pylint: disable-msg=fixme
 
-"""Common functions related to Stratocore's PPMS Utility Management API.
-
-Authors: Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>
-"""
+"""Common functions related to Stratocore's PPMS Utility Management API."""
 
 from datetime import datetime, timedelta
 import logging
