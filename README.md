@@ -28,6 +28,9 @@ package, we came across several issues (this list is most likely incomplete):
   the values since there are colons in the values too.
 * Semantics of keys is not consistent. Sometimes `user` is the user id,
   sometimes it refers to the user's full name.
+* Using an invalid permission level (e.g. `Z`) with the `setright` action is
+  silently ignored by PUMAPI, the response is still `done` even though this
+  doesn't make any sense.
 * There is no (obvious) robust way to derive the user id from the user's full
   name that is returned e.g. by `getrunningsheet`, making it very hard to
   cross-reference it with data from `getuser`.

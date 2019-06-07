@@ -851,6 +851,9 @@ class PpmsConnection(object):
         }
         response = self.request('setright', parameters)
 
+        # NOTE: the 'setright' action will accept ANY permission type and return 'done'
+        # on the request, so there is no way to check from the response if setting the
+        # permission really worked!!
         # LOG.debug('Request returned text: %s', response.text)
         if response.text.lower().strip() == 'done':
             LOG.debug('User [%s] now has permission level [%s] on system [%s]',
