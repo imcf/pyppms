@@ -15,7 +15,7 @@ Automated testing is described in the [TESTING](TESTING.md) document.
 
 ## Note
 
-The PPMS API is not quite clean or consistent. During development of the
+The PPMS API is not fully clean or consistent. During development of the
 package, we came across several issues (this list is most likely incomplete):
 
 * HTTP status return code is always `200`, even on failed authentication.
@@ -26,11 +26,11 @@ package, we came across several issues (this list is most likely incomplete):
   they don't.
 * Some fields are quoted in the CSV output, some are not. Difficult to separate
   the values since there are colons in the values too.
-* Returned keys are not always the same. Sometimes `user` is the user id,
+* Semantics of keys is not consistent. Sometimes `user` is the user id,
   sometimes it refers to the user's full name.
-* There seems to be no easy / robust way to derive the user id from the user's
-  full name that is returned e.g. by `getrunningsheet`, making it very hard to
-  cross-link it with data from `getuser`.
+* There is no (obvious) robust way to derive the user id from the user's full
+  name that is returned e.g. by `getrunningsheet`, making it very hard to
+  cross-reference it with data from `getuser`.
 * The result of the `getrunningsheet` query in general is not suited very well
   for automated processing, it seems to be rather tailored for humans.
 * Unfortunately `Username` and `Systemname` are not the unique id, they are
@@ -38,7 +38,9 @@ package, we came across several issues (this list is most likely incomplete):
   systems is necessary.
 * Some results have a very strange format - for example, the starting time of
   the next booking is given as *minutes from now* instead of an absolute time.
-* Official documentation is very rudimentary.
+* Official documentation is rather rudimentary, i.e. it contains almost no
+  information on what is returned in case wrong / invalid parameters are
+  supplied and similar situations.
 
 ## References
 
