@@ -11,10 +11,24 @@ LOG = logging.getLogger(__name__)
 
 class PpmsUser(object):
 
-    """Object representing a user in PPMS."""
+    """Object representing a user in PPMS.
+
+    Attributes
+    ----------
+    username : str
+        The user's account / login name in PPMS.
+    email : str
+        The user's email address.
+    fullname : str
+        The full name ("``<LASTNAME> <GIVENNAME>``") of the user in PPMS, falling back
+        to the ``username`` attribute if empty.
+    ppms_group : str
+        The user's PPMS group, may be empty ("").
+    active : bool
+        The ``active`` state of the user account in PPMS, by default True.
+    """
 
     # TODO: merge the alternative constructor(s) into __init__() (where applicable)
-    # TODO: document instance attributes
 
     def __init__(self, username, email, fullname='',
                  ppms_group='', active=True):
