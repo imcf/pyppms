@@ -70,7 +70,6 @@ class PpmsSystem(object):
         self.bookable = bookable
         self.autonomy_required = autonomy_required
         self.autonomy_required_after_hours = autonomy_required_after_hours
-        self.machine_catalogue = None
         LOG.debug('PpmsSystem initialized: id=%s, name=[%s], localisation=[%s], '
                   'system_type=[%s]', system_id, name, localisation,
                   system_type)
