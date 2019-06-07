@@ -2,6 +2,8 @@
 
 """Module representing bookable systems in PPMS."""
 
+# pylint: disable-msg=too-many-instance-attributes
+
 import logging
 
 LOG = logging.getLogger(__name__)
