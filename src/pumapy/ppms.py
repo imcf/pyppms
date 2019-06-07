@@ -145,7 +145,7 @@ class PpmsConnection(object):
 
         status_ok = requests.codes.ok  # pylint: disable-msg=no-member
 
-        if response.status_code != status_ok:  # pragma: no cover
+        if response.status_code != status_ok:
             # NOTE: branch excluded from coverage as we don't have a known way
             # to produce such a response from the API
             LOG.warn("Unexpected combination of response [%s] and status code "

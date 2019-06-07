@@ -134,6 +134,14 @@ def test_ppmsconnection_fail(caplog):
             api_key='dummykey',
             cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_response_contains_error'))
 
+    logd("Testing with a mocked auth response having a non-standard response code")
+    with pytest.raises(ConnectionError):
+        ppms.PpmsConnection(
+            pumapyconf.PUMAPI_URL,
+            api_key='dummykey',
+            cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_wrong_status_code'))
+    # assert 0
+
 
 ############ users / groups ############
 
