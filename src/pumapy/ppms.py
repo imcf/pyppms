@@ -134,11 +134,10 @@ class PpmsConnection(object):
         self.status['auth_response'] = response.text
         self.status['auth_httpstatus'] = response.status_code
 
-        # NOTE: an unauthorized request has already been caught be the request()
-        # method above. Our legacy code was additionally testing for 'error' in
-        # the response text - however, there doesn't seem to be a way to trigger
-        # such a response, so we exclude it from testing (and coverage).
-        if 'error' in response.text.lower():  # pragma: no cover
+        # NOTE: an unauthorized request has already been caught be the request() method
+        # above. Our legacy code was additionally testing for 'error' in the response
+        # text - however, it is unclear if PUMAPI ever returns this:
+        if 'error' in response.text.lower():
             self.status['auth_state'] = 'FAILED-ERROR'
             msg = 'Authentication failed with an error: %s' % response.text
             LOG.error(msg)

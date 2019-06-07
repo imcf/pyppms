@@ -127,6 +127,13 @@ def test_ppmsconnection_fail(caplog):
     with pytest.raises(RuntimeError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='')
 
+    logd("Testing with a mocked auth response containing 'error'")
+    with pytest.raises(ConnectionError):
+        ppms.PpmsConnection(
+            pumapyconf.PUMAPI_URL,
+            api_key='dummykey',
+            cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_response_contains_error'))
+
 
 ############ users / groups ############
 

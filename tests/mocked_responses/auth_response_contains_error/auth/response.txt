@@ -1,0 +1,1 @@
+authentication response mock with the word 'ERROR' in it
