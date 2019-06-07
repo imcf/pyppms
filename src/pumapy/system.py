@@ -11,10 +11,42 @@ LOG = logging.getLogger(__name__)
 
 class PpmsSystem(object):
 
-    """Object representing a bookable system in PPMS."""
+    """Object representing a bookable system in PPMS.
+
+    Attributes
+    ----------
+    system_id : int
+        The ID of the system in PPMS (the system's unique identifier).
+    name : str
+        The system's (human friendly) name.
+    localisation : str
+        The location of the system, corresponds to ``Room`` in the PPMS web interface.
+    system_type : str
+        The ``System Type`` field in PPMS, e.g. "`Confocal Microscopes`" or "`Virtual
+        Machine class PowerWorkstations`".
+    core_facility_ref : str
+        The core facility reference of the system, for example ``2``.
+    schedules : bool
+        Indicates whether to list this system in the (read-only) resources and schedules
+        pages of PPMS.
+    active : bool
+        Indicates whether the system is active in PPMS.
+    stats : bool
+        Indicates whether to integrate this system in the PPMS global usage statistics.
+    bookable : bool
+        Indicates whether the system is actually bookable in PPMS. A system that's not
+        bookable can still be used in incident management.
+    autonomy_required : bool
+        Indicates whether explicit permissions are required for a user for being allowed
+        to book the system. Corresponds to the field ``User right/training required`` in
+        the PPMS web interface.
+    autonomy_required_after_hours : bool
+        Corresponds to the field ``User right/training required only after hours`` in
+        the PPMS web interface. Unfortunately there is no description given what that
+        actually means - probably it refers to the "after hours" / "non-peak hours".
+    """
 
     # TODO: merge the alternative constructor(s) into __init__() (where applicable)
-    # TODO: document instance attributes
 
     def __init__(self, system_id, name, localisation, system_type,
                  core_facility_ref, schedules, active, stats, bookable,
@@ -28,33 +60,32 @@ class PpmsSystem(object):
         name : str
             The system's (human friendly) name.
         localisation : str
-            The location of the system, corresponds to the "Room" field in the
-            PPMS web interface.
+            The location of the system, corresponds to ``Room`` in the web interface.
         system_type : str
-            The "System Type" field in PPMS, e.g. "Confocal Microscopes" or
-            "Virtual Machine class PowerWorkstations"
+            The ``System Type`` field in PPMS, e.g. "`Confocal Microscopes`" or
+            "`Virtual Machine class PowerWorkstations`".
         core_facility_ref : str
-            The core facility reference of the system.
+            The core facility reference of the system, for example ``2``.
         schedules : bool
-            Flag indicating whether to list this system in the read-only
-            resources and schedules pages of PPMS.
+            Flag indicating whether to list this system in the (read-only) resources and
+            schedules pages of PPMS.
         active : bool
             Flag indicating whether the system is active in PPMS.
         stats : bool
-            Flag indicating whether to integrate this system in the global usage
-            statistics of PPMS or not.
+            Flag indicating whether to integrate this system in the PPMS global usage
+            statistics.
         bookable : bool
-            Flag indicating whether the system is actually bookable in PPMS. A
-            system that's not bookable can still be used in incident management.
+            Flag indicating whether the system is actually bookable in PPMS. A system
+            that's not bookable can still be used in incident management.
         autonomy_required : bool
-            Flag indiciating whether explicit permissions are required for a
-            user for being allowed to book the system. Corresponds to the field
-            "User right/training required" in the PPMS web interface.
+            Flag indiciating whether explicit permissions are required for a user for
+            being allowed to book the system. Corresponds to the field ``User
+            right/training required`` in the PPMS web interface.
         autonomy_required_after_hours : bool
-            Corresponds to the field "User right/training required only after
-            hours" in the PPMS web interface. Unfortunately there is no
-            description given what that actually means - probably it refers to
-            the "after hours" / "non-peak hours".
+            Corresponds to the field ``User right/training required only after hours``
+            in the PPMS web interface. Unfortunately there is no description given what
+            that actually means - probably it refers to the "after hours" / "non-peak
+            hours".
         """
         try:
             self.system_id = int(system_id)
