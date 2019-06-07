@@ -14,3 +14,5 @@ __credits__ = [
     __author__,
     "Basil Neff",
 ]
+
+from .ppms import PpmsConnection
