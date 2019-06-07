@@ -106,6 +106,7 @@ class PpmsUser(object):
         return self._fullname
 
     def details(self):
+        """Generate a string with details on the user object."""
         return ('username: %s, email: %s, fullname: %s, ppms_group: %s, '
                 'active: %s' % (self.username, self.email, self.fullname,
                                 self.ppms_group, self.active))
