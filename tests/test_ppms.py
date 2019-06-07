@@ -410,7 +410,7 @@ def test_get_users_with_access_to_system(ppms_connection,
         ppms_connection.get_users_with_access_to_system(sys_id)
 
 
-def test_system_booking_permissions_fail(ppms_connection):
+def test_system_booking_permissions(ppms_connection):
     """Test the set_system_booking_permissions() method."""
     logd("Testing with an invalid permission level")
     with pytest.raises(KeyError):
@@ -424,6 +424,10 @@ def test_user_access_to_system(ppms_connection, system_details_raw, user_details
 
     logd("Testing with a non-existing user")
     success = ppms_connection.give_user_access_to_system('invalidlogin', sys_id)
+    assert not success
+
+    logd("Testing with an invalid system ID")
+    success = ppms_connection.give_user_access_to_system(username, 0)
     assert not success
 
     logd("Testing removing permissions of a user to book the system")

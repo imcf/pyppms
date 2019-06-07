@@ -862,6 +862,9 @@ class PpmsConnection(object):
 
         if 'invalid user' in response.text.lower():
             LOG.warn("User [%s] doesn't seem to exist in PPMS", login)
+        elif 'system right not authorized' in response.text.lower():
+            LOG.error("Unable to set permissions for system %s: %s",
+                      system_id, response.text)
         elif 'error: ' in response.text.lower():  # pragma: no cover
             LOG.error('Request resulted in an error: %s', response.text)
         else:  # pragma: no cover
