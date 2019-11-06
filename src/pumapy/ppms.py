@@ -246,10 +246,15 @@ class PpmsConnection(object):
             LOG.debug('Created dir to store response: %s', intercept_dir)
 
         signature = ""
-        for key, value in req_data.iteritems():
-            if key == 'action' or key == 'apikey':
+        # different python versions are returning dict items in different order, so
+        # simply iterating over them will not always produce the same result - hence we
+        # build up a sorted list of keys first and use that one then:
+        keylist = list(req_data.keys())
+        keylist.sort()
+        for key in keylist:
+            if key in ['action', 'apikey']:
                 continue
-            signature += "__%s--%s" % (key, value)
+            signature += "__%s--%s" % (key, req_data[key])
         if signature == '':
             signature = "__response"
         signature = signature[2:] + ".txt"
