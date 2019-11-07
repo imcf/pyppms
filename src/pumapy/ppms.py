@@ -142,9 +142,9 @@ class PpmsConnection(object):
         if response.status_code != status_ok:
             # NOTE: branch excluded from coverage as we don't have a known way
             # to produce such a response from the API
-            LOG.warn("Unexpected combination of response [%s] and status code "
-                     "[%s], it's unclear if authentication succeeded (assuming "
-                     "it didn't)", response.status_code, response.text)
+            LOG.warning("Unexpected combination of response [%s] and status code [%s], "
+                        "it's unclear if authentication succeeded (assuming it didn't)",
+                        response.status_code, response.text)
             self.status['auth_state'] = 'FAILED-UNKNOWN'
 
             msg = 'Authenticating against %s with key [%s...%s] FAILED!' % (
@@ -635,7 +635,7 @@ class PpmsConnection(object):
         for user in users:
             email = self.get_user_dict(user)['email']
             if not email:
-                LOG.warn("--- WARNING: no email for user [%s]! ---", user)
+                LOG.warning("--- WARNING: no email for user [%s]! ---", user)
                 continue
             # LOG.debug("%s: %s", user, email)
             emails.append(email)
@@ -864,7 +864,7 @@ class PpmsConnection(object):
             return True
 
         if 'invalid user' in response.text.lower():
-            LOG.warn("User [%s] doesn't seem to exist in PPMS", login)
+            LOG.warning("User [%s] doesn't seem to exist in PPMS", login)
         elif 'system right not authorized' in response.text.lower():
             LOG.error("Unable to set permissions for system %s: %s",
                       system_id, response.text)
@@ -1090,7 +1090,7 @@ class PpmsConnection(object):
                           sys_ids, category)
                 return category
 
-        LOG.warn('No category found for system [%s]', system_name)
+        LOG.warning('No category found for system [%s]', system_name)
         return ''
 
     def get_bookable_ids(self, localisation, name_contains):

@@ -70,24 +70,23 @@ def dict_from_single_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) != 2:
-            LOG.warn('Response expected to have exactly two lines: %s', text)
+            LOG.warning("Response expected to have exactly two lines: %s", text)
             if not graceful:
                 raise ValueError("Invalid response format!")
         header = lines[0].split(',')
         data = lines[1].split(',')
         process_response_values(data)
         if len(header) != len(data):
-            msg = 'Splitting CSV data failed'
-            LOG.warn('%s, header has %s fields whereas the data %s fields!',
-                     msg, len(header), len(data))
+            msg = "Parsing CSV failed, mismatch of header vs. data fields count"
+            LOG.warning("%s (%s vs. %s)", msg, len(header), len(data))
             if not graceful:
                 raise ValueError(msg)
             minimum = min(len(header), len(data))
             if minimum < len(header):
-                LOG.warn('Discarding header-fields: %s', header[minimum:])
+                LOG.warning("Discarding header-fields: %s", header[minimum:])
                 header = header[:minimum]
             else:
-                LOG.warn('Discarding data-fields: %s', data[minimum:])
+                LOG.warning("Discarding data-fields: %s", data[minimum:])
                 data = data[:minimum]
 
     except Exception as err:
@@ -133,7 +132,7 @@ def parse_multiline_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) < 2:
-            LOG.warn('Response expected to have two or more lines: %s', text)
+            LOG.warning("Response expected to have two or more lines: %s", text)
             if not graceful:
                 raise ValueError("Invalid response format!")
             return parsed
@@ -149,18 +148,17 @@ def parse_multiline_response(text, graceful=True):
             lines_max = max(lines_max, len(data))
             lines_min = min(lines_min, len(data))
             if len(header) != len(data):
-                msg = 'Splitting CSV data failed'
-                LOG.warn('%s, header has %s fields whereas data has %s fields!',
-                         msg, len(header), len(data))
+                msg = "Parsing CSV failed, mismatch of header vs. data fields count"
+                LOG.warning("%s (%s vs. %s)", msg, len(header), len(data))
                 if not graceful:
                     raise ValueError(msg)
 
                 minimum = min(len(header), len(data))
                 if minimum < len(header):
-                    LOG.warn('Discarding header-fields: %s', header[minimum:])
+                    LOG.warning("Discarding header-fields: %s", header[minimum:])
                     header = header[:minimum]
                 else:
-                    LOG.warn('Discarding data-fields: %s', data[minimum:])
+                    LOG.warning("Discarding data-fields: %s", data[minimum:])
                     data = data[:minimum]
 
             details = dict(zip(header, data))
@@ -170,7 +168,7 @@ def parse_multiline_response(text, graceful=True):
         if lines_min != lines_max:
             msg = ('Inconsistent data detected, not all dicts will have the '
                    'same number of elements!')
-            LOG.warn(msg)
+            LOG.warning(msg)
 
     except Exception as err:
         msg = ('Unable to parse data returned by PUMAPI: %s - ERROR: %s' %
