@@ -51,20 +51,24 @@ pip install --editable .
 Once everything is set up, you should be good to simply type `pytest` on the
 command line and give it a go. The output should look something like this:
 
-```pytest
-========================== test session starts ==========================
-platform linux2 -- Python 2.7.15+, pytest-4.5.0, py-1.8.0, pluggy-0.11.0
-rootdir: /tmp/imcf/pumapy-testing
-plugins: cov-2.7.1
-collected 32 items
+```text
+pytest -rs
+============================ test session starts =============================
+platform linux -- Python 3.7.3, pytest-5.2.2, py-1.8.0, pluggy-0.13.0
+rootdir: /tmp/imcf/pumapy-testing, inifile: pytest.ini
+plugins: cov-2.8.1
+collected 43 items
 
-tests/test_booking.py .......                                     [ 21%]
-tests/test_common.py ....                                         [ 34%]
-tests/test_ppms.py .................                              [ 87%]
-tests/test_system.py ..                                           [ 93%]
-tests/test_user.py ..                                             [100%]
+tests/test_booking.py .........                                        [ 20%]
+tests/test_common.py ....                                              [ 30%]
+tests/test_ppms.py s.s.......................                          [ 90%]
+tests/test_system.py ..                                                [ 95%]
+tests/test_user.py ..                                                  [100%]
 
-======================= 32 passed in 6.32 seconds =======================
+========================== short test summary info ===========================
+SKIPPED [1] tests/test_ppms.py:95: need --online option to run
+SKIPPED [1] tests/test_ppms.py:108: need --online option to run
+======================= 41 passed, 2 skipped in 0.14s ========================
 ```
 
 [1]: https://pytest.org

@@ -3,7 +3,7 @@
 Stratocore's PPMS booking system offers an API for fetching information from
 the booking system as well as changing its state and properties.
 
-This is a Python 2 package for talking to the so-called *PUMAPI*.
+This is a Python 3 package for talking to the so-called *PUMAPI*.
 
 ## Usage Instructions
 
