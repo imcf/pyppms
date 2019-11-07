@@ -1,7 +1,5 @@
 """Tests for the PpmsUser class."""
 
-from __future__ import print_function
-
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__
 __license__ = "gpl3"

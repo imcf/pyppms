@@ -2,7 +2,6 @@
 
 # pylint: disable-msg=len-as-condition
 
-from __future__ import print_function
 from datetime import datetime, timedelta
 
 import pytest

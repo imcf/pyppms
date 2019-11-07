@@ -1,7 +1,5 @@
 """Tests for the PpmsBooking class."""
 
-from __future__ import print_function
-
 from datetime import datetime, timedelta
 import pytest
 

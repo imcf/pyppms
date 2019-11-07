@@ -11,8 +11,6 @@
 # pylint: disable-msg=len-as-condition
 # pylint: disable-msg=protected-access
 
-from __future__ import print_function
-
 import os.path
 import logging
 from datetime import datetime
