@@ -119,11 +119,12 @@ def test_parse_multiline_response():
 
     # testing leading / trailing whitespace in header fields:
     text = 'foo , bar\n"some","thing"'
+    expected = {'foo': 'some', 'bar': 'thing'}
     parsed = common.parse_multiline_response(text)
-    assert parsed[0].keys() == ['foo', 'bar']
+    assert parsed[0].keys() == expected.keys()
     text = 'foo,bar\n"some","thing"'
     parsed = common.parse_multiline_response(text)
-    assert parsed[0].keys() == ['foo', 'bar']
+    assert parsed[0].keys() == expected.keys()
 
 
 def test_time_rel_to_abs():
