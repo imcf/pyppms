@@ -14,7 +14,6 @@ import os.path
 from io import open
 
 import requests
-from requests.exceptions import ConnectionError
 
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
@@ -950,7 +949,7 @@ class PpmsConnection(object):
 
         try:
             response = self.request(booking_type + 'booking', {'id': system_id})
-        except ConnectionError:
+        except requests.exceptions.ConnectionError:
             LOG.error("Requesting booking status for system %s failed!", system_id)
             return None
 

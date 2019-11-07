@@ -15,7 +15,7 @@ import os.path
 import logging
 from datetime import datetime
 import pytest
-from requests.exceptions import ConnectionError
+import requests.exceptions
 
 import pumapyconf
 from pumapy import ppms
@@ -103,12 +103,12 @@ def test_ppmsconnection(ppms_connection):
 def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
-    with pytest.raises(ConnectionError):
+    with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             api_key=pumapyconf.PPMS_API_KEY[:5])
 
     # wrong API key (trailing characters):
-    with pytest.raises(ConnectionError):
+    with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
                             pumapyconf.PPMS_API_KEY + 'appendixx')
 
@@ -118,7 +118,7 @@ def test_ppmsconnection_fail(caplog):
     caplog.set_level(logging.DEBUG)
 
     logd("Testing with a wrong PUMAPI URL")
-    with pytest.raises(ConnectionError):
+    with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection('https://url.example', 'dummykey')
 
     logd("Testing with no API key and no cache path")
@@ -126,14 +126,14 @@ def test_ppmsconnection_fail(caplog):
         ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='')
 
     logd("Testing with a mocked auth response containing 'error'")
-    with pytest.raises(ConnectionError):
+    with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
             pumapyconf.PUMAPI_URL,
             api_key='dummykey',
             cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_response_contains_error'))
 
     logd("Testing with a mocked auth response having a non-standard response code")
-    with pytest.raises(ConnectionError):
+    with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
             pumapyconf.PUMAPI_URL,
             api_key='dummykey',
