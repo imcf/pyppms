@@ -1,2 +1,0 @@
-pumapy
-pumapy-adm
