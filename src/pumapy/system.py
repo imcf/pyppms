@@ -9,7 +9,7 @@ import logging
 LOG = logging.getLogger(__name__)
 
 
-class PpmsSystem(object):
+class PpmsSystem():
 
     """Object representing a bookable system in PPMS.
 

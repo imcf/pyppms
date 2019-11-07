@@ -10,7 +10,7 @@ from .common import time_rel_to_abs
 LOG = logging.getLogger(__name__)
 
 
-class PpmsBooking(object):
+class PpmsBooking():
 
     """Object representing a booking (reservation) in PPMS.
 

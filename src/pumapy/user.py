@@ -9,7 +9,7 @@ from .common import dict_from_single_response
 LOG = logging.getLogger(__name__)
 
 
-class PpmsUser(object):
+class PpmsUser():
 
     """Object representing a user in PPMS.
 

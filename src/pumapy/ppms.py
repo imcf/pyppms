@@ -24,7 +24,7 @@ from .booking import PpmsBooking
 LOG = logging.getLogger(__name__)
 
 
-class PpmsConnection(object):
+class PpmsConnection():
 
     """Connection object to communicate with a PPMS instance.
 
@@ -283,7 +283,7 @@ class PpmsConnection(object):
         """
 
         # pylint: disable-msg=too-few-public-methods
-        class PseudoResponse(object):
+        class PseudoResponse():
             """Dummy response object with attribs 'text' and 'status_code'."""
             def __init__(self, text, status_code):
                 self.text = text
