@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Core connection module for the PUMAPI communication."""
 
 # pylint: disable-msg=fixme

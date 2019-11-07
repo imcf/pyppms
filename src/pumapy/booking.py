@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Module representing bookings / reservations in PPMS."""
 
 import logging

@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
+"""Common functions related to Stratocore's PPMS Utility Management API."""
 
 # pylint: disable-msg=fixme
-
-"""Common functions related to Stratocore's PPMS Utility Management API."""
 
 from datetime import datetime, timedelta
 import logging

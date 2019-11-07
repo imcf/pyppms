@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """The `pumapy` package allows communicating to Stratocore's PUMAPI with Python 2."""
 
 __version__ = "1.0.0"

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Module representing user objects in PPMS."""
 
 import logging

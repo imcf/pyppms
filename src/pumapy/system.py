@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Module representing bookable systems in PPMS."""
 
 # pylint: disable-msg=too-many-instance-attributes
