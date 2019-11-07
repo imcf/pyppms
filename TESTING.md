@@ -5,15 +5,20 @@ coverage of 100%.
 
 ## Requirements
 
-Testing is performed using [pytest][1]. Currently all *request-response* tests
-(basically all of the [PpmsConnection](/src/pumapy/ppms.py) class) do require a
-valid API-key and a connection to a PUMAPI instance.
+Testing is performed using [pytest][1]. Almost all *request-response* tests
+(basically anything in the [PpmsConnection](/src/pumapy/ppms.py) class) do **NOT**
+require a valid API-key or a connection to a PUMAPI instance but can be performed using
+the built-in response-caching mechanism combined with the mocks and cached responses
+provided with the tests. The only exception are those tests that do not make sense in
+such a scenario (i.e. that do test if interaction with an actual PUMAPI instance is
+effectively working). Those tests have to be requested explicitly by adding the
+"`--online`" flag to the pytest-call.
 
 ### Configuration and API Key
 
-To run those tests, copy the example
-[`pumapyconf.py`](/resources/examples/pumapyconf.py) file to the `/tests/`
-directory and edit it according to your instance and key.
+To run the tests, copy the example [`pumapyconf.py`](/resources/examples/pumapyconf.py)
+file to the `/tests/` directory. For the online tests, please edit it according to your
+instance and key - the offline tests work without config modifications.
 
 ### PPMS Preparations
 
