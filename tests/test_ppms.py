@@ -59,10 +59,12 @@ def switch_cache_post_change(conn, level):
     level : int
     """
     new_path = os.path.join(pumapyconf.CACHE_PATH, 'stage_%s' % level)
+    _logger.debug("Switching response cache path to reflect a PPMS status change.")
+    _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
 
 
-def switch_cache_mocks(conn, mocktype):
+def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
     """Update the connection's cache path to use mocked responses.
 
     Use mocked responses during tests to simulate various invalid replies from PUMAPI
@@ -74,8 +76,12 @@ def switch_cache_mocks(conn, mocktype):
     mocktype : str
         Used to distinguish various types of mocks, e.g. ``key_error`` for responses
         that will trigger a `KeyError` exception in *pumapy*.
+    message : str, optional
+        An explanatory message that will be logged with switching the cache path.
     """
     new_path = os.path.join(pumapyconf.MOCKS_PATH, mocktype)
+    _logger.debug("Switching response cache path for reason:\n>>> %s <<<", message)
+    _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
 
 
@@ -583,14 +589,19 @@ def test_get_running_sheet_fail(ppms_connection):
     date = '2028-12-24'
     day = datetime.strptime(date, r'%Y-%m-%d')
 
-    logd("Testing with mock-response that is missing the key 'User'")
-    switch_cache_mocks(ppms_connection, 'runningsheet_key_error')
+    switch_cache_mocks(
+        ppms_connection,
+        "runningsheet_key_error",
+        "Testing with mock-response that is missing the key 'User'"
+    )
     with pytest.raises(KeyError):
         ppms_connection.get_running_sheet('2', date=day)
 
-    logd("Testing with mock-response that fails parsing into a dict, "
-         "expected result is an empty list of bookings")
-    switch_cache_mocks(ppms_connection, 'runningsheet_invalid_multiline_response')
+    switch_cache_mocks(
+        ppms_connection,
+        "runningsheet_invalid_multiline_response",
+        "using mock that fails parsing, expected result is an empty list of bookings"
+    )
     assert ppms_connection.get_running_sheet('2', date=day) == list()
 
 
