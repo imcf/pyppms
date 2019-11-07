@@ -305,8 +305,10 @@ def test_get_user_experience(ppms_connection):
 
 def test_get_users_emails(ppms_connection,
                           user_details_raw,
-                          user_admin_details_raw):
+                          user_admin_details_raw,
+                          caplog):
     """Test the get_users_emails() method."""
+    # caplog.set_level(logging.DEBUG)
     logd("Testing users=None (WARNING: very time-consuming when no cache is present!)")
     ppms_connection.get_users_emails(users=None, active=True)
 
@@ -324,7 +326,9 @@ def test_get_users_emails(ppms_connection,
     logd("Testing with mock-response where some users have no email")
     switch_cache_mocks(ppms_connection, 'get_users_emails__no_email')
     emails = ppms_connection.get_users_emails(users)
+    print("address [%s] expected to NOT be in %s" % (user_details_raw["email"], emails))
     assert user_details_raw['email'] not in emails
+    assert "no email for user [%s]" % user_details_raw['login'] in caplog.text
     assert user_admin_details_raw['email'] in emails
 
 
@@ -353,13 +357,16 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert len(systems) > 0
 
 
-def test_update_systems(ppms_connection):
+def test_update_systems(ppms_connection, caplog):
     """Test the get_systems() method."""
+    caplog.set_level(logging.DEBUG)
     switch_cache_mocks(ppms_connection, 'update_systems__broken_id')
     systems = ppms_connection.get_systems()
 
     # results should contain exaclty one system:
     assert len(systems) == 1
+    assert "Updated 1 bookable systems from PPMS" in caplog.text
+    assert "1 systems failed parsing" in caplog.text
 
 
 def test_get_systems_matching(ppms_connection, system_details_raw):
