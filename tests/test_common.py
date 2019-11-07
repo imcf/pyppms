@@ -3,10 +3,10 @@
 # pylint: disable-msg=len-as-condition
 
 from __future__ import print_function
+from datetime import datetime, timedelta
 
 import pytest
 
-from datetime import datetime, timedelta
 from pumapy import common
 
 __author__ = "Niko Ehrenfeuchter"
