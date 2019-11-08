@@ -11,6 +11,6 @@ setup(
     license='GPLv3',
     author='Niko Ehrenfeuchter',
     author_email='nikolaus.ehrenfeuchter@unibas.ch',
-    description="A Python 2 package to communicate with Stratocore's PUMAPI.",
+    description="A Python 3 package to communicate with Stratocore's PUMAPI.",
     install_requires=['requests']
 )

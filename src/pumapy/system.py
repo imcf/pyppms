@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
-
 """Module representing bookable systems in PPMS."""
 
 # pylint: disable-msg=too-many-instance-attributes
+# pylint: disable-msg=too-many-arguments
 
 import logging
 
 LOG = logging.getLogger(__name__)
 
 
-class PpmsSystem(object):
+class PpmsSystem:
 
     """Object representing a bookable system in PPMS.
 
@@ -48,9 +47,20 @@ class PpmsSystem(object):
 
     # TODO: merge the alternative constructor(s) into __init__() (where applicable)
 
-    def __init__(self, system_id, name, localisation, system_type,
-                 core_facility_ref, schedules, active, stats, bookable,
-                 autonomy_required, autonomy_required_after_hours):
+    def __init__(
+        self,
+        system_id,
+        name,
+        localisation,
+        system_type,
+        core_facility_ref,
+        schedules,
+        active,
+        stats,
+        bookable,
+        autonomy_required,
+        autonomy_required_after_hours,
+    ):
         """Initialize the system object.
 
         Parameters
@@ -90,7 +100,7 @@ class PpmsSystem(object):
         try:
             self.system_id = int(system_id)
         except ValueError as err:
-            LOG.error('Unable to parse system ID: %s - %s', system_id, err)
+            LOG.error("Unable to parse system ID: %s - %s", system_id, err)
             raise
 
         self.name = name
@@ -103,9 +113,13 @@ class PpmsSystem(object):
         self.bookable = bookable
         self.autonomy_required = autonomy_required
         self.autonomy_required_after_hours = autonomy_required_after_hours
-        LOG.debug('PpmsSystem initialized: id=%s, name=[%s], localisation=[%s], '
-                  'system_type=[%s]', system_id, name, localisation,
-                  system_type)
+        LOG.debug(
+            "PpmsSystem created: id=%s, name=[%s], localisation=[%s], system_type=[%s]",
+            system_id,
+            name,
+            localisation,
+            system_type,
+        )
         # LOG.debug('PpmsSystem details: core_facility_ref=%s, schedules=%s, '
         #           'active=%s, stats=%s, bookable=%s, autonomy_required=%s, '
         #           'autonomy_required_after_hours=%s', core_facility_ref,
@@ -127,26 +141,36 @@ class PpmsSystem(object):
             The object constructed with the given details.
         """
         system = cls(
-            details['System id'],
-            details['Name'],
-            details['Localisation'],
-            details['Type'],
-            details['Core facility ref'],
-            details['Schedules'],
-            details['Active'],
-            details['Stats'],
-            details['Bookable'],
-            details['Autonomy Required'],
-            details['Autonomy Required After Hours']
+            details["System id"],
+            details["Name"],
+            details["Localisation"],
+            details["Type"],
+            details["Core facility ref"],
+            details["Schedules"],
+            details["Active"],
+            details["Stats"],
+            details["Bookable"],
+            details["Autonomy Required"],
+            details["Autonomy Required After Hours"],
         )
         return system
 
     def __str__(self):
-        return ('system_id: %s, name: %s, localisation: %s, system_type: %s, '
-                'core_facility_ref: %s, schedules: %s, active: %s, '
-                'stats: %s, bookable: %s, autonomy_required: %s, '
-                'autonomy_required_after_hours: %s' %
-                (self.system_id, self.name, self.localisation, self.system_type,
-                 self.core_facility_ref, self.schedules, self.active,
-                 self.stats, self.bookable, self.autonomy_required,
-                 self.autonomy_required_after_hours))
+        return (
+            "system_id: %s, name: %s, localisation: %s, system_type: %s, "
+            "core_facility_ref: %s, schedules: %s, active: %s, stats: %s, "
+            "bookable: %s, autonomy_required: %s, autonomy_required_after_hours: %s"
+            % (
+                self.system_id,
+                self.name,
+                self.localisation,
+                self.system_type,
+                self.core_facility_ref,
+                self.schedules,
+                self.active,
+                self.stats,
+                self.bookable,
+                self.autonomy_required,
+                self.autonomy_required_after_hours,
+            )
+        )

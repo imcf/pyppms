@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Module representing user objects in PPMS."""
 
 import logging
@@ -9,7 +7,7 @@ from .common import dict_from_single_response
 LOG = logging.getLogger(__name__)
 
 
-class PpmsUser(object):
+class PpmsUser:
 
     """Object representing a user in PPMS.
 
@@ -30,8 +28,7 @@ class PpmsUser(object):
 
     # TODO: merge the alternative constructor(s) into __init__() (where applicable)
 
-    def __init__(self, username, email, fullname='',
-                 ppms_group='', active=True):
+    def __init__(self, username, email, fullname="", ppms_group="", active=True):
         """Initialize the user object.
 
         Parameters
@@ -48,16 +45,21 @@ class PpmsUser(object):
         active : bool, optional
             The state of the user account in PPMS, by default True.
         """
-        self.username = u'%s' % username
+        self.username = "%s" % username
         self.email = str(email)
         self.active = active
         self.ppms_group = ppms_group
-        self._fullname = u'%s' % fullname
+        self._fullname = "%s" % fullname
 
-        LOG.debug('PpmsUser initialized: username=[%s], email=[%s], '
-                  'ppms_group=[%s], fullname=[%s], active=[%s]',
-                  self.username, self.email, self.ppms_group, self._fullname,
-                  self.active)
+        LOG.debug(
+            "PpmsUser initialized: username=[%s], email=[%s], ppms_group=[%s], "
+            "fullname=[%s], active=[%s]",
+            self.username,
+            self.email,
+            self.ppms_group,
+            self._fullname,
+            self.active,
+        )
 
     @classmethod
     def from_response(cls, response_text):
@@ -82,11 +84,11 @@ class PpmsUser(object):
         details = dict_from_single_response(response_text, graceful=True)
 
         user = cls(
-            username=details['login'],
-            email=details['email'],
-            fullname=details['lname'] + ' ' + details['fname'],
-            ppms_group=details['unitlogin'],
-            active=details['active'],
+            username=details["login"],
+            email=details["email"],
+            fullname=details["lname"] + " " + details["fname"],
+            ppms_group=details["unitlogin"],
+            active=details["active"],
         )
         return user
 
@@ -100,16 +102,20 @@ class PpmsUser(object):
             The full name ("<LASTNAME> <GIVENNAME>") of the user in PPMS, or the
             user accocunt name if the former one is empty.
         """
-        if self._fullname == '':
+        if self._fullname == "":
             return self.username
 
         return self._fullname
 
     def details(self):
         """Generate a string with details on the user object."""
-        return ('username: %s, email: %s, fullname: %s, ppms_group: %s, '
-                'active: %s' % (self.username, self.email, self.fullname,
-                                self.ppms_group, self.active))
+        return "username: %s, email: %s, fullname: %s, ppms_group: %s, active: %s" % (
+            self.username,
+            self.email,
+            self.fullname,
+            self.ppms_group,
+            self.active,
+        )
 
     def __str__(self):
         return str(self.username)

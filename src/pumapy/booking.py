@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Module representing bookings / reservations in PPMS."""
 
 import logging
@@ -10,7 +8,7 @@ from .common import time_rel_to_abs
 LOG = logging.getLogger(__name__)
 
 
-class PpmsBooking(object):
+class PpmsBooking:
 
     """Object representing a booking (reservation) in PPMS.
 
@@ -48,11 +46,16 @@ class PpmsBooking(object):
         self.system_id = int(system_id)
         self.starttime = starttime
         self.endtime = endtime
-        self.session = ''
+        self.session = ""
 
-        LOG.debug('PpmsBooking initialized: username=[%s], system=[%s], '
-                  'reservation start=[%s] end=[%s]', username, system_id,
-                  starttime, endtime)
+        LOG.debug(
+            "PpmsBooking initialized: username=[%s], system=[%s], "
+            "reservation start=[%s] end=[%s]",
+            username,
+            system_id,
+            starttime,
+            endtime,
+        )
 
     @classmethod
     def from_booking_request(cls, text, booking_type, system_id):
@@ -75,17 +78,18 @@ class PpmsBooking(object):
         PpmsBooking
             The object constructed with the parsed response.
         """
-        valid = ['get', 'next']
+        valid = ["get", "next"]
         if booking_type not in valid:
-            raise ValueError("Parameter 'booking_type' has to be one of %s but "
-                             "was given as [%s]" % (valid, booking_type))
+            raise ValueError(
+                "Value for 'booking_type' (%s) not in %s!" % (booking_type, valid)
+            )
 
         try:
             lines = text.splitlines()
             starttime = time_rel_to_abs(lines[1])
             endtime = None
 
-            if booking_type == 'get':
+            if booking_type == "get":
                 endtime = starttime
                 starttime = datetime.now().replace(second=0, microsecond=0)
 
@@ -93,12 +97,11 @@ class PpmsBooking(object):
                 username=lines[0],
                 system_id=system_id,
                 starttime=starttime,
-                endtime=endtime
+                endtime=endtime,
             )
             booking.session = lines[2]
         except Exception as err:
-            LOG.error('Parsing booking response failed (%s), text was:\n%s',
-                      err, text)
+            LOG.error("Parsing booking response failed (%s), text was:\n%s", err, text)
             raise
 
         return booking
@@ -128,16 +131,14 @@ class PpmsBooking(object):
         """
         try:
             booking = cls(
-                username=username,
-                system_id=system_id,
-                starttime=date,
-                endtime=date
+                username=username, system_id=system_id, starttime=date, endtime=date
             )
-            booking.starttime_fromstr(entry['Start time'], date)
-            booking.endtime_fromstr(entry['End time'], date)
+            booking.starttime_fromstr(entry["Start time"], date)
+            booking.endtime_fromstr(entry["End time"], date)
         except Exception as err:
-            LOG.error('Parsing runningsheet entry failed (%s), text was:\n%s',
-                      err, entry)
+            LOG.error(
+                "Parsing runningsheet entry failed (%s), text was:\n%s", err, entry
+            )
             raise
 
         return booking
@@ -156,10 +157,10 @@ class PpmsBooking(object):
         if date is None:
             date = datetime.now()
         start = date.replace(
-            hour=int(time_str.split(':')[0]),
-            minute=int(time_str.split(':')[1]),
+            hour=int(time_str.split(":")[0]),
+            minute=int(time_str.split(":")[1]),
             second=0,
-            microsecond=0
+            microsecond=0,
         )
         self.starttime = start
         LOG.debug("Updated booking starttime: %s", self)
@@ -178,19 +179,22 @@ class PpmsBooking(object):
         if date is None:
             date = datetime.now()
         end = date.replace(
-            hour=int(time_str.split(':')[0]),
-            minute=int(time_str.split(':')[1]),
+            hour=int(time_str.split(":")[0]),
+            minute=int(time_str.split(":")[1]),
             second=0,
-            microsecond=0
+            microsecond=0,
         )
         self.endtime = end
         LOG.debug("Updated booking endtime: %s", self)
 
     def __str__(self):
-        msg = ('username: %s - system: %s - reservation_start: %s - '
-               'reservation_end: %s' % (self.username, self.system_id,
-                                        self.starttime, self.endtime))
+        msg = "username: %s - system: %s - reservation start / end: [ %s / %s ]" % (
+            self.username,
+            self.system_id,
+            self.starttime,
+            self.endtime,
+        )
         if self.session:
-            msg += ' - session: %s' % self.session
+            msg += " - session: %s" % self.session
 
         return msg

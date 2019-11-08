@@ -5,15 +5,20 @@ coverage of 100%.
 
 ## Requirements
 
-Testing is performed using [pytest][1]. Currently all *request-response* tests
-(basically all of the [PpmsConnection](/src/pumapy/ppms.py) class) do require a
-valid API-key and a connection to a PUMAPI instance.
+Testing is performed using [pytest][1]. Almost all *request-response* tests
+(basically anything in the [PpmsConnection](/src/pumapy/ppms.py) class) do **NOT**
+require a valid API-key or a connection to a PUMAPI instance but can be performed using
+the built-in response-caching mechanism combined with the mocks and cached responses
+provided with the tests. The only exception are those tests that do not make sense in
+such a scenario (i.e. that do test if interaction with an actual PUMAPI instance is
+effectively working). Those tests have to be requested explicitly by adding the
+"`--online`" flag to the pytest-call.
 
 ### Configuration and API Key
 
-To run those tests, copy the example
-[`pumapyconf.py`](/resources/examples/pumapyconf.py) file to the `/tests/`
-directory and edit it according to your instance and key.
+To run the tests, copy the example [`pumapyconf.py`](/resources/examples/pumapyconf.py)
+file to the `/tests/` directory. For the online tests, please edit it according to your
+instance and key - the offline tests work without config modifications.
 
 ### PPMS Preparations
 
@@ -46,20 +51,24 @@ pip install --editable .
 Once everything is set up, you should be good to simply type `pytest` on the
 command line and give it a go. The output should look something like this:
 
-```pytest
-========================== test session starts ==========================
-platform linux2 -- Python 2.7.15+, pytest-4.5.0, py-1.8.0, pluggy-0.11.0
-rootdir: /tmp/imcf/pumapy-testing
-plugins: cov-2.7.1
-collected 32 items
+```text
+pytest -rs
+============================ test session starts =============================
+platform linux -- Python 3.7.3, pytest-5.2.2, py-1.8.0, pluggy-0.13.0
+rootdir: /tmp/imcf/pumapy-testing, inifile: pytest.ini
+plugins: cov-2.8.1
+collected 43 items
 
-tests/test_booking.py .......                                     [ 21%]
-tests/test_common.py ....                                         [ 34%]
-tests/test_ppms.py .................                              [ 87%]
-tests/test_system.py ..                                           [ 93%]
-tests/test_user.py ..                                             [100%]
+tests/test_booking.py .........                                        [ 20%]
+tests/test_common.py ....                                              [ 30%]
+tests/test_ppms.py s.s.......................                          [ 90%]
+tests/test_system.py ..                                                [ 95%]
+tests/test_user.py ..                                                  [100%]
 
-======================= 32 passed in 6.32 seconds =======================
+========================== short test summary info ===========================
+SKIPPED [1] tests/test_ppms.py:95: need --online option to run
+SKIPPED [1] tests/test_ppms.py:108: need --online option to run
+======================= 41 passed, 2 skipped in 0.14s ========================
 ```
 
 [1]: https://pytest.org
