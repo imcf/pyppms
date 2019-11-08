@@ -17,13 +17,13 @@ def test_dict_from_single_response():
     """Test the two-line-response-to-dict converter."""
     valid = 'one,two,thr,fou,fiv,six,sev\nasdf,"qwr",true,"true",false,,"false"'
     valid_dict = {
-        'one': 'asdf',
-        'two': 'qwr',
-        'thr': True,
-        'fou': True,
-        'fiv': False,
-        'six': '',
-        'sev': False,
+        "one": "asdf",
+        "two": "qwr",
+        "thr": True,
+        "fou": True,
+        "fiv": False,
+        "six": "",
+        "sev": False,
     }
 
     # testing valid input:
@@ -32,10 +32,10 @@ def test_dict_from_single_response():
 
     # testing input with too few lines:
     with pytest.raises(ValueError):
-        common.dict_from_single_response('\n', graceful=True)
+        common.dict_from_single_response("\n", graceful=True)
 
     # testing empty input:
-    assert common.dict_from_single_response('\n\n') == {'': ''}
+    assert common.dict_from_single_response("\n\n") == {"": ""}
 
     # testing input with too many lines, otherwise valid:
     valid_graceful = valid + "\nsomething in line three\nand four!"
@@ -45,7 +45,7 @@ def test_dict_from_single_response():
     assert parsed == valid_dict
 
     # testing input with too many header fields:
-    invalid_header = 'zero,' + valid
+    invalid_header = "zero," + valid
     parsed = common.dict_from_single_response(invalid_header, graceful=True)
     with pytest.raises(ValueError):
         common.dict_from_single_response(invalid_header, graceful=False)
@@ -59,8 +59,8 @@ def test_dict_from_single_response():
 
 def test_process_response_values():
     """Test the data-fields-processing function."""
-    values = ['"doubles"', "'singles'", '0', "'1'", '"2"', 'true', 'false']
-    results = ['doubles', "'singles'", '0', "'1'", '2', True, False]
+    values = ['"doubles"', "'singles'", "0", "'1'", '"2"', "true", "false"]
+    results = ["doubles", "'singles'", "0", "'1'", "2", True, False]
 
     common.process_response_values(values)
 
@@ -71,7 +71,7 @@ def test_process_response_values():
     common.process_response_values([])
 
     with pytest.raises(TypeError):
-        common.process_response_values('a string')
+        common.process_response_values("a string")
 
     with pytest.raises(TypeError):
         common.process_response_values(None)
@@ -81,29 +81,21 @@ def test_parse_multiline_response():
     """Test the multiline response parsing function."""
     # testing empty input, non-graceful:
     with pytest.raises(ValueError):
-        common.parse_multiline_response('', graceful=False)
+        common.parse_multiline_response("", graceful=False)
 
     # testing empty input, graceful:
-    assert len(common.parse_multiline_response('', graceful=True)) == 0
+    assert len(common.parse_multiline_response("", graceful=True)) == 0
 
     # testing valid input:
     valid = 'one,two,thr\nasdf,"qwr",true\n"true","nothing","eleven"'
     valid_parsed = [
-        {
-            'one': 'asdf',
-            'two': 'qwr',
-            'thr': True,
-        },
-        {
-            'one': True,
-            'two': 'nothing',
-            'thr': 'eleven',
-        }
+        {"one": "asdf", "two": "qwr", "thr": True,},
+        {"one": True, "two": "nothing", "thr": "eleven",},
     ]
     assert common.parse_multiline_response(valid, graceful=True) == valid_parsed
 
     # testing input with too many header fields:
-    invalid_header = 'zero,' + valid
+    invalid_header = "zero," + valid
     parsed = common.parse_multiline_response(invalid_header, graceful=True)
     print(parsed)
     with pytest.raises(ValueError):
@@ -118,7 +110,7 @@ def test_parse_multiline_response():
 
     # testing leading / trailing whitespace in header fields:
     text = 'foo , bar\n"some","thing"'
-    expected = {'foo': 'some', 'bar': 'thing'}
+    expected = {"foo": "some", "bar": "thing"}
     parsed = common.parse_multiline_response(text)
     assert parsed[0].keys() == expected.keys()
     text = 'foo,bar\n"some","thing"'
@@ -143,4 +135,4 @@ def test_time_rel_to_abs():
     assert converted == expected
 
     with pytest.raises(ValueError):
-        common.time_rel_to_abs('seven')
+        common.time_rel_to_abs("seven")

@@ -32,7 +32,7 @@ _logger = logging.getLogger()
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
     caplog.set_level(logging.DEBUG)
-    cache_path = os.path.join(pumapyconf.CACHE_PATH, 'stage_0')
+    cache_path = os.path.join(pumapyconf.CACHE_PATH, "stage_0")
     conn = ppms.PpmsConnection(
         url=pumapyconf.PUMAPI_URL,
         api_key=pumapyconf.PPMS_API_KEY,
@@ -43,6 +43,7 @@ def ppms_connection(caplog):
 
 
 ### common helper functions ###
+
 
 def switch_cache_post_change(conn, level):
     """Update the connection's cache path to reflect changes to responses.
@@ -58,7 +59,7 @@ def switch_cache_post_change(conn, level):
     conn : PpmsConnection
     level : int
     """
-    new_path = os.path.join(pumapyconf.CACHE_PATH, 'stage_%s' % level)
+    new_path = os.path.join(pumapyconf.CACHE_PATH, "stage_%s" % level)
     _logger.debug("Switching response cache path to reflect a PPMS status change.")
     _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
@@ -87,22 +88,23 @@ def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
 
 def logd(msg, *args):
     """Simple logging wrapper for log messages from test functions."""
-    _logger.debug('\n>>> ' + msg, *args)
+    _logger.debug("\n>>> " + msg, *args)
 
 
 ############ connection ############
 
+
 @pytest.mark.online
 def test_ppmsconnection_online(ppms_connection):
     """Test establishing a PPMS connection."""
-    assert ppms_connection.status['auth_state'] == 'good'
+    assert ppms_connection.status["auth_state"] == "good"
 
 
 def test_ppmsconnection(ppms_connection):
     """Test instantiating a PpmsConnection object in online or offline mode."""
-    auth_state = ppms_connection.status['auth_state']
+    auth_state = ppms_connection.status["auth_state"]
     print(auth_state)
-    assert auth_state in ['good', 'NOT_TRIED']
+    assert auth_state in ["good", "NOT_TRIED"]
 
 
 @pytest.mark.online
@@ -110,13 +112,13 @@ def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
-                            api_key=pumapyconf.PPMS_API_KEY[:5])
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key=pumapyconf.PPMS_API_KEY[:5])
 
     # wrong API key (trailing characters):
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL,
-                            pumapyconf.PPMS_API_KEY + 'appendixx')
+        ppms.PpmsConnection(
+            pumapyconf.PUMAPI_URL, pumapyconf.PPMS_API_KEY + "appendixx"
+        )
 
 
 def test_ppmsconnection_fail(caplog):
@@ -125,92 +127,93 @@ def test_ppmsconnection_fail(caplog):
 
     logd("Testing with a wrong PUMAPI URL")
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection('https://url.example', 'dummykey')
+        ppms.PpmsConnection("https://url.example", "dummykey")
 
     logd("Testing with no API key and no cache path")
     with pytest.raises(RuntimeError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key='', cache='')
+        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key="", cache="")
 
     logd("Testing with a mocked auth response containing 'error'")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
             pumapyconf.PUMAPI_URL,
-            api_key='dummykey',
-            cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_response_contains_error'))
+            api_key="dummykey",
+            cache=os.path.join(pumapyconf.MOCKS_PATH, "auth_response_contains_error"),
+        )
 
     logd("Testing with a mocked auth response having a non-standard response code")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
             pumapyconf.PUMAPI_URL,
-            api_key='dummykey',
-            cache=os.path.join(pumapyconf.MOCKS_PATH, 'auth_wrong_status_code'))
+            api_key="dummykey",
+            cache=os.path.join(pumapyconf.MOCKS_PATH, "auth_wrong_status_code"),
+        )
     # assert 0
 
 
 ############ users / groups ############
 
+
 def test_get_user_ids(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
     users = ppms_connection.get_user_ids(active=False)
     print(users)
-    assert u'pumapy' in users
+    assert "pumapy" in users
 
     users = ppms_connection.get_user_ids(active=True)
     print(users)
-    assert u'pumapy' in users
+    assert "pumapy" in users
 
 
-def test_get_user_dict(ppms_connection,
-                       user_details_raw,
-                       user_admin_details_raw):
+def test_get_user_dict(ppms_connection, user_details_raw, user_admin_details_raw):
     """Test fetching details of a specific user."""
     print("Expected dict data: %s" % user_details_raw)
-    details = ppms_connection.get_user_dict('pumapy')
+    details = ppms_connection.get_user_dict("pumapy")
     print("Retrieved dict data: %s" % details)
     assert user_details_raw == details
 
     print("Expected dict data: %s" % user_admin_details_raw)
-    details = ppms_connection.get_user_dict('pumapy-adm')
+    details = ppms_connection.get_user_dict("pumapy-adm")
     print("Retrieved dict data: %s" % details)
     assert user_admin_details_raw == details
 
     with pytest.raises(KeyError):
-        ppms_connection.get_user_dict('invalidlogin')
+        ppms_connection.get_user_dict("invalidlogin")
 
 
 def test_get_groups(ppms_connection):
     """Test getting a list of group IDs ("unitlogin") from PPMS."""
     groups = ppms_connection.get_groups()
     print(groups)
-    assert u'pumapy_group' in groups
+    assert "pumapy_group" in groups
 
 
 def test_get_group(ppms_connection, group_details):
     """Test fetching details of a specific group."""
     print("Expected dict data (subset): %s" % group_details)
-    details = ppms_connection.get_group('pumapy_group')
+    details = ppms_connection.get_group("pumapy_group")
     print("Retrieved dict data: %s" % details)
     for key in group_details.keys():
         assert group_details[key] == details[key]
 
     with pytest.raises(KeyError):
-        ppms_connection.get_group('invalid-unitlogin')
+        ppms_connection.get_group("invalid-unitlogin")
 
 
 def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     """Test the get_user() method."""
-    user = ppms_connection.get_user('pumapy')
+    user = ppms_connection.get_user("pumapy")
     print(user.details())
     print(ppms_user.details())
     assert user.details() == ppms_user.details()
 
-    user = ppms_connection.get_user('pumapy-adm')
+    user = ppms_connection.get_user("pumapy-adm")
     print(user.details())
     print(ppms_user_admin.details())
     assert user.details() == ppms_user_admin.details()
 
     with pytest.raises(KeyError):
-        ppms_connection.get_user('invalidlogin')
+        ppms_connection.get_user("invalidlogin")
 
 
 def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
@@ -218,8 +221,10 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
 
-    logd("Requesting users without pre-seeding the connection (WARNING: very "
-         "time-consuming when no cache is present!)")
+    logd(
+        "Requesting users without pre-seeding the connection (WARNING: very "
+        "time-consuming when no cache is present!)"
+    )
     ppms_connection.get_users()
 
     logd("Adding users to the connection to avoid the requesting step")
@@ -253,11 +258,11 @@ def test_get_admins(ppms_connection, ppms_user_admin):
     admin_user = None
     for admin in admins:
         usernames.append(admin.username)
-        if admin.username == 'pumapy-adm':
+        if admin.username == "pumapy-adm":
             admin_user = admin
 
     print(usernames)
-    assert 'pumapy-adm' in usernames
+    assert "pumapy-adm" in usernames
 
     print(admin_user.details())
     assert admin_user.details() == ppms_user_admin.details()
@@ -268,19 +273,19 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
     # TODO: that's certainly not the nicest test, it really needs to be
     # refactored once the get_group_users() method returns a dict instead of a
     # list of user objects!
-    members = ppms_connection.get_group_users('pumapy_group')
+    members = ppms_connection.get_group_users("pumapy_group")
     for user in members:
         print(user.details())
-        if user.username == 'pumapy':
+        if user.username == "pumapy":
             assert user.details() == ppms_user.details()
-        elif user.username == 'pumapy-adm':
+        elif user.username == "pumapy-adm":
             assert user.details() == ppms_user_admin.details()
-        elif user.username == 'pumapy-deact':
+        elif user.username == "pumapy-deact":
             assert not user.active
         else:
-            raise KeyError('Unexpected username: %s' % user.username)
+            raise KeyError("Unexpected username: %s" % user.username)
 
-    assert ppms_connection.get_group_users('') == list()
+    assert ppms_connection.get_group_users("") == list()
 
 
 def test_get_user_experience(ppms_connection):
@@ -292,27 +297,26 @@ def test_get_user_experience(ppms_connection):
     assert len(ppms_connection.get_user_experience()) > 0
 
     # check if a user has access to a specific system:
-    systems = ppms_connection.get_user_experience(login='pumapy')
+    systems = ppms_connection.get_user_experience(login="pumapy")
     sys_ids = list()
     for system in systems:
-        sys_ids.append(system['id'])
-    assert '31' in sys_ids
+        sys_ids.append(system["id"])
+    assert "31" in sys_ids
 
     # check if a system is having a specific user with permission to access it:
     users = ppms_connection.get_user_experience(system_id=31)
     usernames = list()
     for user in users:
-        usernames.append(user['login'])
-    assert 'pumapy' in usernames
+        usernames.append(user["login"])
+    assert "pumapy" in usernames
 
     # check if filtering for user *and* system results in exactly one entry:
-    assert len(ppms_connection.get_user_experience('pumapy', 31)) == 1
+    assert len(ppms_connection.get_user_experience("pumapy", 31)) == 1
 
 
-def test_get_users_emails(ppms_connection,
-                          user_details_raw,
-                          user_admin_details_raw,
-                          caplog):
+def test_get_users_emails(
+    ppms_connection, user_details_raw, user_admin_details_raw, caplog
+):
     """Test the get_users_emails() method."""
     # caplog.set_level(logging.DEBUG)
     logd("Testing users=None (WARNING: very time-consuming when no cache is present!)")
@@ -320,25 +324,26 @@ def test_get_users_emails(ppms_connection,
 
     logd("Testing with specific users")
     users = [
-        user_details_raw['login'],
-        user_admin_details_raw['login'],
+        user_details_raw["login"],
+        user_admin_details_raw["login"],
     ]
     print("users: %s" % users)
     emails = ppms_connection.get_users_emails(users)
     print("emails: %s" % emails)
-    assert user_details_raw['email'] in emails
-    assert user_admin_details_raw['email'] in emails
+    assert user_details_raw["email"] in emails
+    assert user_admin_details_raw["email"] in emails
 
     logd("Testing with mock-response where some users have no email")
-    switch_cache_mocks(ppms_connection, 'get_users_emails__no_email')
+    switch_cache_mocks(ppms_connection, "get_users_emails__no_email")
     emails = ppms_connection.get_users_emails(users)
     print("address [%s] expected to NOT be in %s" % (user_details_raw["email"], emails))
-    assert user_details_raw['email'] not in emails
-    assert "no email for user [%s]" % user_details_raw['login'] in caplog.text
-    assert user_admin_details_raw['email'] in emails
+    assert user_details_raw["email"] not in emails
+    assert "no email for user [%s]" % user_details_raw["login"] in caplog.text
+    assert user_admin_details_raw["email"] in emails
 
 
 ############ resources ############
+
 
 def test_get_systems(ppms_connection, system_details_raw):
     """Test the get_systems() method."""
@@ -349,12 +354,12 @@ def test_get_systems(ppms_connection, system_details_raw):
 
     print(system_details_raw)
 
-    found = systems[int(system_details_raw['System id'])]
+    found = systems[int(system_details_raw["System id"])]
     print("Found system: %s" % found)
 
-    assert found.system_id == int(system_details_raw['System id'])
-    assert found.localisation == system_details_raw['Localisation']
-    assert found.system_type == system_details_raw['Type']
+    assert found.system_id == int(system_details_raw["System id"])
+    assert found.localisation == system_details_raw["Localisation"]
+    assert found.system_type == system_details_raw["Type"]
 
     # test refreshing the systems cache:
     systems = ppms_connection.get_systems(force_refresh=True)
@@ -366,7 +371,7 @@ def test_get_systems(ppms_connection, system_details_raw):
 def test_update_systems(ppms_connection, caplog):
     """Test the get_systems() method."""
     caplog.set_level(logging.DEBUG)
-    switch_cache_mocks(ppms_connection, 'update_systems__broken_id')
+    switch_cache_mocks(ppms_connection, "update_systems__broken_id")
     systems = ppms_connection.get_systems()
 
     # results should contain exaclty one system:
@@ -377,36 +382,36 @@ def test_update_systems(ppms_connection, caplog):
 
 def test_get_systems_matching(ppms_connection, system_details_raw):
     """Test the get_systems_matching() method."""
-    loc = system_details_raw['Localisation']
-    name = system_details_raw['Name']
+    loc = system_details_raw["Localisation"]
+    name = system_details_raw["Name"]
 
     # test with partial matches
     sys_ids = ppms_connection.get_systems_matching(loc[:3], [name[:6]])
-    assert sys_ids == [int(system_details_raw['System id'])]
+    assert sys_ids == [int(system_details_raw["System id"])]
 
     # test with full matches
     sys_ids = ppms_connection.get_systems_matching(loc, [name])
-    assert sys_ids == [int(system_details_raw['System id'])]
+    assert sys_ids == [int(system_details_raw["System id"])]
 
     # test with non-existing localisation
-    sys_ids = ppms_connection.get_systems_matching('__non_existing__', [name])
+    sys_ids = ppms_connection.get_systems_matching("__non_existing__", [name])
     assert sys_ids == []
 
     # test with non-existing name
-    sys_ids = ppms_connection.get_systems_matching(loc, ['__non_existing__'])
+    sys_ids = ppms_connection.get_systems_matching(loc, ["__non_existing__"])
     assert sys_ids == []
 
 
 ############ system / user permissions ############
 
-def test_get_users_with_access_to_system(ppms_connection,
-                                         system_details_raw,
-                                         user_details_raw,
-                                         user_admin_details_raw):
+
+def test_get_users_with_access_to_system(
+    ppms_connection, system_details_raw, user_details_raw, user_admin_details_raw
+):
     """Test the get_users_with_access_to_system() method."""
-    sys_id = system_details_raw['System id']
-    username = user_details_raw['login']
-    username_adm = user_admin_details_raw['login']
+    sys_id = system_details_raw["System id"]
+    username = user_details_raw["login"]
+    username_adm = user_admin_details_raw["login"]
 
     logd("Testing 'getsysrights' for specific users on a fixed system")
     allowed_users = ppms_connection.get_users_with_access_to_system(sys_id)
@@ -415,8 +420,9 @@ def test_get_users_with_access_to_system(ppms_connection,
     assert username_adm in allowed_users
 
     logd("Testing 'getsysrights' response that is partially malformed")
-    switch_cache_mocks(ppms_connection,
-                       'get_users_with_access_to_system__invalid_response')
+    switch_cache_mocks(
+        ppms_connection, "get_users_with_access_to_system__invalid_response"
+    )
     with pytest.raises(ValueError):
         ppms_connection.get_users_with_access_to_system(sys_id)
 
@@ -425,21 +431,21 @@ def test_system_booking_permissions(ppms_connection):
     """Test the set_system_booking_permissions() method."""
     logd("Testing with an invalid permission level")
     with pytest.raises(KeyError):
-        ppms_connection.set_system_booking_permissions('none', 42, 'X')
+        ppms_connection.set_system_booking_permissions("none", 42, "X")
 
     logd("Testing with an unexpected mock-response")
-    switch_cache_mocks(ppms_connection, 'setright_unexpected_response')
-    success = ppms_connection.set_system_booking_permissions('someuser', 42, 'N')
+    switch_cache_mocks(ppms_connection, "setright_unexpected_response")
+    success = ppms_connection.set_system_booking_permissions("someuser", 42, "N")
     assert not success
 
 
 def test_user_access_to_system(ppms_connection, system_details_raw, user_details_raw):
     """Test the (give|remove)_user_access_to_system() methods."""
-    sys_id = system_details_raw['System id']
-    username = user_details_raw['login']
+    sys_id = system_details_raw["System id"]
+    username = user_details_raw["login"]
 
     logd("Testing with a non-existing user")
-    success = ppms_connection.give_user_access_to_system('invalidlogin', sys_id)
+    success = ppms_connection.give_user_access_to_system("invalidlogin", sys_id)
     assert not success
 
     logd("Testing with an invalid system ID")
@@ -469,6 +475,7 @@ def test_user_access_to_system(ppms_connection, system_details_raw, user_details
 
 ############ bookings ############
 
+
 def test_get_booking(ppms_connection, system_details_raw):
     """Test the get_booking() method.
 
@@ -486,7 +493,7 @@ def test_get_booking(ppms_connection, system_details_raw):
     sys_id = "invalid-id"
     assert ppms_connection.get_booking(sys_id) is None
 
-    sys_id = system_details_raw['System id']
+    sys_id = system_details_raw["System id"]
     # try to get the current booking, usually this will be None, but it depends
     # on the system state in PPMS, so we don't assert any result here but rather
     # run the code to see if it raises any exception (which it shouldn't)
@@ -499,10 +506,11 @@ def test_get_booking(ppms_connection, system_details_raw):
     # only reasonable thing to do is to check if the 'next' booking is None and
     # give instructions to the tester (which will of course be useless in any
     # automated / CI scenario...)
-    booking = ppms_connection.get_booking(sys_id, booking_type='next')
+    booking = ppms_connection.get_booking(sys_id, booking_type="next")
     if booking is None:
-        raise RuntimeError('Please make sure system [%s] has at least one '
-                           'booking in the future!' % sys_id)
+        raise RuntimeError(
+            "Make sure system [%s] has at least one booking in the future!" % sys_id
+        )
     assert booking.system_id == int(sys_id)
 
     # do the same using the get_next_booking() wrapper:
@@ -510,7 +518,7 @@ def test_get_booking(ppms_connection, system_details_raw):
     assert booking.system_id == int(sys_id)
 
     with pytest.raises(ValueError):
-        ppms_connection.get_booking(sys_id, booking_type='invalid')
+        ppms_connection.get_booking(sys_id, booking_type="invalid")
 
 
 def test_get_running_sheet(ppms_connection, system_details_raw):
@@ -525,7 +533,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     """
     # take an arbitrary date long time in the future (unfortunately the web interface
     # of PPMS doesn't let us go much beyond 10 years from now):
-    date = '2028-12-24'
+    date = "2028-12-24"
     # that day is expected to have four 60-minute-bookings, starting at the full hour:
     sessions_start = [9, 11, 13, 15]
     # use the start times to assemble a list of datetime tuples with start and end time
@@ -534,8 +542,8 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     for shour in sessions_start:
         sessions.append(
             [
-                datetime.strptime("%sT%s" % (date, shour), r'%Y-%m-%dT%H'),
-                datetime.strptime("%sT%s" % (date, shour + 1), r'%Y-%m-%dT%H')
+                datetime.strptime("%sT%s" % (date, shour), r"%Y-%m-%dT%H"),
+                datetime.strptime("%sT%s" % (date, shour + 1), r"%Y-%m-%dT%H"),
             ]
         )
     # hard-coding the list would look like this:
@@ -568,11 +576,11 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
                 return times[1]
         return None
 
-    day = datetime.strptime(date, r'%Y-%m-%d')
+    day = datetime.strptime(date, r"%Y-%m-%d")
 
     logd("Testing runningsheet details for %s", date)
-    for booking in ppms_connection.get_running_sheet('2', date=day):
-        assert booking.system_id == int(system_details_raw['System id'])
+    for booking in ppms_connection.get_running_sheet("2", date=day):
+        assert booking.system_id == int(system_details_raw["System id"])
         endtime = find_endtime(sessions, booking.starttime)
         assert endtime is not None
         print("matching booking end time: %s" % endtime)
@@ -580,53 +588,53 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
         print(booking.__str__())
 
     logd("Testing fullname that cannot be mapped to a user")
-    switch_cache_mocks(ppms_connection, 'runningsheet_single_unknown_fullname')
-    assert len(ppms_connection.get_running_sheet('2', date=day)) == 2
+    switch_cache_mocks(ppms_connection, "runningsheet_single_unknown_fullname")
+    assert len(ppms_connection.get_running_sheet("2", date=day)) == 2
 
 
 def test_get_running_sheet_fail(ppms_connection):
     """Test cases where no runningsheet can be assembled from the responses."""
-    date = '2028-12-24'
-    day = datetime.strptime(date, r'%Y-%m-%d')
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
 
     switch_cache_mocks(
         ppms_connection,
         "runningsheet_key_error",
-        "Testing with mock-response that is missing the key 'User'"
+        "Testing with mock-response that is missing the key 'User'",
     )
     with pytest.raises(KeyError):
-        ppms_connection.get_running_sheet('2', date=day)
+        ppms_connection.get_running_sheet("2", date=day)
 
     switch_cache_mocks(
         ppms_connection,
         "runningsheet_invalid_multiline_response",
-        "using mock that fails parsing, expected result is an empty list of bookings"
+        "using mock that fails parsing, expected result is an empty list of bookings",
     )
-    assert ppms_connection.get_running_sheet('2', date=day) == list()
+    assert ppms_connection.get_running_sheet("2", date=day) == list()
 
 
 ############ deprecated methods ############
 
+
 def test__get_system_with_name(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_system_with_name() method."""
     logd("Testing with a well-known system name")
-    name = system_details_raw['Name']
+    name = system_details_raw["Name"]
     sys_id = ppms_connection._get_system_with_name(name)
     print("_get_system_with_name: %s" % sys_id)
-    assert sys_id == int(system_details_raw['System id'])
+    assert sys_id == int(system_details_raw["System id"])
 
     logd("Testing with a non-existing system name")
-    sys_id = ppms_connection._get_system_with_name('invalid-system-name')
+    sys_id = ppms_connection._get_system_with_name("invalid-system-name")
     assert sys_id == -1
 
 
-def test__get_machine_catalogue_from_system(ppms_connection,
-                                            system_details_raw):
+def test__get_machine_catalogue_from_system(ppms_connection, system_details_raw):
     """Test the (deprecated) _get_machine_catalogue_from_system() method."""
-    name = system_details_raw['Name']
+    name = system_details_raw["Name"]
 
     # define a list of categories we are interested in:
-    categories = ['VDI (Development)', 'VDI (CAD)', 'VDI (BigMemory)']
+    categories = ["VDI (Development)", "VDI (CAD)", "VDI (BigMemory)"]
 
     # ask to which one the given machine belongs:
     cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
@@ -635,20 +643,19 @@ def test__get_machine_catalogue_from_system(ppms_connection,
     assert cat == categories[0]
 
     # test when no category is found:
-    cat = ppms_connection._get_machine_catalogue_from_system(name,
-                                                             categories[1:])
-    assert cat == ''
+    cat = ppms_connection._get_machine_catalogue_from_system(name, categories[1:])
+    assert cat == ""
 
     # test with a system name that doesn't exist
-    name = '_invalid_pumapy_system_name_'
+    name = "_invalid_pumapy_system_name_"
     cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
-    assert cat == ''
+    assert cat == ""
 
 
 def test_not_implemented_errors(ppms_connection):
     """Test methods raising a NotImplementedError."""
     with pytest.raises(NotImplementedError):
-        ppms_connection.get_bookable_ids('', '')
+        ppms_connection.get_bookable_ids("", "")
 
     with pytest.raises(NotImplementedError):
         ppms_connection.get_system(99)
