@@ -11,8 +11,6 @@ __copyright__ = __author__
 __license__ = "gpl3"
 
 
-EXPECTED += 'reservation_start: %s - reservation_end: %s'
-
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M:%S"
 FMT = "%s %s" % (FMT_DATE, FMT_TIME)
@@ -25,6 +23,8 @@ END = "%s %s" % (DAY, TIME_END)
 USERNAME = "ppmsuser"
 SYS_ID = "42"
 EXPECTED = "username: %s - system: %s - " % (USERNAME, SYS_ID)
+EXPECTED += "reservation start / end: [ %s / %s ]"
+
 
 def create_booking(
     username=USERNAME,

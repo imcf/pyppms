@@ -187,9 +187,12 @@ class PpmsBooking:
         LOG.debug("Updated booking endtime: %s", self)
 
     def __str__(self):
-        msg = ('username: %s - system: %s - reservation_start: %s - '
-               'reservation_end: %s' % (self.username, self.system_id,
-                                        self.starttime, self.endtime))
+        msg = "username: %s - system: %s - reservation start / end: [ %s / %s ]" % (
+            self.username,
+            self.system_id,
+            self.starttime,
+            self.endtime,
+        )
         if self.session:
             msg += " - session: %s" % self.session
 
