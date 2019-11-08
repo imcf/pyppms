@@ -1,6 +1,7 @@
 """Module representing bookable systems in PPMS."""
 
 # pylint: disable-msg=too-many-instance-attributes
+# pylint: disable-msg=too-many-arguments
 
 import logging
 
