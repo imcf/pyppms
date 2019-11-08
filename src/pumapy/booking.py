@@ -80,8 +80,9 @@ class PpmsBooking:
         """
         valid = ["get", "next"]
         if booking_type not in valid:
-            raise ValueError("Parameter 'booking_type' has to be one of %s but "
-                             "was given as [%s]" % (valid, booking_type))
+            raise ValueError(
+                "Value for 'booking_type' (%s) not in %s!" % (booking_type, valid)
+            )
 
         try:
             lines = text.splitlines()

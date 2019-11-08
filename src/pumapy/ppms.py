@@ -106,9 +106,10 @@ class PpmsConnection:
         # key has been specified, skip authentication then:
         if api_key != "":
             self.__authenticate()
-        elif cache == '':
-            raise RuntimeError("No API key *and* no cache path given, at least "
-                               "one of them is required!")
+        elif cache == "":
+            raise RuntimeError(
+                "Neither API key nor cache path given, at least one is required!"
+            )
 
     def __authenticate(self):
         """Try to authenticate to PPMS using the `auth` request.
@@ -982,8 +983,9 @@ class PpmsConnection:
         """
         valid = ["get", "next"]
         if booking_type not in valid:
-            raise ValueError("Parameter 'booking_type' has to be one of %s but "
-                             "was given as [%s]" % (valid, booking_type))
+            raise ValueError(
+                "Value for 'booking_type' (%s) not in %s!" % (booking_type, valid)
+            )
 
         try:
             response = self.request(booking_type + "booking", {"id": system_id})

@@ -113,8 +113,7 @@ class PpmsSystem:
         self.autonomy_required = autonomy_required
         self.autonomy_required_after_hours = autonomy_required_after_hours
         LOG.debug(
-            "PpmsSystem initialized: id=%s, name=[%s], localisation=[%s], "
-            "system_type=[%s]",
+            "PpmsSystem created: id=%s, name=[%s], localisation=[%s], system_type=[%s]",
             system_id,
             name,
             localisation,
