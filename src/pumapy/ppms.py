@@ -164,7 +164,6 @@ class PpmsConnection:
         LOG.info("Authentication succeeded, response=[%s]", response.text)
         LOG.debug("HTTP Status: %s", response.status_code)
         self.status["auth_state"] = "good"
-        return
 
     def request(self, action, parameters={}, skip_cache=False):
         """Generic method to submit a request to PPMS and return the result.
