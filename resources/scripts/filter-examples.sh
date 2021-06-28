@@ -8,16 +8,16 @@ DEBUG="true"
 
 debug() {
     [ -z "$DEBUG" ] && return
-    echo $@
+    echo "$@"
 }
 
 filter_pumapy() {
     TMPFILE="${1}_tmp"
     debug "Using tempfile: $TMPFILE"
     set +e  # the greps below do not match for all files, so they might return non-zero
-    egrep '^(login,id,booked_hours,used_hours,last_res,last_train|Core facility ref,System id,Type,Name,Localisation,Active,Schedules,Stats,Bookable,Autonomy Required,Autonomy Required After Hours)' "$1" > "$TMPFILE"
+    grep -E '^(login,id,booked_hours,used_hours,last_res,last_train|Core facility ref,System id,Type,Name,Localisation,Active,Schedules,Stats,Bookable,Autonomy Required,Autonomy Required After Hours)' "$1" > "$TMPFILE"
     set -e
-    egrep '(pumapy|admin|Python Development System)' "$1" >> "$TMPFILE"
+    grep -E '(pumapy|admin|Python Development System)' "$1" >> "$TMPFILE"
     mv "$TMPFILE" "$1"
 }
 
