@@ -465,6 +465,25 @@ class PpmsConnection:
         self.fullname_mapping[user.fullname] = user.username
         return user
 
+    def user_exists(self, login):
+        """Check if an account with the given login name already exists in PPMS.
+
+        Parameters
+        ----------
+        login : str
+            The login name to check for.
+
+        Returns
+        -------
+        bool
+            True in case an account with that name exists in PPMS, false otherwise.
+        """
+        try:
+            self.get_user(login)
+            return True
+        except KeyError:
+            return False
+
     def get_users(self, force_refresh=False):
         """Get user objects for all (or cached) PPMS users.
 
