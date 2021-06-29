@@ -348,6 +348,63 @@ class PpmsConnection:
 
     ############ users / groups ############
 
+    def new_user(  # pylint: disable-msg=too-many-arguments
+        self, login, lname, fname, email, ppms_group, phone=None, password=None
+    ):
+        """Create a new user in PPMS.
+
+        The method is asking PPMS to create a new user account with the given details.
+        In case an account with that login name already exists, it will log a warning
+        and return without sending any further requests to PPMS.
+
+        Parameters
+        ----------
+        login : str
+            The unique identifier for the user.
+        lname : str
+            The last name of the user.
+        fname : str
+            The first name of the user.
+        email : str
+            The email address of the user.
+        ppms_group : str
+            The unique identifier of the primary group of the new user. A new group will
+            be created if no group with the given name exists.
+        phone : str, optional
+            The phone number of the user.
+        password : str, optional
+            The password for the user. If no password is set the user will not be able
+            to log on to PPMS.
+
+        Raises
+        ------
+        RuntimeError
+            Will be raised in case creating the user fails.
+        """
+        if self.user_exists(login):
+            LOG.warning("NOT creating user [%s] as it already exists!", login)
+            return
+
+        req_data = {
+            "login": login,
+            "lname": lname,
+            "fname": fname,
+            "email": email,
+            "unitlogin": ppms_group,
+        }
+        if phone:
+            req_data["phone"] = phone
+        if password:
+            req_data["pwd"] = password
+
+        response = self.request("newuser", req_data)
+        if not "OK newuser" in response.text:
+            msg = "Creating new user failed: %s" % response.text
+            LOG.error(msg)
+            raise RuntimeError(msg)
+
+        LOG.warn(response.text)
+
     def get_user_ids(self, active=False):
         """Get a list with all user IDs in the PPMS system.
 
