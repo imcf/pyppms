@@ -565,8 +565,11 @@ class PpmsConnection:
     def update_users(self, user_ids=[]):
         """Update cached details for a list of users from PPMS.
 
-        Get the user details on a list of users (or all active ones) from PPMS
-        and store them in the local cache. WARNING - very slow!
+        Get the user details on a list of users (or all active ones) from PPMS and store
+        them in the object's `users` dict. As a side effect, this will also fill the
+        cache directory in case the object's `cache_path` attribute is set.
+
+        WARNING - very slow, especially when the PPMS instance has many users!
 
         Parameters
         ----------
