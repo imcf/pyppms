@@ -37,17 +37,18 @@ class PpmsConnection:
     cache_path : str
         A path to a local directory used for caching responses.
     users : dict
-        A dict with usernames as keys, mapping to the related ``PpmsUser``
-        object, serves as a cache during the object's lifetime (can be empty if
-        no calls to :py:meth:`get_user()` have been done yet).
+        A dict with usernames as keys, mapping to the related
+        :py:class:`pumapy.user.PpmsUser` object, serves as a cache during the object's
+        lifetime (can be empty if no calls to :py:meth:`get_user()` have been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
         :py:meth:`get_user()` method.
     systems
-        A dict with system IDs as keys, mapping to the related ``PpmsSystem`` object.
-        Serves as a cache during the object's lifetime (can be empty if no calls to the
-        :py:meth:`get_systems()` have been done yet).
+        A dict with system IDs as keys, mapping to the related
+        :py:class:`pumapy.system.PpmsSystem` object. Serves as a cache during the
+        object's lifetime (can be empty if no calls to the :py:meth:`get_systems()` have
+        been done yet).
     status : dict
         A dict with keys ``auth_state``, ``auth_response`` and
         ``auth_httpstatus``
