@@ -1034,7 +1034,7 @@ class PpmsConnection:
         PUMAPI silently ignores it - the response is identical to a system that has no
         future bookings and there is no error reported either. Currently it is unclear
         where the cutoff is (e.g. lookups for a booking that is two years from now still
-        work fine, but a booking in about 10 years is silenlty skipped).
+        work fine, but a booking in about 10 years is silently skipped).
 
         Parameters
         ----------
