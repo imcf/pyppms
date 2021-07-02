@@ -6,6 +6,10 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+# pylint: disable-msg=redefined-builtin
+# pylint: disable-msg=missing-module-docstring
+# pylint: disable-msg=invalid-name
+
 
 # -- Path setup --------------------------------------------------------------
 
