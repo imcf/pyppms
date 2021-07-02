@@ -25,7 +25,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'PUMAPY'
-copyright = u'2019, Niko Ehrenfeuchter'
+copyright = u'2019-2021, Niko Ehrenfeuchter'
 author = u'Niko Ehrenfeuchter'
 
 # The short X.Y version
