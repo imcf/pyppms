@@ -3,6 +3,10 @@
 # pylint: disable-msg=fixme
 
 # pylint: disable-msg=dangerous-default-value
+
+# NOTE: the "pumapy" package is simply a wrapper for the existing API, so we can't make
+#       any design decisions here - hence it is pointless to complaing about the number
+#       of instance attributes, public methods or other stuff:
 # pylint: disable-msg=too-many-instance-attributes
 # pylint: disable-msg=too-many-public-methods
 
