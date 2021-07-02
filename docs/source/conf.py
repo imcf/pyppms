@@ -83,6 +83,7 @@ pygments_style = 'friendly'
 #
 # html_theme = 'alabaster'
 html_theme = 'basicstrap'
+# For a nice dark theme, check out https://github.com/useblocks/groundwork-sphinx-theme
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
