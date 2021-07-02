@@ -406,7 +406,8 @@ class PpmsConnection:
             LOG.error(msg)
             raise RuntimeError(msg)
 
-        LOG.warn(response.text)
+        LOG.info("Created user [%s] in PPMS.", login)
+        LOG.debug("Response was: %s", response.text)
 
     def get_user_ids(self, active=False):
         """Get a list with all user IDs in the PPMS system.
