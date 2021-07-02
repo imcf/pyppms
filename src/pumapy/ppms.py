@@ -1,7 +1,5 @@
 """Core connection module for the PUMAPI communication."""
 
-# pylint: disable-msg=fixme
-
 # pylint: disable-msg=dangerous-default-value
 
 # NOTE: the "pumapy" package is simply a wrapper for the existing API, so we can't make
