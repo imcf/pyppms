@@ -747,8 +747,8 @@ class PpmsConnection:
 
         Returns
         -------
-        dict(PpmsSystem)
-            A dict with PpmsSystem objects parsed from the PUMAPI response where
+        dict(pumapy.system.PpmsSystem)
+            A dict with `PpmsSystem` objects parsed from the PUMAPI response where
             the system ID (int) is used as the dict's key. If parsing a system
             fails for any reason, the system is skipped entirely.
         """
@@ -1085,11 +1085,11 @@ class PpmsConnection:
         return PpmsBooking.from_booking_request(response.text, booking_type, system_id)
 
     def get_current_booking(self, system_id):
-        """Wrapper for get_booking() with 'booking_type' set to 'get'."""
+        """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
         return self.get_booking(system_id, "get")
 
     def get_next_booking(self, system_id):
-        """Wrapper for get_booking() with 'booking_type' set to 'next'."""
+        """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
 
     def get_running_sheet(self, core_facility_ref, date):
@@ -1113,8 +1113,8 @@ class PpmsConnection:
 
         Returns
         -------
-        list(PpmsBooking)
-            A list with PpmsBooking objects for the given day. Empty in case
+        list(pumapy.booking.PpmsBooking)
+            A list with `PpmsBooking` objects for the given day. Empty in case
             there are no bookings or parsing the response failed.
         """
         bookings = list()
@@ -1217,7 +1217,7 @@ class PpmsConnection:
     def get_bookable_ids(self, localisation, name_contains):
         """Legacy method for getting IDs of specific systems (name + location).
 
-        This method is not implemented any more, use get_systems_matching() with
+        This method is not implemented any more, use `get_systems_matching()` with
         appropriate parameters to select the desired systems instead.
 
         Raises
@@ -1229,8 +1229,9 @@ class PpmsConnection:
     def get_system(self, system_id):
         """Legacy method for getting details of a specific system.
 
-        This method is not implemented any more, use get_systems()[sys_id] with
-        the related system ID instead.
+        This method is not implemented any more, use `get_systems()` instead and access
+        the desired system by using the respective system ID as the key on the returned
+        dict, e.g. `get_systems()[42]`.
 
         Raises
         ------
