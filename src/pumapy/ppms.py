@@ -1219,6 +1219,10 @@ class PpmsConnection:
 
         This method is not implemented any more, use get_systems_matching() with
         appropriate parameters to select the desired systems instead.
+
+        Raises
+        ------
+        NotImplementedError
         """
         raise NotImplementedError("Use get_systems_matching() instead!")
 
