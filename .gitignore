@@ -18,5 +18,8 @@ pumapyconf.py
 # documentation (auto-generated and build results)
 docs/build/
 
+# stuff labeled as do-not-commit (e.g. as we don't have the permission):
+*-DO-NOT-COMMIT
+
 # a virtualenv symlink
 .virtualenv
