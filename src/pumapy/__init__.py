@@ -1,4 +1,6 @@
-"""The `pumapy` package allows communicating to Stratocore's PUMAPI with Python 3."""
+"""The `pumapy` package provides a Python interface to Stratocore's PUMAPI.
+
+"""
 
 __version__ = "1.0.0"
 
