@@ -15,8 +15,8 @@ src/pumapy.egg-info/
 # configuration file(s)
 pumapyconf.py
 
-# documentation (auto-generated and build results)
-docs/build/
+# documentation (auto-generated via pdoc)
+docs/
 
 # stuff labeled as do-not-commit (e.g. as we don't have the permission):
 *-DO-NOT-COMMIT
