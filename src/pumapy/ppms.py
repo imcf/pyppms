@@ -1128,6 +1128,8 @@ class PpmsConnection:
             entries = parse_multiline_response(response.text, graceful=False)
         except Exception as err:  # pylint: disable-msg=broad-except
             LOG.error("Parsing runningsheet details failed: %s", err)
+            # NOTE: in case no future bookings exist the response will be empty!
+            LOG.error("Possibly the runningsheet is empty as no bookings exist?")
             LOG.debug("Runningsheet PUMPAI response was: %s", response.text)
             return bookings
 
