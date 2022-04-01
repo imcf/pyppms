@@ -12,6 +12,7 @@ authors = [
 
 readme = "README.md"
 
+documentation = "https://imcf.one/apidocs/pumapy/pumapy.html"
 homepage = "https://github.com/imcf/pumapy"
 keywords = ["ppms", "pumapy", "booking-system", "reservation-system"]
 repository = "https://github.com/imcf/pumapy"
