@@ -1,7 +1,7 @@
 [tool.poetry]
 description = "A Python package to communicate with Stratocore's PUMAPI."
 name = "pumapy"
-version = "1.1.0"
+version = "1.1.0-dev0"
 
 license = "GPLv3"
 
