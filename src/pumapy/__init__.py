@@ -3,9 +3,9 @@
 .. include:: ../../README.md
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
-__copyright__ = "Copyright 2018-2019, Imaging Core Facility, University of Basel"
+__copyright__ = "Copyright 2018-2022, Imaging Core Facility, University of Basel"
 __license__ = "GPL3"
 
 __author__ = "Niko Ehrenfeuchter"
