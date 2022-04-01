@@ -5,7 +5,7 @@ coverage of 100%.
 
 ## Requirements
 
-Testing is performed using [pytest][1]. Almost all *request-response* tests
+Testing is performed using [pytest][t1]. Almost all *request-response* tests
 (basically anything in the [PpmsConnection](/src/pumapy/ppms.py) class) do **NOT**
 require a valid API-key or a connection to a PUMAPI instance but can be performed using
 the built-in response-caching mechanism combined with the mocks and cached responses
@@ -75,5 +75,5 @@ SKIPPED [1] tests/test_ppms.py:108: need --online option to run
 ======================= 41 passed, 2 skipped in 0.14s ========================
 ```
 
-[1]: https://pytest.org
+[t1]: https://pytest.org
 [2]: https://virtualenvwrapper.readthedocs.io/en/latest/
