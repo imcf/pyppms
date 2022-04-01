@@ -3,8 +3,8 @@
 from datetime import datetime, timedelta
 import pytest
 
-from pumapy.booking import PpmsBooking
-from pumapy.common import time_rel_to_abs, parse_multiline_response
+from pyppms.booking import PpmsBooking
+from pyppms.common import time_rel_to_abs, parse_multiline_response
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__

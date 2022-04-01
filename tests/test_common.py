@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pumapy import common
+from pyppms import common
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__

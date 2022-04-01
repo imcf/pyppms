@@ -9,7 +9,7 @@
 
 import pytest
 
-from pumapy.user import PpmsUser
+from pyppms.user import PpmsUser
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__

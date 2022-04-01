@@ -2,7 +2,7 @@
 
 import pytest
 
-from pumapy.system import PpmsSystem
+from pyppms.system import PpmsSystem
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__

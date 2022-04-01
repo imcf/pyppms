@@ -18,7 +18,7 @@ import pytest
 import requests.exceptions
 
 import pumapyconf
-from pumapy import ppms
+from pyppms import ppms
 
 __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__

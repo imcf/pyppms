@@ -1,6 +1,6 @@
-# PUMAPY
+# PyPPMS
 
-## PPMS Utility Management API - Python Interface
+## PUMAPI (PPMS Utility Management API) - Python Interface
 
 [Stratocore][3]'s *PPMS* booking system offers an API for fetching information from
 the booking system as well as changing its state and properties.
