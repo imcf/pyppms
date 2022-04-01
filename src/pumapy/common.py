@@ -3,7 +3,8 @@
 # pylint: disable-msg=fixme
 
 from datetime import datetime, timedelta
-import logging
+import logging, csv
+from io import StringIO
 
 LOG = logging.getLogger(__name__)
 
@@ -62,17 +63,15 @@ def dict_from_single_response(text, graceful=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
-    # TODO: use Python's CSV parser that is much more robust than the manual
-    # string splitting approach below which will fail as soon as a field
-    # contains a comma!
+
     try:
-        lines = text.splitlines()
+        lines = list(csv.reader(StringIO(text), delimiter=','))
         if len(lines) != 2:
             LOG.warning("Response expected to have exactly two lines: %s", text)
             if not graceful:
                 raise ValueError("Invalid response format!")
-        header = lines[0].split(",")
-        data = lines[1].split(",")
+        header = lines[0]
+        data = lines[1]
         process_response_values(data)
         if len(header) != len(data):
             msg = "Parsing CSV failed, mismatch of header vs. data fields count"
