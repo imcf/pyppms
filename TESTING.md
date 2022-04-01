@@ -38,29 +38,30 @@ fixtures in [`conftest.py`](/tests/conftest.py):
 - `group_details`
 - `system_details_raw`
 
-### Virtualenv Installation
+### Development installation through poetry
 
-It is strongly recommended to create a virtualenv for running the tests and
-install `pumapy` there. Here are the steps to do this using
-[virtualenvwrapper][2]:
+The project is using [poetry][t2] for packaging and dependency management. To set up a
+development environment use this command, it will set up a fresh *virtual environment*
+with the correct dependencies and install the project in ***editable*** mode:
 
 ```bash
-mkvirtualenv pumapy-testing
-pip install pytest pytest-cov
-pip install --editable .
+git clone https://github.com/imcf/pumapy
+cd pumapy
+poetry install
 ```
 
 ## Running Tests
 
-Once everything is set up, you should be good to simply type `pytest` on the
-command line and give it a go. The output should look something like this:
+Once everything is set up, you should be good to simply type `poetry run pytest`
+on the command line, the output should look something like this:
 
 ```text
 pytest -rs
 ============================ test session starts =============================
-platform linux -- Python 3.7.3, pytest-5.2.2, py-1.8.0, pluggy-0.13.0
-rootdir: /tmp/imcf/pumapy-testing, inifile: pytest.ini
-plugins: cov-2.8.1
+platform linux -- Python 3.8.10, pytest-7.1.1, pluggy-1.0.0
+cachedir: .pytest_cache
+rootdir: /tmp/imcf/pumapy, configfile: pyproject.toml
+plugins: cov-3.0.0
 collected 43 items
 
 tests/test_booking.py .........                                        [ 20%]
@@ -76,4 +77,4 @@ SKIPPED [1] tests/test_ppms.py:108: need --online option to run
 ```
 
 [t1]: https://pytest.org
-[2]: https://virtualenvwrapper.readthedocs.io/en/latest/
+[t2]: https://python-poetry.org
