@@ -1,0 +1,33 @@
+[tool.poetry]
+description = "A Python package to communicate with Stratocore's PUMAPI."
+name = "pumapy"
+version = "1.1.0"
+
+license = "GPLv3"
+
+authors = [
+  "Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>",
+  "Laurent Guerard <laurent.guerard@unibas.ch>",
+]
+
+readme = "README.md"
+
+homepage = "https://github.com/imcf/pumapy"
+keywords = ["ppms", "pumapy", "booking-system", "reservation-system"]
+repository = "https://github.com/imcf/pumapy"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.25.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.0"
+pdoc = "^10.0"
+pylint = "^2.9.3"
+pylint-pytest = "^1.1.2"
+pytest = "^7.0"
+pytest-cov = "^3.0"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
