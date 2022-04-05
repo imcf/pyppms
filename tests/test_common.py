@@ -89,8 +89,16 @@ def test_parse_multiline_response():
     # testing valid input:
     valid = 'one,two,thr\nasdf,"qwr",true\n"true","nothing","eleven"'
     valid_parsed = [
-        {"one": "asdf", "two": "qwr", "thr": True,},
-        {"one": True, "two": "nothing", "thr": "eleven",},
+        {
+            "one": "asdf",
+            "two": "qwr",
+            "thr": True,
+        },
+        {
+            "one": True,
+            "two": "nothing",
+            "thr": "eleven",
+        },
     ]
     assert common.parse_multiline_response(valid, graceful=True) == valid_parsed
 
