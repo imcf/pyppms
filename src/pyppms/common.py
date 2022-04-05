@@ -65,6 +65,12 @@ def dict_from_single_response(text, graceful=True):
         unforeseen reason.
     """
 
+    # check if we got an empty response (only two newlines) and return a dict
+    # with two empty strings only
+    # TODO: this should probably rather raise a ValueError but we need to test
+    # all effects on existing code first!
+    if text == "\n\n":
+        return {"": ""}
     try:
         lines = list(csv.reader(StringIO(text), delimiter=','))
         if len(lines) != 2:
