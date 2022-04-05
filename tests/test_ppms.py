@@ -547,6 +547,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
             ]
         )
     # hard-coding the list would look like this:
+    # pylint: disable-msg=pointless-string-statement
     """Example:
     >>> sessions = [
     ...     [datetime(2028, 12, 24, 9, 0), datetime(2028, 12, 24, 10, 0)],
