@@ -237,8 +237,9 @@ def system_details_raw():
     -------
     dict
     """
+    # TODO: this *URGENTLY* needs a better solution than hard-coding the system ID!!
     return {
-        u'System id': u'31',
+        u'System id': u'69',
         u'Name': u'Python Development System',
         u'Localisation': u'VDI (Development)',
         u'Type': u'Virtualized Workstation',
