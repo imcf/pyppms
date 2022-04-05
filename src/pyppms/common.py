@@ -3,7 +3,8 @@
 # pylint: disable-msg=fixme
 
 from datetime import datetime, timedelta
-import logging, csv
+import logging
+import csv
 from io import StringIO
 
 LOG = logging.getLogger(__name__)
