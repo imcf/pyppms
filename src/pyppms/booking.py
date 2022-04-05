@@ -66,7 +66,7 @@ class PpmsBooking:
         text : str
             The response text of a PUMAPI `getbooking` or `nextbooking` request,
             should consist of three lines: username, time_delta, session.
-            Example: ``pumapy\n42\n12345\n``
+            Example: ``pyppms\n42\n12345\n``
         booking_type : str
             Either ``get`` (for a currently running booking) or ``next`` (for
             the next upcoming booking).

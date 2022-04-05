@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
-"""Example code on how to use the 'pumapy' package."""
+"""Example code on how to use the 'pyppms' package."""
 
 # pylint: disable-msg=multiple-imports
 # pylint: disable-msg=wrong-import-order
 
 import datetime
-import pumapy, pumapyconf
+import pyppms, pyppmsconf
 
 
-conn = pumapy.ppms.PpmsConnection(
-    url=pumapyconf.PUMAPI_URL,
-    api_key=pumapyconf.PPMS_API_KEY,
-    timeout=pumapyconf.TIMEOUT,
+conn = pyppms.ppms.PpmsConnection(
+    url=pyppmsconf.PUMAPI_URL,
+    api_key=pyppmsconf.PPMS_API_KEY,
+    timeout=pyppmsconf.TIMEOUT,
 )
 
 # get all users:
@@ -66,19 +66,19 @@ conn.get_user_experience(system_id=39)
 
 # create new users:
 conn.new_user(
-    "pumapy",
+    "pyppms",
     "Python",
     "PumAPI",
-    "pumapy@python-facility.example",
-    "pumapy_group",
+    "pyppms@python-facility.example",
+    "pyppms_group",
     phone="+98 (76) 54 3210",
 )
 
 conn.new_user(
-    "pumapy-adm",
+    "pyppms-adm",
     "Python",
     "PumAPI (Administrator)",
-    "pumapy-adm@python-facility.example",
-    "pumapy_group",
+    "pyppms-adm@python-facility.example",
+    "pyppms_group",
     phone="+98 (76) 54 3112",
 )

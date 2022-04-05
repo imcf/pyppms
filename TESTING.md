@@ -1,12 +1,12 @@
-# Testing PUMAPY
+# Testing PyPPMS
 
-Automated testing has been a core design goal for `pumapy`, aiming for a
+Automated testing has been a core design goal for `pyppms`, aiming for a
 coverage of 100%.
 
 ## Requirements
 
 Testing is performed using [pytest][t1]. Almost all *request-response* tests
-(basically anything in the [PpmsConnection](/src/pumapy/ppms.py) class) do **NOT**
+(basically anything in the [PpmsConnection](/src/pyppms/ppms.py) class) do **NOT**
 require a valid API-key or a connection to a PUMAPI instance but can be performed using
 the built-in response-caching mechanism combined with the mocks and cached responses
 provided with the tests. The only exception are those tests that do not make sense in
@@ -16,7 +16,7 @@ effectively working). Those tests have to be requested explicitly by adding the
 
 ### Configuration and API Key
 
-To run the tests, copy the example [`pumapyconf.py`](/resources/examples/pumapyconf.py)
+To run the tests, copy the example [`pyppmsconf.py`](/resources/examples/pyppmsconf.py)
 file to the `/tests/` directory. For the online tests, please edit it according to your
 instance and key - the offline tests work without config modifications.
 
@@ -45,8 +45,8 @@ development environment use this command, it will set up a fresh *virtual enviro
 with the correct dependencies and install the project in ***editable*** mode:
 
 ```bash
-git clone https://github.com/imcf/pumapy
-cd pumapy
+git clone https://github.com/imcf/pyppms
+cd pyppms
 poetry install
 ```
 
@@ -60,7 +60,7 @@ pytest -rs
 ============================ test session starts =============================
 platform linux -- Python 3.8.10, pytest-7.1.1, pluggy-1.0.0
 cachedir: .pytest_cache
-rootdir: /tmp/imcf/pumapy, configfile: pyproject.toml
+rootdir: /tmp/imcf/pyppms, configfile: pyproject.toml
 plugins: cov-3.0.0
 collected 43 items
 

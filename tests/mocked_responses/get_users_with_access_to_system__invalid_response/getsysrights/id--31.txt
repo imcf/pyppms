@@ -1,6 +1,6 @@
 S:admin
-A:pumapy
+A:pyppms
 malformed-entry
-A:pumapy-adm
-D:pumapy-deact
+A:pyppms-adm
+D:pyppms-deact
 

@@ -2,8 +2,8 @@
 
 # pylint: disable-msg=dangerous-default-value
 
-# NOTE: the "pumapy" package is simply a wrapper for the existing API, so we can't make
-#       any design decisions here - hence it is pointless to complaing about the number
+# NOTE: the "pyppms" package is simply a wrapper for the existing API, so we can't make
+#       any design decisions here - hence it is pointless to complain about the number
 #       of instance attributes, public methods or other stuff:
 # pylint: disable-msg=too-many-instance-attributes
 # pylint: disable-msg=too-many-public-methods
@@ -40,7 +40,7 @@ class PpmsConnection:
         A path to a local directory used for caching responses.
     users : dict
         A dict with usernames as keys, mapping to the related
-        :py:class:`pumapy.user.PpmsUser` object, serves as a cache during the object's
+        :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the object's
         lifetime (can be empty if no calls to :py:meth:`get_user()` have been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
@@ -48,7 +48,7 @@ class PpmsConnection:
         :py:meth:`get_user()` method.
     systems
         A dict with system IDs as keys, mapping to the related
-        :py:class:`pumapy.system.PpmsSystem` object. Serves as a cache during the
+        :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during the
         object's lifetime (can be empty if no calls to the :py:meth:`get_systems()` have
         been done yet).
     status : dict
@@ -452,19 +452,19 @@ class PpmsConnection:
 
         Example
         -------
-        >>> conn.get_user_dict('pumapy')
+        >>> conn.get_user_dict('pyppms')
         ... {
         ...     u'active': True,
         ...     u'affiliation': u'',
         ...     u'bcode': u'',
-        ...     u'email': u'pumapy@python-facility.example',
+        ...     u'email': u'pyppms@python-facility.example',
         ...     u'fname': u'PumAPI',
         ...     u'lname': u'Python',
-        ...     u'login': u'pumapy',
+        ...     u'login': u'pyppms',
         ...     u'mustchbcode': False,
         ...     u'mustchpwd': False',
         ...     u'phone': u'+98 (76) 54 3210',
-        ...     u'unitlogin': u'pumapy'
+        ...     u'unitlogin': u'pyppms'
         ... }
 
         Raises
@@ -486,8 +486,8 @@ class PpmsConnection:
         #     u'login,lname,fname,email,'
         #     u'phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,'
         #     u'active\r\n'
-        #     u'"pumapy","Python","PumAPI","pumapy@python-facility.example",'
-        #     u'"+98 (76) 54 3210","","","pumapy",false,false,'
+        #     u'"pyppms","Python","PumAPI","pyppms@python-facility.example",'
+        #     u'"+98 (76) 54 3210","","","pyppms",false,false,'
         #     u'true\r\n'
         # )
         details = dict_from_single_response(response.text)
@@ -747,7 +747,7 @@ class PpmsConnection:
 
         Returns
         -------
-        dict(pumapy.system.PpmsSystem)
+        dict(pyppms.system.PpmsSystem)
             A dict with `PpmsSystem` objects parsed from the PUMAPI response where
             the system ID (int) is used as the dict's key. If parsing a system
             fails for any reason, the system is skipped entirely.
@@ -1113,7 +1113,7 @@ class PpmsConnection:
 
         Returns
         -------
-        list(pumapy.booking.PpmsBooking)
+        list(pyppms.booking.PpmsBooking)
             A list with `PpmsBooking` objects for the given day. Empty in case
             there are no bookings or parsing the response failed.
         """

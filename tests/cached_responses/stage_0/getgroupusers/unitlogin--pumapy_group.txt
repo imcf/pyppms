@@ -1,3 +1,0 @@
-pumapy
-pumapy-adm
-pumapy-deact

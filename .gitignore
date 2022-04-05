@@ -8,12 +8,12 @@ htmlcov/
 
 # Python bytecode, eggs, build and dist, ...
 *.pyc
-src/pumapy.egg-info/
+src/pyppms.egg-info/
 /build/
 /dist/
 
 # configuration file(s)
-pumapyconf.py
+pyppmsconf.py
 
 # documentation (auto-generated via pdoc)
 docs/

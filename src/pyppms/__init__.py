@@ -1,4 +1,4 @@
-"""The `pumapy` package provides a Python interface to Stratocore's PUMAPI.
+"""The `pyppms` package provides a Python interface to Stratocore's PUMAPI.
 
 .. include:: ../../README.md
 

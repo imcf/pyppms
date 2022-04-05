@@ -54,5 +54,5 @@ certainly incomplete):
 * [Imagopole PPMS Java client][1]
 
 [1]: https://github.com/imagopole/ppms-http-client/blob/master/src/main/java/org/imagopole/ppms/api/PumapiRequest.java
-[2]: https://github.com/imcf/pumapy/blob/master/TESTING.md
+[2]: https://github.com/imcf/pyppms/blob/master/TESTING.md
 [3]: https://www.stratocore.com/

@@ -4,7 +4,7 @@
 # these variables can be set from the command line:
 PDOCOPTS  = --docformat numpy
 PDOCBUILD = pdoc
-SOURCEDIR = src/pumapy/
+SOURCEDIR = src/pyppms/
 DESTDIR   = docs/
 
 

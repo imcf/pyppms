@@ -1,0 +1,2 @@
+login,lname,fname,email,phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,active
+"pyppms","Python","PumAPI","pyppms@python-facility.example","+98 (76) 54 3210","","","pyppms_group",false,false,true

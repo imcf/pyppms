@@ -1,2 +1,0 @@
-login,lname,fname,email,phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,active
-"pumapy-deact","Python","PumAPI (Deactivated)","pumapy-deact@python-facility.example","+98 (76) 54 3007","","","pumapy_group",false,false,false

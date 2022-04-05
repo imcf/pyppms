@@ -1,0 +1,2 @@
+login,lname,fname,email,phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,active
+"pyppms-deact","Python","PumAPI (Deactivated)","pyppms-deact@python-facility.example","+98 (76) 54 3007","","","pyppms_group",false,false,false

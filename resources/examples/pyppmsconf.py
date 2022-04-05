@@ -1,4 +1,4 @@
-"""Configuration settings to be imported by pumapy."""
+"""Configuration settings to be imported by pyppms."""
 
 # the URL of the PUMAPI to talk to:
 PUMAPI_URL = 'https://ppms.eu/pythonfacility/pumapi/'

@@ -1,2 +1,2 @@
-pumapy
-pumapy-adm
+pyppms
+pyppms-adm

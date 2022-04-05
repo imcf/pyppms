@@ -1,4 +1,4 @@
-"""Module-wide fixtures for testing pumapy."""
+"""Module-wide fixtures for testing pyppms."""
 
 # pylint: disable-msg=fixme
 
@@ -91,14 +91,14 @@ def user_details_raw():
         u'active': True,
         u'affiliation': u'',
         u'bcode': u'',
-        u'email': u'pumapy@python-facility.example',
+        u'email': u'pyppms@python-facility.example',
         u'fname': u'PumAPI',
         u'lname': u'Python',
-        u'login': u'pumapy',
+        u'login': u'pyppms',
         u'mustchbcode': False,
         u'mustchpwd': False,
         u'phone': u'+98 (76) 54 3210',
-        u'unitlogin': u'pumapy_group'
+        u'unitlogin': u'pyppms_group'
     }
 
 
@@ -117,14 +117,14 @@ def user_admin_details_raw():
         u'active': True,
         u'affiliation': u'',
         u'bcode': u'',
-        u'email': u'pumapy-adm@python-facility.example',
+        u'email': u'pyppms-adm@python-facility.example',
         u'fname': u'PumAPI (Administrator)',
         u'lname': u'Python',
-        u'login': u'pumapy-adm',
+        u'login': u'pyppms-adm',
         u'mustchbcode': False,
         u'mustchpwd': False,
         u'phone': u'+98 (76) 54 3112',
-        u'unitlogin': u'pumapy_group'
+        u'unitlogin': u'pyppms_group'
     }
 
 
@@ -155,7 +155,7 @@ def ppms_user(user_details):
 
     Returns
     -------
-    pumapy.user.PpmsUser
+    pyppms.user.PpmsUser
     """
     return PpmsUser(
         username=user_details['login'],
@@ -176,7 +176,7 @@ def ppms_user_admin(user_admin_details):
 
     Returns
     -------
-    pumapy.user.PpmsUser
+    pyppms.user.PpmsUser
     """
     return PpmsUser(
         username=user_admin_details['login'],
@@ -197,7 +197,7 @@ def ppms_user_from_response(user_details):
 
     Returns
     -------
-    pumapy.user.PpmsUser
+    pyppms.user.PpmsUser
     """
     return PpmsUser.from_response(user_details['api_response'])
 
@@ -215,8 +215,8 @@ def group_details():
     return {
         u'heademail': u'group-leader@python-facility.example',
         u'unitname': u'Python Core Facility',
-        u'unitlogin': u'pumapy_group',
-        u'unitbcode': u'pumapy_group',
+        u'unitlogin': u'pyppms_group',
+        u'unitbcode': u'pyppms_group',
         u'department': u'Scientific Software Support',
         u'headname': u'PythonGroup Supervisor',
         u'active': True,
@@ -281,7 +281,7 @@ def runningsheet_response():
 
     The runningsheet returned by this function has entries of four bookings
     (13:00-14:00, 18:00-19:00, 20:00-21:00, 22:00-23:00), all of the same
-    user (pumapy) for the same system.
+    user (pyppms) for the same system.
 
     Returns
     -------

@@ -17,7 +17,7 @@ from datetime import datetime
 import pytest
 import requests.exceptions
 
-import pumapyconf
+import pyppmsconf
 from pyppms import ppms
 
 __author__ = "Niko Ehrenfeuchter"
@@ -32,11 +32,11 @@ _logger = logging.getLogger()
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
     caplog.set_level(logging.DEBUG)
-    cache_path = os.path.join(pumapyconf.CACHE_PATH, "stage_0")
+    cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
     conn = ppms.PpmsConnection(
-        url=pumapyconf.PUMAPI_URL,
-        api_key=pumapyconf.PPMS_API_KEY,
-        timeout=pumapyconf.TIMEOUT,
+        url=pyppmsconf.PUMAPI_URL,
+        api_key=pyppmsconf.PPMS_API_KEY,
+        timeout=pyppmsconf.TIMEOUT,
         cache=cache_path,
     )
     return conn
@@ -59,7 +59,7 @@ def switch_cache_post_change(conn, level):
     conn : PpmsConnection
     level : int
     """
-    new_path = os.path.join(pumapyconf.CACHE_PATH, "stage_%s" % level)
+    new_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_%s" % level)
     _logger.debug("Switching response cache path to reflect a PPMS status change.")
     _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
@@ -76,11 +76,11 @@ def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
     conn : PpmsConnection
     mocktype : str
         Used to distinguish various types of mocks, e.g. ``key_error`` for responses
-        that will trigger a `KeyError` exception in *pumapy*.
+        that will trigger a `KeyError` exception in *pyppms*.
     message : str, optional
         An explanatory message that will be logged with switching the cache path.
     """
-    new_path = os.path.join(pumapyconf.MOCKS_PATH, mocktype)
+    new_path = os.path.join(pyppmsconf.MOCKS_PATH, mocktype)
     _logger.debug("Switching response cache path for reason:\n>>> %s <<<", message)
     _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
@@ -112,12 +112,12 @@ def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key=pumapyconf.PPMS_API_KEY[:5])
+        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key=pyppmsconf.PPMS_API_KEY[:5])
 
     # wrong API key (trailing characters):
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pumapyconf.PUMAPI_URL, pumapyconf.PPMS_API_KEY + "appendixx"
+            pyppmsconf.PUMAPI_URL, pyppmsconf.PPMS_API_KEY + "appendixx"
         )
 
 
@@ -131,22 +131,22 @@ def test_ppmsconnection_fail(caplog):
 
     logd("Testing with no API key and no cache path")
     with pytest.raises(RuntimeError):
-        ppms.PpmsConnection(pumapyconf.PUMAPI_URL, api_key="", cache="")
+        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key="", cache="")
 
     logd("Testing with a mocked auth response containing 'error'")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pumapyconf.PUMAPI_URL,
+            pyppmsconf.PUMAPI_URL,
             api_key="dummykey",
-            cache=os.path.join(pumapyconf.MOCKS_PATH, "auth_response_contains_error"),
+            cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_response_contains_error"),
         )
 
     logd("Testing with a mocked auth response having a non-standard response code")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pumapyconf.PUMAPI_URL,
+            pyppmsconf.PUMAPI_URL,
             api_key="dummykey",
-            cache=os.path.join(pumapyconf.MOCKS_PATH, "auth_wrong_status_code"),
+            cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_wrong_status_code"),
         )
     # assert 0
 
@@ -158,22 +158,22 @@ def test_get_user_ids(ppms_connection):
     """Test getting a list of user IDs from PPMS."""
     users = ppms_connection.get_user_ids(active=False)
     print(users)
-    assert "pumapy" in users
+    assert "pyppms" in users
 
     users = ppms_connection.get_user_ids(active=True)
     print(users)
-    assert "pumapy" in users
+    assert "pyppms" in users
 
 
 def test_get_user_dict(ppms_connection, user_details_raw, user_admin_details_raw):
     """Test fetching details of a specific user."""
     print("Expected dict data: %s" % user_details_raw)
-    details = ppms_connection.get_user_dict("pumapy")
+    details = ppms_connection.get_user_dict("pyppms")
     print("Retrieved dict data: %s" % details)
     assert user_details_raw == details
 
     print("Expected dict data: %s" % user_admin_details_raw)
-    details = ppms_connection.get_user_dict("pumapy-adm")
+    details = ppms_connection.get_user_dict("pyppms-adm")
     print("Retrieved dict data: %s" % details)
     assert user_admin_details_raw == details
 
@@ -185,13 +185,13 @@ def test_get_groups(ppms_connection):
     """Test getting a list of group IDs ("unitlogin") from PPMS."""
     groups = ppms_connection.get_groups()
     print(groups)
-    assert "pumapy_group" in groups
+    assert "pyppms_group" in groups
 
 
 def test_get_group(ppms_connection, group_details):
     """Test fetching details of a specific group."""
     print("Expected dict data (subset): %s" % group_details)
-    details = ppms_connection.get_group("pumapy_group")
+    details = ppms_connection.get_group("pyppms_group")
     print("Retrieved dict data: %s" % details)
     for key in group_details.keys():
         assert group_details[key] == details[key]
@@ -202,12 +202,12 @@ def test_get_group(ppms_connection, group_details):
 
 def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     """Test the get_user() method."""
-    user = ppms_connection.get_user("pumapy")
+    user = ppms_connection.get_user("pyppms")
     print(user.details())
     print(ppms_user.details())
     assert user.details() == ppms_user.details()
 
-    user = ppms_connection.get_user("pumapy-adm")
+    user = ppms_connection.get_user("pyppms-adm")
     print(user.details())
     print(ppms_user_admin.details())
     assert user.details() == ppms_user_admin.details()
@@ -258,11 +258,11 @@ def test_get_admins(ppms_connection, ppms_user_admin):
     admin_user = None
     for admin in admins:
         usernames.append(admin.username)
-        if admin.username == "pumapy-adm":
+        if admin.username == "pyppms-adm":
             admin_user = admin
 
     print(usernames)
-    assert "pumapy-adm" in usernames
+    assert "pyppms-adm" in usernames
 
     print(admin_user.details())
     assert admin_user.details() == ppms_user_admin.details()
@@ -273,14 +273,14 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
     # TODO: that's certainly not the nicest test, it really needs to be
     # refactored once the get_group_users() method returns a dict instead of a
     # list of user objects!
-    members = ppms_connection.get_group_users("pumapy_group")
+    members = ppms_connection.get_group_users("pyppms_group")
     for user in members:
         print(user.details())
-        if user.username == "pumapy":
+        if user.username == "pyppms":
             assert user.details() == ppms_user.details()
-        elif user.username == "pumapy-adm":
+        elif user.username == "pyppms-adm":
             assert user.details() == ppms_user_admin.details()
-        elif user.username == "pumapy-deact":
+        elif user.username == "pyppms-deact":
             assert not user.active
         else:
             raise KeyError("Unexpected username: %s" % user.username)
@@ -297,7 +297,7 @@ def test_get_user_experience(ppms_connection):
     assert len(ppms_connection.get_user_experience()) > 0
 
     # check if a user has access to a specific system:
-    systems = ppms_connection.get_user_experience(login="pumapy")
+    systems = ppms_connection.get_user_experience(login="pyppms")
     sys_ids = list()
     for system in systems:
         sys_ids.append(system["id"])
@@ -308,10 +308,10 @@ def test_get_user_experience(ppms_connection):
     usernames = list()
     for user in users:
         usernames.append(user["login"])
-    assert "pumapy" in usernames
+    assert "pyppms" in usernames
 
     # check if filtering for user *and* system results in exactly one entry:
-    assert len(ppms_connection.get_user_experience("pumapy", 31)) == 1
+    assert len(ppms_connection.get_user_experience("pyppms", 31)) == 1
 
 
 def test_get_users_emails(
@@ -647,7 +647,7 @@ def test__get_machine_catalogue_from_system(ppms_connection, system_details_raw)
     assert cat == ""
 
     # test with a system name that doesn't exist
-    name = "_invalid_pumapy_system_name_"
+    name = "_invalid_pyppms_system_name_"
     cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
     assert cat == ""
 
