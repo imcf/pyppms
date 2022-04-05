@@ -28,7 +28,7 @@ from the top bar and finally clicking the `Create PUMAPI key` button.
 
 The tests assume certain users and systems to exist in the PUMAPI instance used
 for testing. Currently there is not yet a mechanism to automatically create
-those items unfortunately - sorry, working on it...
+those items unfortunately - sorry, might come at some point...
 
 The details on how to set them up can be looked up in the corresponding test
 fixtures in [`conftest.py`](/tests/conftest.py):
