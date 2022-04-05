@@ -31,12 +31,20 @@ for testing. Currently there is not yet a mechanism to automatically create
 those items unfortunately - sorry, might come at some point...
 
 The details on how to set them up can be looked up in the corresponding test
-fixtures in [`conftest.py`](/tests/conftest.py):
+fixtures in [`conftest.py`](/tests/conftest.py). Basically the following steps
+need to be done manually in the PPMS instance to be used for testing:
 
-- `user_details_raw`
-- `user_admin_details_raw`
-- `group_details`
-- `system_details_raw`
+- Create a group with the settings from `group_details`.
+- Create a regular user as denoted in `user_details_raw` that is a member of the
+  previously created group.
+- Create a user that has *administrator permissions* with the details denoted in
+  `user_admin_details_raw`, also make sure it is a member of the same group.
+- Create a system using the details from `system_details_raw`, and make sure the
+  regular user created above has permissions to book it. **NOTE**: currently the
+  system ID is hardcoded in that fixture, this will need to be adapted to your
+  PPMS instance and should be done in a smarter way in general...
+- Create a booking for the regular user on that system that is at some point in
+  the future.
 
 ### Development installation through poetry
 
