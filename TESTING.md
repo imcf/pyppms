@@ -26,25 +26,34 @@ from the top bar and finally clicking the `Create PUMAPI key` button.
 
 ### PPMS Preparations
 
-The tests assume certain users and systems to exist in the PUMAPI instance used
-for testing. Currently there is not yet a mechanism to automatically create
-those items unfortunately - sorry, might come at some point...
+The tests assume certain users and systems to exist in the PUMAPI instance used for
+testing. Currently there is not yet a mechanism to automatically create those items
+unfortunately - sorry, might come at some point...
 
-The details on how to set them up can be looked up in the corresponding test
-fixtures in [`conftest.py`](/tests/conftest.py). Basically the following steps
-need to be done manually in the PPMS instance to be used for testing:
+For now, simply run the following command to see what has to be configured in your PPMS
+test-instance, then log into the web interface with your browser and manually create the
+required items:
 
-- Create a group with the settings from `group_details`.
-- Create a regular user as denoted in `user_details_raw` that is a member of the
-  previously created group.
-- Create a user that has *administrator permissions* with the details denoted in
-  `user_admin_details_raw`, also make sure it is a member of the same group.
-- Create a system using the details from `system_details_raw`, and make sure the
-  regular user created above has permissions to book it. **NOTE**: currently the
-  system ID is hardcoded in that fixture, this will need to be adapted to your
-  PPMS instance and should be done in a smarter way in general...
-- Create a booking for the regular user on that system that is at some point in
-  the future.
+```bash
+poetry run python tests/show_required_ppms_values.py
+```
+
+Remarks / additional details:
+
+- All created users should be members of the previously created group.
+- After creating the *admin* user, go to the **Admins** page in PPMS, hit the
+  *Create a new administrator* button, then select the correct facility and pick
+  the user account. In options, simply check the *System management* box, then
+  click *Create administrator*.
+- After creating all users, navigate to the **Rights** page, select the newly
+  created system and pick the *regular* user, then hit the *Create* button to
+  assign booking permissions to the user account.
+- In addition to the above, four bookings for the *regular* user on the created
+  system need to be made on 2028-12-24:
+  - from 09:00 to 10:00
+  - from 11:00 to 12:00
+  - from 13:00 to 14:00
+  - from 15:00 to 16:00
 
 ### Development installation through poetry
 
