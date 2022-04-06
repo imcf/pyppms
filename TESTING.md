@@ -47,7 +47,9 @@ Remarks / additional details:
   click *Create administrator*.
 - After creating all users, navigate to the **Rights** page, select the newly
   created system and pick the *regular* user, then hit the *Create* button to
-  assign booking permissions to the user account.
+  assign booking permissions to the user account. Then repeat this for the admin
+  user and the *inactive* user (account needs to be set to *active* for adding
+  the permissions).
 - In addition to the above, four bookings for the *regular* user on the created
   system need to be made on 2028-12-24:
   - from 09:00 to 10:00
@@ -77,12 +79,14 @@ cache will be (re-)created.
 **TODO** Rough outline **TODO**
 
 - `rm -r tests/cached_responses`
+- either run all tests or the selected ones below to (re-)create the cached responses:
+  - `tests/test_ppms.py::test_get_systems` (`stage_0/getsystems/response.txt`)
+  - `tests/test_ppms.py::test_get_user_experience` (`stage_0/getuserexp/`)
 - run tests (TODO: figure out which ones!) that will create
   - `tests/cached_responses/stage_0/getusers/active--true.txt`
   - `tests/cached_responses/stage_0/getadmins/response.txt`
   - `tests/cached_responses/stage_0/getgroup/unitlogin--pyppms_group.txt`
   - `tests/cached_responses/stage_0/getgroups/response.txt`
-  - `tests/cached_responses/stage_0/getsystems/response.txt`
 - `git diff` them to see if the newly cached responses contain are having
   changes that are reasonable (i.e. still contain the created users / systems or
   only differ in creation / booking dates etc.)
