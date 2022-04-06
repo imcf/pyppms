@@ -46,3 +46,16 @@ user_standard:
   affiliation: ''
   bcode: ''
   active: true
+
+user_inactive:
+  lname: Python
+  fname: PumAPI (Deactivated)
+  email: pyppms-deact@python-facility.example
+  login: pyppms-deact
+  phone: +98 (76) 54 3007
+  unitlogin: pyppms_group
+  mustchbcode: false
+  mustchpwd: false
+  affiliation: ''
+  bcode: ''
+  active: true
