@@ -1,2 +1,2 @@
 Core facility ref,System id,Type,Name,Localisation,Active,Schedules,Stats,Bookable,Autonomy Required,Autonomy Required After Hours
-2,31,"Virtualized Workstation","Python Development System","VDI (Development)",True,True,True,True,True,False
+2,69,"Virtualized Workstation","Python Development System","VDI (Development)",True,True,True,True,True,False

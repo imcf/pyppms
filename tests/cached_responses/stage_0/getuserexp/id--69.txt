@@ -1,4 +1,4 @@
 login,id,booked_hours,used_hours,last_res,last_train
-"pyppms",31,29,0,2019/06/02,n/a
-"pyppms-adm",31,0,0,n/a,n/a
-"pyppms-deact",31,0,0,n/a,n/a
+"pyppms",69,0,0,n/a,n/a
+"pyppms-adm",69,0,0,n/a,n/a
+"pyppms-deact",69,0,0,n/a,n/a
