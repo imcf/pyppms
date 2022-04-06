@@ -77,10 +77,16 @@ cache will be (re-)created.
 **TODO** Rough outline **TODO**
 
 - `rm -r tests/cached_responses`
-- TODO: run a test that creates
-  `tests/cached_responses/stage_0/getusers/active--true.txt`
-- check if the result contains `pyppms` and `pyppms-adm` (mandatory)
-- reset the file to the state in git
+- run tests (TODO: figure out which ones!) that will create
+  - `tests/cached_responses/stage_0/getusers/active--true.txt`
+  - `tests/cached_responses/stage_0/getadmins/response.txt`
+  - `tests/cached_responses/stage_0/getgroup/unitlogin--pyppms_group.txt`
+  - `tests/cached_responses/stage_0/getgroups/response.txt`
+  - `tests/cached_responses/stage_0/getsystems/response.txt`
+- `git diff` them to see if the newly cached responses contain are having
+  changes that are reasonable (i.e. still contain the created users / systems or
+  only differ in creation / booking dates etc.)
+- `git restore` those files
 - rename `tests/mocked_responses/get_users_with_access_to_system__invalid_response/getsysrights/id--31.txt` to match the ID of the above created system
 
 
