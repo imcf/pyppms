@@ -1,0 +1,48 @@
+group:
+  headname: PythonGroup Supervisor
+  unitname: Python Core Facility
+  heademail: group-leader@python-facility.example
+  unitlogin: pyppms_group
+  unitbcode: pyppms_group
+  department: Scientific Software Support
+  institution: Famous Research Foundation
+  active: true
+
+system:
+  Name: Python Development System
+  Type: Virtualized Workstation
+  Localisation: VDI (Development)
+  Active: 'True'
+  Autonomy Required: 'True'
+  Autonomy Required After Hours: 'False'
+  Stats: 'True'
+  Schedules: 'True'
+  Bookable: 'True'
+  Core facility ref: '2'
+  System id: '69'
+
+user_admin:
+  lname: Python
+  fname: PumAPI (Administrator)
+  email: pyppms-adm@python-facility.example
+  login: pyppms-adm
+  phone: +98 (76) 54 3112
+  unitlogin: pyppms_group
+  mustchbcode: false
+  mustchpwd: false
+  affiliation: ''
+  bcode: ''
+  active: true
+
+user_standard:
+  lname: Python
+  fname: PumAPI
+  email: pyppms@python-facility.example
+  login: pyppms
+  phone: +98 (76) 54 3210
+  unitlogin: pyppms_group
+  mustchbcode: false
+  mustchpwd: false
+  affiliation: ''
+  bcode: ''
+  active: true

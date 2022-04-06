@@ -11,10 +11,10 @@ import pytest
 
 from pyppms.user import PpmsUser
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
+from ppms_values import values
 
+
+__PPMS_VALUES__ = values()
 
 ### pytest setup ###
 
@@ -87,19 +87,7 @@ def user_details_raw():
     -------
     dict
     """
-    return {
-        u'active': True,
-        u'affiliation': u'',
-        u'bcode': u'',
-        u'email': u'pyppms@python-facility.example',
-        u'fname': u'PumAPI',
-        u'lname': u'Python',
-        u'login': u'pyppms',
-        u'mustchbcode': False,
-        u'mustchpwd': False,
-        u'phone': u'+98 (76) 54 3210',
-        u'unitlogin': u'pyppms_group'
-    }
+    return __PPMS_VALUES__["user_standard"]
 
 
 @pytest.fixture(scope="module")
@@ -113,19 +101,7 @@ def user_admin_details_raw():
     -------
     dict
     """
-    return {
-        u'active': True,
-        u'affiliation': u'',
-        u'bcode': u'',
-        u'email': u'pyppms-adm@python-facility.example',
-        u'fname': u'PumAPI (Administrator)',
-        u'lname': u'Python',
-        u'login': u'pyppms-adm',
-        u'mustchbcode': False,
-        u'mustchpwd': False,
-        u'phone': u'+98 (76) 54 3112',
-        u'unitlogin': u'pyppms_group'
-    }
+    return __PPMS_VALUES__["user_admin"]
 
 
 ### extended user dicts (with keys 'fullname', 'api_response', 'expected') ###
@@ -212,16 +188,7 @@ def group_details():
     -------
     dict
     """
-    return {
-        u'heademail': u'group-leader@python-facility.example',
-        u'unitname': u'Python Core Facility',
-        u'unitlogin': u'pyppms_group',
-        u'unitbcode': u'pyppms_group',
-        u'department': u'Scientific Software Support',
-        u'headname': u'PythonGroup Supervisor',
-        u'active': True,
-        u'institution': u'Famous Research Foundation',
-    }
+    return __PPMS_VALUES__["group"]
 
 
 ### system detail dicts ###
@@ -238,19 +205,7 @@ def system_details_raw():
     dict
     """
     # TODO: this *URGENTLY* needs a better solution than hard-coding the system ID!!
-    return {
-        u'System id': u'69',
-        u'Name': u'Python Development System',
-        u'Localisation': u'VDI (Development)',
-        u'Type': u'Virtualized Workstation',
-        u'Core facility ref': u'2',
-        u'Schedules': u'True',
-        u'Active': u'True',
-        u'Stats': u'True',
-        u'Bookable': u'True',
-        u'Autonomy Required': u'True',
-        u'Autonomy Required After Hours': u'False',
-    }
+    return __PPMS_VALUES__["system"]
 
 
 ### mapping dicts for user fullname, system name, ... ###
