@@ -24,6 +24,9 @@ __author__ = "Niko Ehrenfeuchter"
 __copyright__ = __author__
 __license__ = "gpl3"
 
+# TODO: system ID is hard-coded here, so this will fail on any other instance!
+__SYS_ID__ = 69
+
 
 _logger = logging.getLogger()
 
@@ -290,8 +293,6 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
 
 def test_get_user_experience(ppms_connection):
     """Test the get_user_experience() method."""
-    # TODO: system IDs are currently hard-coded here, so this will fail on any
-    # other PPMS instance!
 
     # check if we get some experience data after all:
     assert len(ppms_connection.get_user_experience()) > 0
@@ -301,17 +302,17 @@ def test_get_user_experience(ppms_connection):
     sys_ids = list()
     for system in systems:
         sys_ids.append(system["id"])
-    assert "31" in sys_ids
+    assert str(__SYS_ID__) in sys_ids
 
     # check if a system is having a specific user with permission to access it:
-    users = ppms_connection.get_user_experience(system_id=31)
+    users = ppms_connection.get_user_experience(system_id=__SYS_ID__)
     usernames = list()
     for user in users:
         usernames.append(user["login"])
     assert "pyppms" in usernames
 
     # check if filtering for user *and* system results in exactly one entry:
-    assert len(ppms_connection.get_user_experience("pyppms", 31)) == 1
+    assert len(ppms_connection.get_user_experience("pyppms", __SYS_ID__)) == 1
 
 
 def test_get_users_emails(
