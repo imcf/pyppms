@@ -107,8 +107,12 @@ def test_ppmsconnection_online(ppms_connection):
     assert ppms_connection.status["auth_state"] == "good"
 
 
-def test_ppmsconnection(ppms_connection):
-    """Test instantiating a PpmsConnection object in online or offline mode."""
+def test_ppmsconnection(ppms_connection, capsys):
+    """Instantiate a PpmsConnection object in online or offline mode.
+
+    NOTE: this test either requires a *CACHED* response to be present or valid
+    settings in `pyppmsconf.py` to talk to a real PUMAPI instance.
+    """
     auth_state = ppms_connection.status["auth_state"]
     print(auth_state)
     assert auth_state in ["good", "NOT_TRIED"]
