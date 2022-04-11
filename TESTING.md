@@ -107,20 +107,12 @@ a series of queries) allows for checking if the behavior of the API has silently
 changed by simply deleting the cache and re-building it afterwards. To do so, the
 following steps are required:
 
-* removing the cache
 * preparing your test instance of PPMS (unfortunately a manual operation)
+* removing the cache
 * running the tests in online mode to re-populate the cache
 * filtering / checking / validating the results
 
 Those steps are described in details in the following sections.
-
-### Removing the Cache
-
-As easy as running:
-
-```bash
-rm -r tests/cached_responses
-```
 
 ### PPMS Preparations
 
@@ -155,6 +147,14 @@ Remarks / additional details:
   * from 11:00 to 12:00
   * from 13:00 to 14:00
   * from 15:00 to 16:00
+
+### Removing the Cache
+
+As easy as running:
+
+```bash
+rm -r tests/cached_responses
+```
 
 ### Re-populating the Cache
 
