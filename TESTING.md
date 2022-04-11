@@ -156,13 +156,63 @@ As easy as running:
 rm -r tests/cached_responses
 ```
 
-### Re-populating the Cache
+### Re-populating and validating the Cache
 
-Simply run the test suite in *online* mode:
+First run the most time-consuming tests that will fetch all users from your PPMS:
 
 ```bash
-poetry run pytest --online
+poetry run pytest --online tests/test_ppms.py::test_get_users
+poetry run pytest --online tests/test_ppms.py::test_get_admins
 ```
+
+This will clutter up the `tests/cached_responses/stage_0/getuser/` directory with plenty
+of files from users in your PPMS instance that the cache doesn't know about (and also
+shouldn't). To clean this, simply remove all files unknown to git by running something
+like this:
+
+```bash
+git status --porcelain |
+  grep '/stage_0/getuser/' |
+  grep '^??' |
+  cut -c 4- |
+  xargs rm -v
+```
+
+Then, check if `tests/cached_responses/stage_0/getusers/active--true.txt` contains the
+two active users created above (being `pyppms` and `pyppms-adm`). If yes, discard the
+changes to the file:
+
+```bash
+git restore tests/cached_responses/stage_0/getusers/active--true.txt
+```
+
+Then, check if `tests/cached_responses/stage_0/getadmins/response.txt` contains the
+`pyppms-adm` user and discard the changes if yes:
+
+```bash
+git restore tests/cached_responses/stage_0/getadmins/response.txt
+```
+
+Finally run all `--online` tests, then check the updated cache files to contain all the
+expected values. For simplification use this shortcut function (bash) to discard lines
+that were added to the given file:
+
+```bash
+filternew() {
+    git diff "$1" | dos2unix | grep -v '^+'
+}
+```
+
+* `tests/cached_responses/stage_0/getgroups/response.txt`: `pyppms_group`
+* all active pyppms users need to be present:
+  * `tests/cached_responses/stage_0/getuserexp/response.txt`
+  * `tests/cached_responses/stage_0/getusers/response.txt`
+* all (including inactive) pyppms users need to be present (TODO: `A:` vs. `S:`)
+  * `tests/cached_responses/stage_0/getsysrights/id--69.txt`
+  * `tests/cached_responses/stage_1/getsysrights/id--69.txt`
+  * `tests/cached_responses/stage_2/getsysrights/id--69.txt`
+* `tests/cached_responses/stage_0/getusers/response.txt`: the `pyppms` user needs
+  to be in there, but what are the numbers...?
 
 ### Validating the new Cache
 
@@ -175,7 +225,6 @@ few filtering steps have to be done each time the local response cache will be
 
 * either run all tests in `tests/test_ppms.py` or the selected ones below to (re-)create
   the cached responses:
-  * `test_get_users` (`stage0/getusers/`)
   * `test_get_systems` (`stage_0/getsystems/response.txt`)
   * `test_get_user_experience` (`stage_0/getuserexp/`)
   * `test_get_admins` (`stage_0/getadmins/`)
