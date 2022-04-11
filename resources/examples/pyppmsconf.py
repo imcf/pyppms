@@ -11,7 +11,7 @@ TIMEOUT = 10
 
 # path where to cache responses (either relative to the repository root or an
 # absolute path), can be empty which will disable the cache
-CACHE_PATH = 'tests/response-cache'
+CACHE_PATH = "tests/cached_responses"
 
 # TESTING ONLY: path to mocked responses (either relative to the repository root or an
 # absolute path)
