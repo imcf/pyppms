@@ -104,7 +104,7 @@ Once everything is set up, you should be good to simply type `poetry run pytest`
 on the command line, the output should look something like this:
 
 ```text
-pytest -rs
+poetry run pytest --online
 ============================ test session starts =============================
 platform linux -- Python 3.8.10, pytest-7.1.1, pluggy-1.0.0
 cachedir: .pytest_cache
