@@ -20,6 +20,10 @@ To run the tests, copy the example [`pyppmsconf.py`](/resources/examples/pyppmsc
 file to the `/tests/` directory. For the online tests, please edit it according to your
 instance and key - the offline tests work without config modifications.
 
+```bash
+cp -v resources/examples/pyppmsconf.py tests/
+```
+
 To generate an API key a so-called "Super-Admin" needs to log on to your PPMS instance,
 navigate to `My PPMS` using the drop-down menu on the top-right, then selecting `API`
 from the top bar and finally clicking the `Create PUMAPI key` button.
