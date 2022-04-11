@@ -34,6 +34,10 @@ _logger = logging.getLogger()
 @pytest.fixture
 def ppms_connection(caplog):
     """Establish a connection to a PPMS / PUMAPI instance."""
+    print(
+        "NOTE: some tests require either a *CACHED* response to be present or "
+        "valid settings in `pyppmsconf.py` to talk to a real PUMAPI instance."
+    )
     caplog.set_level(logging.DEBUG)
     cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
     conn = ppms.PpmsConnection(
