@@ -5,19 +5,19 @@ coverage of 100%. Testing of the project is performed through [pytest][t1].
 
 ## Concept of PyPPMS Unit Tests
 
-As proper testing of an HTTP-based API will require interacting with a real instance of
+As proper testing of an HTTP-based API will require interaction with a real instance of
 that given API the *complete* suite of tests will only be able to run if you're having
 access to PPMS somewhere. Obviously, this should not be done on a production instance
 but a separate test setup (contact Stratocore to get one).
 
-To speed up testing, making it more convenient and provide a certain degree of
-robustness against silent changes of the PPMS API, tests are split into basically three
+To speed up testing, make it more convenient and provide a certain level of robustness
+against silent changes of the PPMS API, tests are split into more or less three
 categories:
 
-* pure *local* unit tests - they don't need a PPMS / PUMAPI instance
-* tests using *cached* responses from a real PPMS / PUMAPI
-* tests using *mocked* responses to simulate specific behavior of PPMS that cannot be
-  triggered otherwise
+* ***local*** unit tests - they don't need a PPMS / PUMAPI instance
+* tests using ***cached*** responses from a real PPMS / PUMAPI
+* tests using ***mocked*** responses to simulate specific behavior of PPMS that cannot
+  be triggered otherwise
 
 ### Development installation through poetry
 
@@ -38,7 +38,7 @@ Almost all of the *request-response* tests, which is basically anything in the
 [PpmsConnection](/src/pyppms/ppms.py) class, do **NOT** require a valid API-key or a
 connection to a PUMAPI instance. Instead, they can be performed using the built-in
 response-caching mechanism combined with the mocks and cached responses provided with
-the tests.
+the repository.
 
 #### Using the cache
 
@@ -56,15 +56,15 @@ on *running online tests* below for details.
 
 To run the tests, copy the example [`pyppmsconf.py`](/resources/examples/pyppmsconf.py)
 file to the `/tests/` directory. For the online tests, please edit it according to your
-instance and key - the offline tests work without config modifications.
+instance and key - the offline tests will work without modifying the config.
 
 ```bash
 cp -v resources/examples/pyppmsconf.py tests/
 ```
 
 To generate an API key a so-called "Super-Admin" needs to log on to your PPMS instance,
-navigate to `My PPMS` using the drop-down menu on the top-right, then selecting `API`
-from the top bar and finally clicking the `Create PUMAPI key` button.
+navigate to `My PPMS` using the drop-down menu on the top-right, select `API` from the
+top bar and finally hit the `Create PUMAPI key` button.
 
 ## Running Tests
 
@@ -121,8 +121,8 @@ testing, your test instance needs to be prepared accordingly. Currently there is
 a mechanism to automatically create those items unfortunately - sorry, might come at
 some point...
 
-For now, simply run the following command to see what has to be configured in your PPMS,
-then log into the web interface with your browser and manually create the required
+For now, simply run the following command to see what needs to be configured in your
+PPMS, then log into the web interface with your browser and manually create the required
 items:
 
 ```bash
