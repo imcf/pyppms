@@ -107,7 +107,8 @@ a series of queries) allows for checking if the behavior of the API has silently
 changed by simply deleting the cache and re-building it afterwards. To do so, the
 following steps are required:
 
-* preparing your test instance of PPMS (unfortunately a manual operation)
+* preparing your test instance of PPMS - unfortunately this is a manual operation, but
+  it has to be done only once (unless Stratocore resets your test instance)
 * removing the cache
 * running the tests in online mode to re-populate the cache
 * filtering / checking / validating the results
@@ -158,87 +159,141 @@ rm -r tests/cached_responses
 
 ### Re-populating and validating the Cache
 
-First run the most time-consuming tests that will fetch all users from your PPMS:
+NOTE: As a test-instance of PPMS usually is a clone of a real one it will contain many
+more but the previously created objects. Therefore when re-populating the cache from a
+real PPMS instance a few filtering steps have to be done to validate the new cache files
+and ignore those "unpredictable" ("instance-specific") elements.
+
+First run the most time-consuming tests that will fetch all users from your PPMS (this
+can easily take several minutes, depending on your PPMS instance):
 
 ```bash
 poetry run pytest --online tests/test_ppms.py::test_get_users
 poetry run pytest --online tests/test_ppms.py::test_get_admins
 ```
 
-This will clutter up the `tests/cached_responses/stage_0/getuser/` directory with plenty
-of files from users in your PPMS instance that the cache doesn't know about (and also
-shouldn't). To clean this, simply remove all files unknown to git by running something
-like this:
+As a result, the `tests/cached_responses/stage_0/getuser/` directory will be cluttered
+up with plenty of files from users in your PPMS instance that the cache doesn't know
+about (and also shouldn't). To clean this, simply remove all corresponding
+response-cache files untracked by git:
 
 ```bash
-git status --porcelain |
-  grep '/stage_0/getuser/' |
-  grep '^??' |
-  cut -c 4- |
-  xargs rm -v
+git clean -f tests/cached_responses/stage_0/getuser/
 ```
 
-Then, check if `tests/cached_responses/stage_0/getusers/active--true.txt` contains the
-two active users created above (being `pyppms` and `pyppms-adm`). If yes, discard the
-changes to the file:
-
-```bash
-git restore tests/cached_responses/stage_0/getusers/active--true.txt
-```
-
-Then, check if `tests/cached_responses/stage_0/getadmins/response.txt` contains the
-`pyppms-adm` user and discard the changes if yes:
-
-```bash
-git restore tests/cached_responses/stage_0/getadmins/response.txt
-```
-
-Finally run all `--online` tests, then check the updated cache files to contain all the
-expected values. For simplification use this shortcut function (bash) to discard lines
-that were added to the given file:
+Now the freshly re-created response files need to be checked if they contain all the
+expected values while discarding / ignoring the additional ones introduced by your
+specific PPMS instance. To simplify this task use this shortcut function (bash) to show
+the `git diff` of a file while discarding all lines that were added to it (as they are
+specific to your instance):
 
 ```bash
 filternew() {
-    git diff "$1" | dos2unix | grep -v '^+'
+    git diff --no-color "$1" | grep -v '^+' | tail -n +5
 }
 ```
 
-* `tests/cached_responses/stage_0/getgroups/response.txt`: `pyppms_group`
-* all active pyppms users need to be present:
-  * `tests/cached_responses/stage_0/getuserexp/response.txt`
-  * `tests/cached_responses/stage_0/getusers/response.txt`
-* all (including inactive) pyppms users need to be present (TODO: `A:` vs. `S:`)
-  * `tests/cached_responses/stage_0/getsysrights/id--69.txt`
-  * `tests/cached_responses/stage_1/getsysrights/id--69.txt`
-  * `tests/cached_responses/stage_2/getsysrights/id--69.txt`
+First, this needs to be done for the files created by the two tests from above (active
+users and admins). Run the command and compare the output that is expected to look as
+shown here:
+
+```bash
+filternew "tests/cached_responses/stage_0/getusers/active--true.txt"
+ pyppms
+ pyppms-adm
+
+filternew "tests/cached_responses/stage_0/getadmins/response.txt"
+ pyppms-adm
+```
+
+If the output matches, discard the changes to those files:
+
+```bash
+git restore \
+  "tests/cached_responses/stage_0/getusers/active--true.txt" \
+  "tests/cached_responses/stage_0/getadmins/response.txt"
+```
+
+Now run all `--online` tests - with the just (re-)created cache files for the users and
+admins, this should only take a few seconds:
+
+```bash
+poetry run pytest --online
+```
+
+Then, check the remaining re-created cache files for their content:
+
+```bash
+filternew "tests/cached_responses/stage_0/getusers/response.txt"
+ pyppms
+ pyppms-adm
+ pyppms-deact
+
+filternew "tests/cached_responses/stage_0/getgroups/response.txt"
+ pyppms_group
+
+filternew "tests/cached_responses/stage_0/getsysrights/id--*"
+ A:pyppms
+ A:pyppms-adm
+ D:pyppms-deact
+ S:pyppms-adm
+
+filternew "tests/cached_responses/stage_1/getsysrights/id--*"
+ D:pyppms
+ A:pyppms-adm
+ D:pyppms-deact
+ S:pyppms-adm
+
+
+filternew "tests/cached_responses/stage_2/getsysrights/id--*"
+ D:pyppms
+ A:pyppms-adm
+ D:pyppms-deact
+ S:pyppms-adm
+```
+
+Do the same for the systems and user experience responses, taking into account that the
+system ID will differ in your case, those lines will then show as missing in the diff:
+
+```bash
+filternew "tests/cached_responses/stage_0/getsystems/response.txt"
+ Core facility ref,System id,Type,Name,Localisation,Active,Schedules,Stats,Bookable,Autonomy Required,Autonomy Required After Hours
+ 2,69,"Virtualized Workstation","Python Development System","VDI (Development)",True,True,True,True,True,False
+
+filternew "tests/cached_responses/stage_0/getuserexp/response.txt"
+ login,id,booked_hours,used_hours,last_res,last_train
+ "pyppms",69,0,0,n/a,n/a
+ "pyppms-adm",69,0,0,n/a,n/a
+ "pyppms-deact",69,0,0,n/a,n/a
+```
+
+The last one to check is the response for the `nextbooking` query, which will differ in
+the two additional lines for the remaining time and the session, so the result should
+look something like this:
+
+```bash
+filternew "tests/cached_responses/stage_0/nextbooking/id--*"
+ pyppms
+-303520
+-31432
+```
+
+If all output matches, discard the changes to those files:
+
+```bash
+git restore \
+  "tests/cached_responses/stage_0/getusers/response.txt" \
+  "tests/cached_responses/stage_0/getgroups/response.txt" \
+  "tests/cached_responses/stage_0/getsysrights/id--*" \
+  "tests/cached_responses/stage_1/getsysrights/id--*" \
+  "tests/cached_responses/stage_2/getsysrights/id--*" \
+  "tests/cached_responses/stage_0/getsystems/response.txt" \
+  "tests/cached_responses/stage_0/getuserexp/response.txt" \
+  "tests/cached_responses/stage_0/nextbooking/id--*"
+```
+
 * `tests/cached_responses/stage_0/getusers/response.txt`: the `pyppms` user needs
   to be in there, but what are the numbers...?
-
-### Validating the new Cache
-
-As a test-instance of PPMS usually is a clone of a real one it will contain many more
-but the above created objects. To make the tests ignore those "unexpected" elements, a
-few filtering steps have to be done each time the local response cache will be
-(re-)created.
-
-**TODO** Rough outline **TODO**
-
-* either run all tests in `tests/test_ppms.py` or the selected ones below to (re-)create
-  the cached responses:
-  * `test_get_systems` (`stage_0/getsystems/response.txt`)
-  * `test_get_user_experience` (`stage_0/getuserexp/`)
-  * `test_get_admins` (`stage_0/getadmins/`)
-  * `test_get_users_with_access_to_system` (`stage_0/getsysrights/`)
-* run tests (TODO: figure out which ones!) that will create
-  * `tests/cached_responses/stage_0/getusers/active--true.txt`
-  * `tests/cached_responses/stage_0/getadmins/response.txt`
-  * `tests/cached_responses/stage_0/getgroup/unitlogin--pyppms_group.txt`
-  * `tests/cached_responses/stage_0/getgroups/response.txt`
-* `git diff` them to see if the newly cached responses contain are having
-  changes that are reasonable (i.e. still contain the created users / systems or
-  only differ in creation / booking dates etc.)
-* `git restore` those files
-* rename `tests/mocked_responses/get_users_with_access_to_system__invalid_response/getsysrights/id--31.txt` to match the ID of the above created system
 
 [t1]: https://pytest.org
 [t2]: https://python-poetry.org
