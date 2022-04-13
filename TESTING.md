@@ -292,8 +292,5 @@ git restore \
   "tests/cached_responses/stage_0/nextbooking/id--*"
 ```
 
-* `tests/cached_responses/stage_0/getusers/response.txt`: the `pyppms` user needs
-  to be in there, but what are the numbers...?
-
 [t1]: https://pytest.org
 [t2]: https://python-poetry.org
