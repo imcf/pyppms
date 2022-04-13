@@ -5,6 +5,6 @@
 .. include:: ../../TESTING.md
 """
 
-__version__ = "1.1.0-dev0"
+__version__ = "1.1.1-dev0"
 
 from .ppms import PpmsConnection
