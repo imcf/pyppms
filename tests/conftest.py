@@ -9,9 +9,9 @@
 
 import pytest
 
-from pyppms.user import PpmsUser
-
 from ppms_values import values
+
+from pyppms.user import PpmsUser
 
 
 __PPMS_VALUES__ = values()
