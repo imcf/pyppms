@@ -63,18 +63,22 @@ def extend_raw_details(raw_details):
         and 'api_response'.
     """
     details = raw_details.copy()
-    details['fullname'] = "%s %s" % (details['lname'], details['fname'])
-    details['expected'] = (
-        'username: %s, email: %s, fullname: %s, ppms_group: %s, active: True' %
-        (details['login'], details['email'], details['fullname'],
-         details['unitlogin'])
+    details["fullname"] = f'{details["lname"]} {details["fname"]}'
+    details["expected"] = (
+        f'username: {details["login"]}, '
+        f'email: {details["email"]}, '
+        f'fullname: {details["fullname"]}, '
+        f'ppms_group: {details["unitlogin"]}, '
+        "active: True"
     )
-    details['api_response'] = (
-        u'login,lname,fname,email,phone,bcode,affiliation,'
-        u'unitlogin,mustchpwd,mustchbcode,active\r\n'
-        '"%s","%s","%s","%s","%s","","","%s",false,false,true\r\n' %
-        (details['login'], details['lname'], details['fname'],
-         details['email'], details['phone'], details['unitlogin'])
+
+    details["api_response"] = (
+        "login,lname,fname,"
+        "email,phone,bcode,affiliation,"
+        "unitlogin,mustchpwd,mustchbcode,active\r\n"
+        f'"{details["login"]}","{details["lname"]}","{details["fname"]}",'
+        f'"{details["email"]}","{details["phone"]}","","",'
+        f'"{details["unitlogin"]}",false,false,true\r\n'
     )
 
     return details

@@ -139,7 +139,7 @@ class PpmsConnection:
         # text - however, it is unclear if PUMAPI ever returns this:
         if "error" in response.text.lower():
             self.status["auth_state"] = "FAILED-ERROR"
-            msg = "Authentication failed with an error: %s" % response.text
+            msg = f"Authentication failed with an error: {response.text}"
             LOG.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
@@ -156,10 +156,9 @@ class PpmsConnection:
             )
             self.status["auth_state"] = "FAILED-UNKNOWN"
 
-            msg = "Authenticating against %s with key [%s...%s] FAILED!" % (
-                self.url,
-                self.api_key[:2],
-                self.api_key[-2:],
+            msg = (
+                f"Authenticating against {self.url} with key "
+                f"[{self.api_key[:2]}...{self.api_key[-2:]}] FAILED!"
             )
             LOG.error(msg)
             raise requests.exceptions.ConnectionError(msg)
@@ -221,7 +220,7 @@ class PpmsConnection:
         # to figure out if we have succeeded:
         if "request not authorized" in response.text.lower():
             self.status["auth_state"] = "FAILED"
-            msg = "Not authorized to run action `%s`" % req_data["action"]
+            msg = f"Not authorized to run action `{req_data['action']}`"
             LOG.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
@@ -259,7 +258,7 @@ class PpmsConnection:
         for key in keylist:
             if key in ["action", "apikey"]:
                 continue
-            signature += "__%s--%s" % (key, req_data[key])
+            signature += f"__{key}--{req_data[key]}"
         if signature == "":
             signature = "__response"
         signature = signature[2:] + ".txt"
@@ -301,7 +300,7 @@ class PpmsConnection:
 
         intercept_file = self.__interception_path(req_data, create_dir=False)
         if not os.path.exists(intercept_file):  # pragma: no cover
-            raise LookupError("No cache hit for [%s]" % intercept_file)
+            raise LookupError(f"No cache hit for [{intercept_file}]")
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
             text = infile.read()
@@ -399,7 +398,7 @@ class PpmsConnection:
 
         response = self.request("newuser", req_data)
         if not "OK newuser" in response.text:
-            msg = "Creating new user failed: %s" % response.text
+            msg = f"Creating new user failed: {response.text}"
             LOG.error(msg)
             raise RuntimeError(msg)
 
@@ -474,7 +473,7 @@ class PpmsConnection:
         response = self.request("getuser", {"login": login_name})
 
         if not response.text:
-            msg = "User [%s] is unknown to PPMS" % login_name
+            msg = f"User [{login_name}] is unknown to PPMS"
             LOG.error(msg)
             raise KeyError(msg)
 
@@ -514,7 +513,7 @@ class PpmsConnection:
         response = self.request("getuser", {"login": login_name})
 
         if not response.text:
-            msg = "User [%s] is unknown to PPMS" % login_name
+            msg = f"User [{login_name}] is unknown to PPMS"
             LOG.error(msg)
             raise KeyError(msg)
 
@@ -637,7 +636,7 @@ class PpmsConnection:
         LOG.debug("Group details returned by PPMS (raw): %s", response.text)
 
         if not response.text:
-            msg = "Group [%s] is unknown to PPMS" % group_id
+            msg = f"Group [{group_id}] is unknown to PPMS"
             LOG.error(msg)
             raise KeyError(msg)
 
@@ -809,7 +808,7 @@ class PpmsConnection:
             A list with PPMS system IDs matching all of the given criteria.
         """
         loc = localisation
-        loc_desc = "with location matching [%s]" % localisation
+        loc_desc = f"with location matching [{localisation}]"
         if localisation == "":
             loc_desc = "(no location filter given)"
 
@@ -891,9 +890,9 @@ class PpmsConnection:
                 users.append(username)
 
         except Exception as err:
-            msg = "Unable to parse data returned by PUMAPI: %s - ERROR: %s" % (
-                response.text,
-                err,
+            msg = (
+                f"Unable to parse data returned by PUMAPI: {response.text} - "
+                f"ERROR: {err}"
             )
             LOG.error(msg)
             raise ValueError(msg)
@@ -951,7 +950,7 @@ class PpmsConnection:
             try:
                 return mapping[shortname]
             except KeyError:
-                raise KeyError("Invalid permission [%s] given" % shortname)
+                raise KeyError(f"Invalid permission [{shortname}] given")
 
         LOG.debug(
             "Setting permission level [%s] for user [%s] on system [%s]",
@@ -1059,7 +1058,7 @@ class PpmsConnection:
         valid = ["get", "next"]
         if booking_type not in valid:
             raise ValueError(
-                "Value for 'booking_type' (%s) not in %s!" % (booking_type, valid)
+                f"Value for 'booking_type' ({booking_type}) not in {valid}!"
             )
 
         try:
@@ -1112,7 +1111,7 @@ class PpmsConnection:
         """
         bookings = []
         parameters = {
-            "plateformid": "%s" % core_facility_ref,
+            "plateformid": f"{core_facility_ref}",
             "day": date.strftime("%Y-%m-%d"),
         }
         LOG.debug("Requesting runningsheet for %s", parameters["day"])
