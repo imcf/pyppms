@@ -425,7 +425,7 @@ class PpmsConnection:
             A list of all (or active-only) user IDs in PPMS.
         """
         # TODO: describe format of returned list and / or give an example!
-        parameters = dict()
+        parameters = {}
         if active:
             parameters["active"] = "true"
 
@@ -694,7 +694,7 @@ class PpmsConnection:
         list(dict)
             A list with dicts parsed from the user experience response.
         """
-        data = dict()
+        data = {}
         if login is not None:
             data["login"] = login
         if system_id is not None:
@@ -767,7 +767,7 @@ class PpmsConnection:
         system is skipped entirely.
         """
         LOG.debug("Updating list of bookable systems...")
-        systems = dict()
+        systems = {}
         parse_fails = 0
         response = self.request("getsystems")
         details = parse_multiline_response(response.text, graceful=False)
