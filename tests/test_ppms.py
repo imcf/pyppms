@@ -328,10 +328,7 @@ def test_get_users_emails(
     ppms_connection.get_users_emails(users=None, active=True)
 
     logd("Testing with specific users")
-    users = [
-        user_details_raw["login"],
-        user_admin_details_raw["login"],
-    ]
+    users = [user_details_raw["login"], user_admin_details_raw["login"]]
     print(f"users: {users}")
     emails = ppms_connection.get_users_emails(users)
     print(f"emails: {emails}")

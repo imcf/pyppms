@@ -18,10 +18,15 @@ __PPMS_VALUES__ = values()
 
 ### pytest setup ###
 
+
 def pytest_addoption(parser):
     """Add a command line option '--online' to pytest."""
-    parser.addoption('--online', action='store_true', default=False,
-                     help="enable online tests talking to a PUMAPI instance")
+    parser.addoption(
+        "--online",
+        action="store_true",
+        default=False,
+        help="enable online tests talking to a PUMAPI instance",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
@@ -36,6 +41,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 ### common helper functions to be used in fixtures below ###
+
 
 def extend_raw_details(raw_details):
     """Helper function to extend a details dict with some additional elements.
@@ -76,6 +82,7 @@ def extend_raw_details(raw_details):
 
 ### raw user dicts ###
 
+
 @pytest.fixture(scope="module")
 def user_details_raw():
     """A dict with default user details matching a parsed API response.
@@ -106,6 +113,7 @@ def user_admin_details_raw():
 
 ### extended user dicts (with keys 'fullname', 'api_response', 'expected') ###
 
+
 @pytest.fixture(scope="module")
 def user_details(user_details_raw):
     """A dict with extended user details."""
@@ -119,6 +127,7 @@ def user_admin_details(user_admin_details_raw):
 
 
 ### PpmsUser objects ###
+
 
 @pytest.fixture(scope="module")
 def ppms_user(user_details):
@@ -134,10 +143,10 @@ def ppms_user(user_details):
     pyppms.user.PpmsUser
     """
     return PpmsUser(
-        username=user_details['login'],
-        email=user_details['email'],
-        fullname=user_details['fullname'],
-        ppms_group=user_details['unitlogin']
+        username=user_details["login"],
+        email=user_details["email"],
+        fullname=user_details["fullname"],
+        ppms_group=user_details["unitlogin"],
     )
 
 
@@ -155,10 +164,10 @@ def ppms_user_admin(user_admin_details):
     pyppms.user.PpmsUser
     """
     return PpmsUser(
-        username=user_admin_details['login'],
-        email=user_admin_details['email'],
-        fullname=user_admin_details['fullname'],
-        ppms_group=user_admin_details['unitlogin']
+        username=user_admin_details["login"],
+        email=user_admin_details["email"],
+        fullname=user_admin_details["fullname"],
+        ppms_group=user_admin_details["unitlogin"],
     )
 
 
@@ -175,10 +184,11 @@ def ppms_user_from_response(user_details):
     -------
     pyppms.user.PpmsUser
     """
-    return PpmsUser.from_response(user_details['api_response'])
+    return PpmsUser.from_response(user_details["api_response"])
 
 
 ### group details ###
+
 
 @pytest.fixture(scope="module")
 def group_details():
@@ -192,6 +202,7 @@ def group_details():
 
 
 ### system detail dicts ###
+
 
 @pytest.fixture(scope="module")
 def system_details_raw():
@@ -210,6 +221,7 @@ def system_details_raw():
 
 ### mapping dicts for user fullname, system name, ... ###
 
+
 @pytest.fixture(scope="module")
 def fullname_mapping(ppms_user, ppms_user_admin):
     """A dict to map user "fullnames" to login / account names."""
@@ -223,13 +235,12 @@ def fullname_mapping(ppms_user, ppms_user_admin):
 @pytest.fixture(scope="module")
 def systemname_mapping(system_details_raw):
     """A dict to map the system name to its ID."""
-    mapping = {
-        system_details_raw['Name']: int(system_details_raw['System id']),
-    }
+    mapping = {system_details_raw["Name"]: int(system_details_raw["System id"])}
     return mapping
 
 
 ### booking / runningsheet details ###
+
 
 @pytest.fixture(scope="module")
 def runningsheet_response():
@@ -244,13 +255,15 @@ def runningsheet_response():
     str
         The full (multi-line) text as produced by a getrunningsheet request.
     """
-    txt = ('Location, Start time, End time, Object, User, Training, Assisted\n'
-           '"VDI (Development)","13:00","14:00","Python Development System",'
-           '"Python PumAPI","",""\n'
-           '"VDI (Development)","18:00","19:00","Python Development System",'
-           '"Python PumAPI","",""\n'
-           '"VDI (Development)","20:00","21:00","Python Development System",'
-           '"Python PumAPI","",""\n'
-           '"VDI (Development)","22:00","23:00","Python Development System",'
-           '"Python PumAPI","",""\n')
+    txt = (
+        "Location, Start time, End time, Object, User, Training, Assisted\n"
+        '"VDI (Development)","13:00","14:00","Python Development System",'
+        '"Python PumAPI","",""\n'
+        '"VDI (Development)","18:00","19:00","Python Development System",'
+        '"Python PumAPI","",""\n'
+        '"VDI (Development)","20:00","21:00","Python Development System",'
+        '"Python PumAPI","",""\n'
+        '"VDI (Development)","22:00","23:00","Python Development System",'
+        '"Python PumAPI","",""\n'
+    )
     return txt

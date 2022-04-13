@@ -197,10 +197,7 @@ class PpmsConnection:
         requests.exceptions.ConnectionError
             Raised in case the request is not authorized.
         """
-        req_data = {
-            "action": action,
-            "apikey": self.api_key,
-        }
+        req_data = {"action": action, "apikey": self.api_key}
         req_data.update(parameters)
         # LOG.debug("Request parameters: %s", parameters)
 
@@ -963,11 +960,7 @@ class PpmsConnection:
             system_id,
         )
 
-        parameters = {
-            "id": system_id,
-            "login": login,
-            "type": permission,
-        }
+        parameters = {"id": system_id, "login": login, "type": permission}
         response = self.request("setright", parameters)
 
         # NOTE: the 'setright' action will accept ANY permission type and return 'done'

@@ -72,7 +72,7 @@ def dict_from_single_response(text, graceful=True):
     if text == "\n\n":
         return {"": ""}
     try:
-        lines = list(csv.reader(StringIO(text), delimiter=','))
+        lines = list(csv.reader(StringIO(text), delimiter=","))
         if len(lines) != 2:
             LOG.warning("Response expected to have exactly two lines: %s", text)
             if not graceful:
