@@ -62,7 +62,7 @@ def switch_cache_post_change(conn, level):
     conn : PpmsConnection
     level : int
     """
-    new_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_%s" % level)
+    new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{level}")
     _logger.debug("Switching response cache path to reflect a PPMS status change.")
     _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
@@ -174,14 +174,14 @@ def test_get_user_ids(ppms_connection):
 
 def test_get_user_dict(ppms_connection, user_details_raw, user_admin_details_raw):
     """Test fetching details of a specific user."""
-    print("Expected dict data: %s" % user_details_raw)
+    print(f"Expected dict data: {user_details_raw}")
     details = ppms_connection.get_user_dict("pyppms")
-    print("Retrieved dict data: %s" % details)
+    print(f"Retrieved dict data: {details}")
     assert user_details_raw == details
 
-    print("Expected dict data: %s" % user_admin_details_raw)
+    print(f"Expected dict data: {user_admin_details_raw}")
     details = ppms_connection.get_user_dict("pyppms-adm")
-    print("Retrieved dict data: %s" % details)
+    print(f"Retrieved dict data: {details}")
     assert user_admin_details_raw == details
 
     with pytest.raises(KeyError):
@@ -197,9 +197,9 @@ def test_get_groups(ppms_connection):
 
 def test_get_group(ppms_connection, group_details):
     """Test fetching details of a specific group."""
-    print("Expected dict data (subset): %s" % group_details)
+    print(f"Expected dict data (subset): {group_details}")
     details = ppms_connection.get_group("pyppms_group")
-    print("Retrieved dict data: %s" % details)
+    print(f"Retrieved dict data: {details}")
     for key in group_details.keys():
         assert group_details[key] == details[key]
 
@@ -250,7 +250,7 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
         assert testuser.email == email
         fullname = users[testuser.username].fullname
         assert testuser.fullname == fullname
-        print("%s: %s (%s)" % (username, email, fullname))
+        print(f"{username}: {email} ({fullname})")
 
         # check if the fullname_mapping has been updated correctly:
         assert fullname in ppms_connection.fullname_mapping
@@ -290,7 +290,7 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
         elif user.username == "pyppms-deact":
             assert not user.active
         else:
-            raise KeyError("Unexpected username: %s" % user.username)
+            raise KeyError(f"Unexpected username: {user.username}")
 
     assert ppms_connection.get_group_users("") == list()
 
@@ -332,18 +332,20 @@ def test_get_users_emails(
         user_details_raw["login"],
         user_admin_details_raw["login"],
     ]
-    print("users: %s" % users)
+    print(f"users: {users}")
     emails = ppms_connection.get_users_emails(users)
-    print("emails: %s" % emails)
+    print(f"emails: {emails}")
     assert user_details_raw["email"] in emails
     assert user_admin_details_raw["email"] in emails
 
     logd("Testing with mock-response where some users have no email")
     switch_cache_mocks(ppms_connection, "get_users_emails__no_email")
     emails = ppms_connection.get_users_emails(users)
-    print("address [%s] expected to NOT be in %s" % (user_details_raw["email"], emails))
-    assert user_details_raw["email"] not in emails
-    assert "no email for user [%s]" % user_details_raw["login"] in caplog.text
+    raw_email = user_details_raw["email"]
+    raw_login = user_details_raw["login"]
+    print(f"address [{raw_email}] expected to NOT be in {emails}")
+    assert raw_email not in emails
+    assert f"no email for user [{raw_login}]" in caplog.text
     assert user_admin_details_raw["email"] in emails
 
 
@@ -360,7 +362,7 @@ def test_get_systems(ppms_connection, system_details_raw):
     print(system_details_raw)
 
     found = systems[int(system_details_raw["System id"])]
-    print("Found system: %s" % found)
+    print(f"Found system: {found}")
 
     assert found.system_id == int(system_details_raw["System id"])
     assert found.localisation == system_details_raw["Localisation"]
@@ -514,7 +516,7 @@ def test_get_booking(ppms_connection, system_details_raw):
     booking = ppms_connection.get_booking(sys_id, booking_type="next")
     if booking is None:
         raise RuntimeError(
-            "Make sure system [%s] has at least one booking in the future!" % sys_id
+            f"Make sure system [{sys_id}] has at least one booking in the future!"
         )
     assert booking.system_id == int(sys_id)
 
@@ -545,10 +547,11 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     # of the sessions on that day:
     sessions = list()
     for shour in sessions_start:
+        ehour = shour + 1
         sessions.append(
             [
-                datetime.strptime("%sT%s" % (date, shour), r"%Y-%m-%dT%H"),
-                datetime.strptime("%sT%s" % (date, shour + 1), r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{shour}", r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{ehour}", r"%Y-%m-%dT%H"),
             ]
         )
     # hard-coding the list would look like this:
@@ -589,7 +592,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
         assert booking.system_id == int(system_details_raw["System id"])
         endtime = find_endtime(sessions, booking.starttime)
         assert endtime is not None
-        print("matching booking end time: %s" % endtime)
+        print(f"matching booking end time: {endtime}")
         assert booking.endtime == endtime
         print(booking.__str__())
 
@@ -627,7 +630,7 @@ def test__get_system_with_name(ppms_connection, system_details_raw):
     logd("Testing with a well-known system name")
     name = system_details_raw["Name"]
     sys_id = ppms_connection._get_system_with_name(name)
-    print("_get_system_with_name: %s" % sys_id)
+    print(f"_get_system_with_name: {sys_id}")
     assert sys_id == int(system_details_raw["System id"])
 
     logd("Testing with a non-existing system name")
