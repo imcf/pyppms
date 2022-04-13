@@ -306,14 +306,14 @@ class PpmsConnection:
         if not os.path.exists(intercept_file):  # pragma: no cover
             raise LookupError("No cache hit for [%s]" % intercept_file)
 
-        with open(intercept_file, "r") as infile:
+        with open(intercept_file, "r", encoding="utf-8") as infile:
             text = infile.read()
         LOG.debug("Read intercepted response text from [%s]", intercept_file)
 
         status_code = 200
         status_file = os.path.splitext(intercept_file)[0] + "_status-code.txt"
         if os.path.exists(status_file):
-            with open(status_file, "r") as infile:
+            with open(status_file, "r", encoding="utf-8") as infile:
                 status_code = infile.read()
             LOG.debug("Read intercepted response status code from [%s]", status_file)
         return PseudoResponse(text, status_code)
@@ -338,7 +338,7 @@ class PpmsConnection:
         intercept_file = self.__interception_path(req_data, create_dir=True)
 
         try:
-            with open(intercept_file, "w") as outfile:
+            with open(intercept_file, "w", encoding="utf-8") as outfile:
                 outfile.write(response.text)
             LOG.debug(
                 "Wrote response text to [%s] (%s lines)",
