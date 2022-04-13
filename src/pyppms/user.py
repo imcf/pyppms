@@ -45,11 +45,11 @@ class PpmsUser:
         active : bool, optional
             The state of the user account in PPMS, by default True.
         """
-        self.username = "%s" % username
+        self.username = f"{username}"
         self.email = str(email)
         self.active = active
         self.ppms_group = ppms_group
-        self._fullname = "%s" % fullname
+        self._fullname = f"{fullname}"
 
         LOG.debug(
             "PpmsUser initialized: username=[%s], email=[%s], ppms_group=[%s], "
@@ -109,12 +109,12 @@ class PpmsUser:
 
     def details(self):
         """Generate a string with details on the user object."""
-        return "username: %s, email: %s, fullname: %s, ppms_group: %s, active: %s" % (
-            self.username,
-            self.email,
-            self.fullname,
-            self.ppms_group,
-            self.active,
+        return (
+            f"username: {self.username}, "
+            f"email: {self.email}, "
+            f"fullname: {self.fullname}, "
+            f"ppms_group: {self.ppms_group}, "
+            f"active: {self.active}"
         )
 
     def __str__(self):

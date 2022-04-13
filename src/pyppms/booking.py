@@ -81,7 +81,7 @@ class PpmsBooking:
         valid = ["get", "next"]
         if booking_type not in valid:
             raise ValueError(
-                "Value for 'booking_type' (%s) not in %s!" % (booking_type, valid)
+                f"Value for 'booking_type' ({booking_type}) not in {valid}!"
             )
 
         try:
@@ -188,13 +188,11 @@ class PpmsBooking:
         LOG.debug("Updated booking endtime: %s", self)
 
     def __str__(self):
-        msg = "username: %s - system: %s - reservation start / end: [ %s / %s ]" % (
-            self.username,
-            self.system_id,
-            self.starttime,
-            self.endtime,
+        msg = (
+            f"username: {self.username} - system: {self.system_id} - "
+            f"reservation start / end: [ {self.starttime} / {self.endtime} ]"
         )
         if self.session:
-            msg += " - session: %s" % self.session
+            msg += f" - session: {self.session}"
 
         return msg

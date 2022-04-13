@@ -94,7 +94,7 @@ def dict_from_single_response(text, graceful=True):
                 data = data[:minimum]
 
     except Exception as err:
-        msg = "Unable to parse data returned by PUMAPI: %s - ERROR: %s" % (text, err)
+        msg = f"Unable to parse data returned by PUMAPI: {text} - ERROR: {err}"
         LOG.error(msg)
         raise ValueError(msg)
 
@@ -176,7 +176,7 @@ def parse_multiline_response(text, graceful=True):
             LOG.warning(msg)
 
     except Exception as err:
-        msg = "Unable to parse data returned by PUMAPI: %s - ERROR: %s" % (text, err)
+        msg = f"Unable to parse data returned by PUMAPI: {text} - ERROR: {err}"
         LOG.error(msg)
         raise ValueError(msg)
 

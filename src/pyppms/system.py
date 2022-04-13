@@ -157,20 +157,15 @@ class PpmsSystem:
 
     def __str__(self):
         return (
-            "system_id: %s, name: %s, localisation: %s, system_type: %s, "
-            "core_facility_ref: %s, schedules: %s, active: %s, stats: %s, "
-            "bookable: %s, autonomy_required: %s, autonomy_required_after_hours: %s"
-            % (
-                self.system_id,
-                self.name,
-                self.localisation,
-                self.system_type,
-                self.core_facility_ref,
-                self.schedules,
-                self.active,
-                self.stats,
-                self.bookable,
-                self.autonomy_required,
-                self.autonomy_required_after_hours,
-            )
+            f"system_id: {self.system_id}, "
+            f"name: {self.name}, "
+            f"localisation: {self.localisation}, "
+            f"system_type: {self.system_type}, "
+            f"core_facility_ref: {self.core_facility_ref}, "
+            f"schedules: {self.schedules}, "
+            f"active: {self.active}, "
+            f"stats: {self.stats}, "
+            f"bookable: {self.bookable}, "
+            f"autonomy_required: {self.autonomy_required}, "
+            f"autonomy_required_after_hours: {self.autonomy_required_after_hours}"
         )
