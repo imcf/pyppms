@@ -131,7 +131,7 @@ def parse_multiline_response(text, graceful=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
-    parsed = list()
+    parsed = []
     try:
         lines = text.splitlines()
         if len(lines) < 2:

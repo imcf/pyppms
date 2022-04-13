@@ -727,7 +727,7 @@ class PpmsConnection:
         list(str)
             Email addresses of the users requested.
         """
-        emails = list()
+        emails = []
         if users is None:
             users = self.get_user_ids(active=active)
         for user in users:
@@ -872,7 +872,7 @@ class PpmsConnection:
         ValueError
             Raised in case parsing the response failes for any reason.
         """
-        users = list()
+        users = []
 
         response = self.request("getsysrights", {"id": system_id})
         # this response has a unique format, so parse it directly here:
@@ -1117,7 +1117,7 @@ class PpmsConnection:
             A list with `PpmsBooking` objects for the given day. Empty in case
             there are no bookings or parsing the response failed.
         """
-        bookings = list()
+        bookings = []
         parameters = {
             "plateformid": "%s" % core_facility_ref,
             "day": date.strftime("%Y-%m-%d"),

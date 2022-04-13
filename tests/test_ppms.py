@@ -261,7 +261,7 @@ def test_get_admins(ppms_connection, ppms_user_admin):
     """Test the get_admins() method."""
     admins = ppms_connection.get_admins()
 
-    usernames = list()
+    usernames = []
     admin_user = None
     for admin in admins:
         usernames.append(admin.username)
@@ -292,7 +292,7 @@ def test_get_group_users(ppms_connection, ppms_user, ppms_user_admin):
         else:
             raise KeyError(f"Unexpected username: {user.username}")
 
-    assert ppms_connection.get_group_users("") == list()
+    assert ppms_connection.get_group_users("") == []
 
 
 def test_get_user_experience(ppms_connection):
@@ -303,14 +303,14 @@ def test_get_user_experience(ppms_connection):
 
     # check if a user has access to a specific system:
     systems = ppms_connection.get_user_experience(login="pyppms")
-    sys_ids = list()
+    sys_ids = []
     for system in systems:
         sys_ids.append(system["id"])
     assert str(__SYS_ID__) in sys_ids
 
     # check if a system is having a specific user with permission to access it:
     users = ppms_connection.get_user_experience(system_id=__SYS_ID__)
-    usernames = list()
+    usernames = []
     for user in users:
         usernames.append(user["login"])
     assert "pyppms" in usernames
@@ -545,7 +545,7 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     sessions_start = [9, 11, 13, 15]
     # use the start times to assemble a list of datetime tuples with start and end time
     # of the sessions on that day:
-    sessions = list()
+    sessions = []
     for shour in sessions_start:
         ehour = shour + 1
         sessions.append(
@@ -619,7 +619,7 @@ def test_get_running_sheet_fail(ppms_connection):
         "runningsheet_invalid_multiline_response",
         "using mock that fails parsing, expected result is an empty list of bookings",
     )
-    assert ppms_connection.get_running_sheet("2", date=day) == list()
+    assert ppms_connection.get_running_sheet("2", date=day) == []
 
 
 ############ deprecated methods ############
