@@ -65,7 +65,7 @@ def test_process_response_values():
     common.process_response_values(values)
 
     for i, val in enumerate(values):
-        print("val (%s) == results[%s] (%s)" % (val, i, results[i]))
+        print(f"val ({val}) == results[{i}] ({results[i]})")
         assert val == results[i]
 
     common.process_response_values([])

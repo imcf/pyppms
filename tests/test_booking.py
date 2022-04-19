@@ -13,16 +13,16 @@ __license__ = "gpl3"
 
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M:%S"
-FMT = "%s %s" % (FMT_DATE, FMT_TIME)
+FMT = f"{FMT_DATE} {FMT_TIME}"
 DAY = "2019-05-18"
 TIME_START = "12:30:00"
 TIME_END = "13:15:00"
-START = "%s %s" % (DAY, TIME_START)
-END = "%s %s" % (DAY, TIME_END)
+START = f"{DAY} {TIME_START}"
+END = f"{DAY} {TIME_END}"
 
 USERNAME = "ppmsuser"
 SYS_ID = "42"
-EXPECTED = "username: %s - system: %s - " % (USERNAME, SYS_ID)
+EXPECTED = f"username: {USERNAME} - system: {SYS_ID} - "
 EXPECTED += "reservation start / end: [ %s / %s ]"
 
 
@@ -63,7 +63,7 @@ def test_starttime_fromstr__time():
     newtime = "12:45:00"
     booking.starttime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
-    newstart = "%s %s" % (DAY, newtime)
+    newstart = f"{DAY} {newtime}"
     assert booking.__str__() == EXPECTED % (newstart, END)
 
 
@@ -76,12 +76,12 @@ def test_starttime_fromstr__date():
     startdate = datetime.strptime(newdate, FMT_DATE)
     booking.starttime_fromstr(newtime, startdate)
 
-    newstart = "%s %s" % (newdate, newtime)
+    newstart = f"{newdate} {newtime}"
     assert booking.__str__() == EXPECTED % (newstart, END)
 
     # test with date set to 'None' (resulting in current date to be used)
     booking.starttime_fromstr(newtime, date=None)
-    newstart = "%s %s" % (datetime.now().strftime(FMT_DATE), newtime)
+    newstart = f"{datetime.now().strftime(FMT_DATE)} {newtime}"
     assert booking.__str__() == EXPECTED % (newstart, END)
 
 
@@ -92,7 +92,7 @@ def test_endtime_fromstr__time():
     newtime = "12:45:00"
     booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
-    newend = "%s %s" % (DAY, newtime)
+    newend = f"{DAY} {newtime}"
     assert booking.__str__() == EXPECTED % (START, newend)
 
 
@@ -105,12 +105,12 @@ def test_endtime_fromstr__date():
     enddate = datetime.strptime(newdate, FMT_DATE)
     booking.endtime_fromstr(newtime, enddate)
 
-    newend = "%s %s" % (newdate, newtime)
+    newend = f"{newdate} {newtime}"
     assert booking.__str__() == EXPECTED % (START, newend)
 
     # test with date set to 'None' (resulting in current date to be used)
     booking.endtime_fromstr(newtime, date=None)
-    newend = "%s %s" % (datetime.now().strftime(FMT_DATE), newtime)
+    newend = f"{datetime.now().strftime(FMT_DATE)} {newtime}"
     assert booking.__str__() == EXPECTED % (START, newend)
 
 
@@ -129,7 +129,7 @@ def test_booking_from_request():
     """Test the alternative from_booking_request() constructor."""
     time_delta = 15
     time_abs = time_rel_to_abs(time_delta)
-    response = "%s\n%s\n%s\n" % (USERNAME, time_delta, "some_session_id")
+    response = f'{USERNAME}\n{time_delta}\n"some_session_id"\n'
 
     # test parsing a 'getbooking' response
     booking = PpmsBooking.from_booking_request(response, "get", SYS_ID)
