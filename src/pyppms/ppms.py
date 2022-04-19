@@ -819,8 +819,7 @@ class PpmsConnection:
         )
         system_ids = []
         systems = self.get_systems()
-        for sys_id in systems:
-            system = systems[sys_id]
+        for sys_id, system in systems.items():
             if loc.lower() not in str(system.localisation).lower():
                 LOG.debug(
                     "System [%s] location (%s) is NOT matching (%s), ignoring",
