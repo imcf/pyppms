@@ -4,10 +4,6 @@ import pytest
 
 from pyppms.system import PpmsSystem
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
-
 
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M:%S"

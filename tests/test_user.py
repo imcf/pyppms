@@ -1,9 +1,5 @@
 """Tests for the PpmsUser class."""
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
-
 
 def test_user_details(user_details, ppms_user):
     """Test the PpmsUser constructor, __str__() and details()."""

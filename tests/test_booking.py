@@ -6,10 +6,6 @@ import pytest
 from pyppms.booking import PpmsBooking
 from pyppms.common import time_rel_to_abs, parse_multiline_response
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
-
 
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M:%S"

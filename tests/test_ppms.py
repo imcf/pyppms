@@ -16,9 +16,6 @@ import requests.exceptions
 import pyppmsconf
 from pyppms import ppms
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69

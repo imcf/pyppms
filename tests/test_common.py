@@ -8,10 +8,6 @@ import pytest
 
 from pyppms import common
 
-__author__ = "Niko Ehrenfeuchter"
-__copyright__ = __author__
-__license__ = "gpl3"
-
 
 def test_dict_from_single_response():
     """Test the two-line-response-to-dict converter."""
