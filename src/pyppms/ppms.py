@@ -894,7 +894,7 @@ class PpmsConnection:
                 f"ERROR: {err}"
             )
             LOG.error(msg)
-            raise ValueError(msg)
+            raise ValueError(msg) from err
 
         return users
 
@@ -948,8 +948,8 @@ class PpmsConnection:
             }
             try:
                 return mapping[shortname]
-            except KeyError:
-                raise KeyError(f"Invalid permission [{shortname}] given")
+            except KeyError as err:
+                raise KeyError(f"Invalid permission [{shortname}] given") from err
 
         LOG.debug(
             "Setting permission level [%s] for user [%s] on system [%s]",
