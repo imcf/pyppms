@@ -8,9 +8,21 @@ changing its state and properties.
 
 This is a Python 3 package for talking to the *PUMAPI*.
 
-## Usage Instructions
+## Usage Example
 
-TODO! Until then you may have a look at the testing instructions.
+Fetch email addresses of all active users:
+
+```Python
+from pyppms import ppms
+from credentials_ppms import PPMS_URL, PPMS_API_KEY
+
+conn = ppms.PpmsConnection(PPMS_URL, PPMS_API_KEY)
+
+print("Querying PPMS for emails of active users, can take minutes...")
+emails = ppms.get_users_emails(active=True)
+print(f"Got {len(emails)} email addresses from PPMS:")
+print("\n".join(emails))
+```
 
 ## Testing
 
