@@ -18,7 +18,7 @@ Automated testing is described in the [`TESTING` document on github][2].
 
 ## Note
 
-The PPMS API is not super clean and sometimes quite inconsistent. During
+The PPMS API sometimes exposes a bit of a surprising behavior. During
 development of the package, we came across several issues (this list is
 certainly incomplete):
 
