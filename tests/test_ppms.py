@@ -2,9 +2,6 @@
 
 # pylint: disable-msg=fixme
 
-# pylint: disable-msg=invalid-name
-# pylint: disable-msg=consider-iterating-dictionary
-# pylint: disable-msg=len-as-condition
 # pylint: disable-msg=protected-access
 
 import os.path
