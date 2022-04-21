@@ -34,19 +34,20 @@ def create_system(system_id=SYS_ID):
     -------
     PpmsSystem
     """
-    return PpmsSystem(
-        system_id=system_id,
-        name=NAME,
-        localisation=LOC,
-        system_type=SYS_TYPE,
-        core_facility_ref=CORE_REF,
-        schedules=True,
-        active=True,
-        stats=True,
-        bookable=True,
-        autonomy_required=True,
-        autonomy_required_after_hours=False,
-    )
+    details = {
+        "System id": system_id,
+        "Name": NAME,
+        "Localisation": LOC,
+        "Type": SYS_TYPE,
+        "Core facility ref": CORE_REF,
+        "Schedules": True,
+        "Active": True,
+        "Stats": True,
+        "Bookable": True,
+        "Autonomy Required": True,
+        "Autonomy Required After Hours": False,
+    }
+    return PpmsSystem(details)
 
 
 def test_ppmssystem():

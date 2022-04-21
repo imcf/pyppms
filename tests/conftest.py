@@ -187,7 +187,7 @@ def system_details_raw():
     """A dict with default system details matching a parsed API response.
 
     Provides a dict with system details that corresponds to the same format that
-    is consumed by the PpmsSystem.from_parsed_response() constructor.
+    is consumed by the `PpmsSystem()` constructor.
 
     Returns
     -------

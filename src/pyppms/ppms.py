@@ -769,7 +769,7 @@ class PpmsConnection:
         details = parse_multiline_response(response.text, graceful=False)
         for detail in details:
             try:
-                system = PpmsSystem.from_parsed_response(detail)
+                system = PpmsSystem(detail)
             except ValueError as err:
                 LOG.error("Error processing `getsystems` response: %s", err)
                 parse_fails += 1
