@@ -146,12 +146,7 @@ def ppms_user(user_details):
     -------
     pyppms.user.PpmsUser
     """
-    return PpmsUser(
-        username=user_details["login"],
-        email=user_details["email"],
-        fullname=user_details["fullname"],
-        ppms_group=user_details["unitlogin"],
-    )
+    return PpmsUser(user_details["api_response"])
 
 
 @pytest.fixture(scope="module")
@@ -167,28 +162,7 @@ def ppms_user_admin(user_admin_details):
     -------
     pyppms.user.PpmsUser
     """
-    return PpmsUser(
-        username=user_admin_details["login"],
-        email=user_admin_details["email"],
-        fullname=user_admin_details["fullname"],
-        ppms_group=user_admin_details["unitlogin"],
-    )
-
-
-@pytest.fixture(scope="module")
-def ppms_user_from_response(user_details):
-    """Helper function to create a PpmsUser object with default values.
-
-    Parameters
-    ----------
-    user_details : dict
-        A dictionary with user details.
-
-    Returns
-    -------
-    pyppms.user.PpmsUser
-    """
-    return PpmsUser.from_response(user_details["api_response"])
+    return PpmsUser(user_admin_details["api_response"])
 
 
 ### group details ###

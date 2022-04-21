@@ -26,30 +26,21 @@ class PpmsUser:
         The ``active`` state of the user account in PPMS, by default True.
     """
 
-    # TODO: merge the alternative constructor(s) into __init__() (where applicable)
-
-    def __init__(self, username, email, fullname="", ppms_group="", active=True):
+    def __init__(self, response_text):
         """Initialize the user object.
 
         Parameters
         ----------
-        username : str
-            The user's account / login name for PPMS.
-        email : str
-            The user's email address.
-        fullname : str, optional
-            The full name ("<LASTNAME> <GIVENNAME>") of the user in PPMS, by
-            default empty ("").
-        ppms_group : str, optional
-            The user's PPMS group, by default empty ("").
-        active : bool, optional
-            The state of the user account in PPMS, by default True.
+        response_text : str
+            The text returned by a PUMAP `getuser` call.
         """
-        self.username = f"{username}"
-        self.email = str(email)
-        self.active = active
-        self.ppms_group = ppms_group
-        self._fullname = f"{fullname}"
+        details = dict_from_single_response(response_text, graceful=True)
+
+        self.username = str(details["login"])
+        self.email = str(details["email"])
+        self.active = details["active"]
+        self.ppms_group = details["unitlogin"]
+        self._fullname = f'{details["lname"]} {details["fname"]}'
 
         LOG.debug(
             "PpmsUser initialized: username=[%s], email=[%s], ppms_group=[%s], "
@@ -60,37 +51,6 @@ class PpmsUser:
             self._fullname,
             self.active,
         )
-
-    @classmethod
-    def from_response(cls, response_text):
-        """Alternative constructor using the text from the PUMAPI response.
-
-        Parameters
-        ----------
-        response_text : str
-            The text returned by a PUMAP `getuser` call.
-
-        Returns
-        -------
-        PpmsUser
-            The object constructed with the details contained in the PUMAPI
-            response text.
-
-        Raises
-        ------
-        ValueError
-            Raised in case parsing the PUMAPI response data fails.
-        """
-        details = dict_from_single_response(response_text, graceful=True)
-
-        user = cls(
-            username=details["login"],
-            email=details["email"],
-            fullname=details["lname"] + " " + details["fname"],
-            ppms_group=details["unitlogin"],
-            active=details["active"],
-        )
-        return user
 
     @property
     def fullname(self):

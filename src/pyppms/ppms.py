@@ -517,7 +517,7 @@ class PpmsConnection:
             LOG.error(msg)
             raise KeyError(msg)
 
-        user = PpmsUser.from_response(response.text)
+        user = PpmsUser(response.text)
         self.users[user.username] = user  # update / add to the cached user objs
         self.fullname_mapping[user.fullname] = user.username
         return user
