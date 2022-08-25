@@ -1073,7 +1073,7 @@ class PpmsConnection:
             LOG.debug("System [%s] doesn't have %s", system_id, desc)
             return None
 
-        return PpmsBooking.from_booking_request(response.text, booking_type, system_id)
+        return PpmsBooking(response.text, booking_type, system_id)
 
     def get_current_booking(self, system_id):
         """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
