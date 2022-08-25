@@ -98,9 +98,8 @@ class PpmsBooking:
             The object constructed with the parsed response.
         """
         try:
-            booking = cls(
-                username=username, system_id=system_id, starttime=date, endtime=date
-            )
+            response = f"{username}\n0\n\n"
+            booking = cls(response, "get", system_id)
             booking.starttime_fromstr(entry["Start time"], date)
             booking.endtime_fromstr(entry["End time"], date)
         except Exception as err:
