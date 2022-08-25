@@ -26,40 +26,8 @@ class PpmsBooking:
         A string referring to a session ID in PPMS, can be empty.
     """
 
-    # TODO: merge the alternative constructor(s) into __init__() (where applicable)
-
-    def __init__(self, username, system_id, starttime, endtime):
-        """Initialize the booking object.
-
-        Parameters
-        ----------
-        username : str
-            The user's account / login name for PPMS.
-        system_id : int or int-like
-            The PPMS system ID to which this booking refers to.
-        starttime : datetime.date
-            The booking's starting time.
-        endtime : datetime.date
-            The booking's ending time.
-        """
-        self.username = username
-        self.system_id = int(system_id)
-        self.starttime = starttime
-        self.endtime = endtime
-        self.session = ""
-
-        LOG.debug(
-            "PpmsBooking initialized: username=[%s], system=[%s], "
-            "reservation start=[%s] end=[%s]",
-            username,
-            system_id,
-            starttime,
-            endtime,
-        )
-
-    @classmethod
-    def from_booking_request(cls, text, booking_type, system_id):
-        r"""Alternative constructor using a getbooking / nextbooking response.
+    def __init__(self, text, booking_type, system_id):
+        r"""Initialize the booking object.
 
         Parameters
         ----------
@@ -72,11 +40,6 @@ class PpmsBooking:
             the next upcoming booking).
         system_id : int or int-like
             The ID of the system the booking refers to.
-
-        Returns
-        -------
-        PpmsBooking
-            The object constructed with the parsed response.
         """
         valid = ["get", "next"]
         if booking_type not in valid:
@@ -93,18 +56,23 @@ class PpmsBooking:
                 endtime = starttime
                 starttime = datetime.now().replace(second=0, microsecond=0)
 
-            booking = cls(
-                username=lines[0],
-                system_id=system_id,
-                starttime=starttime,
-                endtime=endtime,
-            )
-            booking.session = lines[2]
+            self.username = lines[0]
+            self.system_id = system_id
+            self.starttime = starttime
+            self.endtime = endtime
+            self.session = lines[2]
         except Exception as err:
             LOG.error("Parsing booking response failed (%s), text was:\n%s", err, text)
             raise
 
-        return booking
+        LOG.debug(
+            "PpmsBooking initialized: username=[%s], system=[%s], "
+            "reservation start=[%s] end=[%s]",
+            username,
+            system_id,
+            starttime,
+            endtime,
+        )
 
     @classmethod
     def from_runningsheet(cls, entry, system_id, username, date):
