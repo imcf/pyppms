@@ -57,7 +57,7 @@ class PpmsBooking:
                 starttime = datetime.now().replace(second=0, microsecond=0)
 
             self.username = lines[0]
-            self.system_id = system_id
+            self.system_id = int(system_id)
             self.starttime = starttime
             self.endtime = endtime
             self.session = lines[2]
