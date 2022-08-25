@@ -8,25 +8,25 @@ from pyppms.common import time_rel_to_abs, parse_multiline_response
 
 
 FMT_DATE = r"%Y-%m-%d"
-FMT_TIME = r"%H:%M:%S"
+FMT_TIME = r"%H:%M:00"
 FMT = f"{FMT_DATE} {FMT_TIME}"
-DAY = "2019-05-18"
-TIME_START = "12:30:00"
-TIME_END = "13:15:00"
+DAY = datetime.now().strftime(FMT_DATE)
+TIME_START = datetime.now().strftime(FMT_TIME)
+TIME_END = (datetime.now() + timedelta(minutes=45)).strftime(FMT_TIME)
 START = f"{DAY} {TIME_START}"
 END = f"{DAY} {TIME_END}"
 
 USERNAME = "ppmsuser"
 SYS_ID = "42"
+SESSION_ID = "some_session_id"
 EXPECTED = f"username: {USERNAME} - system: {SYS_ID} - "
-EXPECTED += "reservation start / end: [ %s / %s ]"
+EXPECTED += f"reservation start / end: [ %s / %s ] - session: {SESSION_ID}"
 
 
 def create_booking(
     username=USERNAME,
     system_id=SYS_ID,
-    starttime=datetime.strptime(START, FMT),
-    endtime=datetime.strptime(END, FMT),
+    session_id=SESSION_ID,
 ):
     """Helper function to create a PpmsBooking object with default values.
 
@@ -34,7 +34,9 @@ def create_booking(
     -------
     PpmsBooking
     """
-    return PpmsBooking(username, system_id, starttime, endtime)
+    time_delta = 45
+    response = f"{username}\n{time_delta}\n{session_id}\n"
+    return PpmsBooking(text=response, booking_type="get", system_id=system_id)
 
 
 def test_ppmsbooking():
@@ -110,17 +112,6 @@ def test_endtime_fromstr__date():
     assert booking.__str__() == EXPECTED % (START, newend)
 
 
-def test_booking_with_session():
-    """Test adding a session string to a booking."""
-    session = "123456789"
-    booking = create_booking()
-
-    booking.session = session
-    expected = EXPECTED + " - session: " + session
-
-    assert booking.__str__() == expected % (START, END)
-
-
 def test_booking_from_request():
     """Test the alternative from_booking_request() constructor."""
     time_delta = 15
@@ -128,14 +119,14 @@ def test_booking_from_request():
     response = f'{USERNAME}\n{time_delta}\n"some_session_id"\n'
 
     # test parsing a 'getbooking' response
-    booking = PpmsBooking.from_booking_request(response, "get", SYS_ID)
+    booking = PpmsBooking(response, "get", SYS_ID)
     print(booking)
     print(time_abs)
     assert booking.endtime == time_abs
 
     # test parsing a 'nextbooking' response, note that the booking will not have
     # an endtime then as PUMAPI doesn't provide this information
-    booking = PpmsBooking.from_booking_request(response, "next", SYS_ID)
+    booking = PpmsBooking(response, "next", SYS_ID)
     print(booking)
     print(time_abs)
     assert booking.starttime == time_abs
@@ -143,15 +134,15 @@ def test_booking_from_request():
 
     # test with an invalid booking type
     with pytest.raises(ValueError):
-        PpmsBooking.from_booking_request("", booking_type="", system_id=23)
+        PpmsBooking("", booking_type="", system_id=23)
 
     # test with an invalid response text
     with pytest.raises(IndexError):
-        PpmsBooking.from_booking_request("invalid", "next", SYS_ID)
+        PpmsBooking("invalid", "next", SYS_ID)
 
     # test with an invalid text type
     with pytest.raises(AttributeError):
-        PpmsBooking.from_booking_request(23, "next", SYS_ID)
+        PpmsBooking(23, "next", SYS_ID)
 
 
 def test_runningsheet(
