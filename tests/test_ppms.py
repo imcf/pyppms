@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 import pytest
 import requests.exceptions
+from shutil import rmtree
 
 import pyppmsconf
 from pyppms import ppms
@@ -249,6 +250,46 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
         # check if the fullname_mapping has been updated correctly:
         assert fullname in ppms_connection.fullname_mapping
         assert ppms_connection.fullname_mapping[fullname] == testuser.username
+
+
+@pytest.mark.online
+def test_get_user__skip_cache(caplog, ppms_connection, ppms_user):
+    """Test if the `skip_cache` parameter has the desired effect.
+
+    Steps:
+
+    - switch to a test-specific cache location, make sure it's empty
+    - request a user, check if this results in an on-line request
+    - check if the user request has been cached locally
+    - request the same user again, check if it is served from the cache
+    - request the same user again now setting the `skip_cache` parameter to True, check
+      if this results in an on-line request despite the cache is present
+    """
+    # switch to a test-specific cache location:
+    switch_cache_post_change(ppms_connection, "test_get_users__forcerefresh")
+    # wipe the cache
+    rmtree(ppms_connection.cache_path, ignore_errors=True)
+    cached = ppms_connection.cache_path + "/getuser/login--pyppms.txt"
+    assert os.path.exists(cached) is False
+
+    ppms_connection.get_user(ppms_user.username)
+    assert "Doing an on-line request: No cache hit for" in caplog.text
+    assert "Read intercepted response text from" not in caplog.text
+
+    assert os.path.exists(cached) is True
+
+    caplog.clear()
+    ppms_connection.get_user(ppms_user.username)
+    assert "Doing an on-line request: No cache hit for" not in caplog.text
+    assert "Read intercepted response text from" in caplog.text
+
+    caplog.clear()
+    ppms_connection.get_user(ppms_user.username, skip_cache=True)
+    assert "Doing an on-line request: Skipping the cache" in caplog.text
+    assert "Read intercepted response text from" not in caplog.text
+
+    # make sure to clean up the test-specific cache again:
+    rmtree(ppms_connection.cache_path, ignore_errors=True)
 
 
 def test_get_admins(ppms_connection, ppms_user_admin):
