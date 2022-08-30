@@ -42,7 +42,7 @@ def ppms_connection(caplog):
 ### common helper functions ###
 
 
-def switch_cache_post_change(conn, level):
+def switch_cache_post_change(conn, suffix):
     """Update the connection's cache path to reflect changes to responses.
 
     This helper function switches the path used for caching the connection's
@@ -54,9 +54,9 @@ def switch_cache_post_change(conn, level):
     Parameters
     ----------
     conn : PpmsConnection
-    level : int
+    suffix : str (or str-like)
     """
-    new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{level}")
+    new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{suffix}")
     _logger.debug("Switching response cache path to reflect a PPMS status change.")
     _logger.debug("New cache path: [%s]", new_path)
     conn.cache_path = new_path
