@@ -433,13 +433,15 @@ class PpmsConnection:
         LOG.debug(", ".join(users))
         return users
 
-    def get_user_dict(self, login_name):
+    def get_user_dict(self, login_name, skip_cache=False):
         """Get details on a given user from PPMS.
 
         Parameters
         ----------
         login_name : str
             The PPMS account / login name of the user to query.
+        skip_cache : bool, optional
+            Passed as-is to the :py:meth:`request()` method
 
         Returns
         -------
@@ -470,7 +472,7 @@ class PpmsConnection:
         ValueError
             Raised if the user details can't be parsed from the PUMAPI response.
         """
-        response = self.request("getuser", {"login": login_name})
+        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
@@ -490,13 +492,15 @@ class PpmsConnection:
         LOG.debug("Details for user [%s]: %s", login_name, details)
         return details
 
-    def get_user(self, login_name):
+    def get_user(self, login_name, skip_cache=False):
         """Fetch user details from PPMS and create a PpmsUser object from it.
 
         Parameters
         ----------
         login_name : str
             The user's PPMS login name.
+        skip_cache : bool, optional
+            Passed as-is to the :py:meth:`request()` method
 
         Returns
         -------
@@ -510,7 +514,7 @@ class PpmsConnection:
         KeyError
             Raised if the user doesn't exist in PPMS.
         """
-        response = self.request("getuser", {"login": login_name})
+        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
