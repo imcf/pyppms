@@ -504,7 +504,7 @@ class PpmsConnection:
 
         Returns
         -------
-        PpmsUser
+        pyppms.user.PpmsUser
             The user object created from the PUMAPI response. The object will be
             additionally stored in the self.users dict using the login_name as
             the dict's key.
@@ -556,7 +556,7 @@ class PpmsConnection:
 
         Returns
         -------
-        dict(PpmsUser)
+        dict(pyppms.user.PpmsUser)
             A dict of PpmsUser objects with the username (login) as key.
         """
         if self.users and not force_refresh:
@@ -595,7 +595,7 @@ class PpmsConnection:
 
         Returns
         -------
-        list(PpmsUser)
+        list(pyppms.user.PpmsUser)
             A list with PpmsUser objects that are PPMS administrators.
         """
         response = self.request("getadmins")
@@ -659,7 +659,7 @@ class PpmsConnection:
 
         Returns
         -------
-        list(PpmsUser)
+        list(pyppms.user.PpmsUser)
             A list with PpmsUser objects that are members of this PPMS group.
         """
         response = self.request("getgroupusers", {"unitlogin": unitlogin})
@@ -1049,7 +1049,7 @@ class PpmsConnection:
 
         Returns
         -------
-        PpmsBooking or None
+        pyppms.booking.PpmsBooking or None
             The booking object, or None if there is no booking for the system or the
             request is refused by PUMAPI (e.g. "not authorized").
 

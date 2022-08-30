@@ -94,7 +94,7 @@ class PpmsBooking:
 
         Returns
         -------
-        PpmsBooking
+        pyppms.booking.PpmsBooking
             The object constructed with the parsed response.
         """
         try:
