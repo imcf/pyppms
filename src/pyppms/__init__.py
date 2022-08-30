@@ -3,8 +3,10 @@
 .. include:: ../../README.md
 
 .. include:: ../../TESTING.md
+
+.. include:: ../../CHANGELOG.md
 """
 
-__version__ = "2.0.1-dev0"
+__version__ = "2.1.0-dev0"
 
 from .ppms import PpmsConnection
