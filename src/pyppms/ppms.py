@@ -586,7 +586,7 @@ class PpmsConnection:
 
         LOG.debug("Updating details on %s users", len(user_ids))
         for user_id in user_ids:
-            self.get_user(user_id)
+            self.get_user(user_id, skip_cache=True)
 
         LOG.debug("Collected details on %s users", len(self.users))
 

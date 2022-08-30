@@ -5,6 +5,9 @@
 - [API] `pyppms.ppms.PpmsConnection.get_user()` and
   `pyppms.ppms.PpmsConnection.get_user_dict()` now both accept an optional parameter
   `skip_cache` that is passed on to the `pyppms.ppms.PpmsConnection.request()` call
+- [FIX] `pyppms.ppms.PpmsConnection.update_users()` now explicitly asks for the cache
+  to be skipped
+
 ## 2.0.0
 
 - [API] the signature for `pyppms.user.PpmsUser` has been changed and now expects a
