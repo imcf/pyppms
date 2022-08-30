@@ -3,6 +3,8 @@
 .. include:: ../../README.md
 
 .. include:: ../../TESTING.md
+
+.. include:: ../../CHANGELOG.md
 """
 
 __version__ = "2.0.1-dev0"
