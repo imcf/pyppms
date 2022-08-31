@@ -1087,7 +1087,7 @@ class PpmsConnection:
         """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
 
-    def get_running_sheet(self, core_facility_ref, date):
+    def get_running_sheet(self, core_facility_ref, date, ignore_uncached_users=False):
         """Get the running sheet for a specific day on the given facility.
 
         The so-called "running-sheet" consists of all bookings / reservations of
@@ -1105,6 +1105,9 @@ class PpmsConnection:
         date : datetime.datetime
             The date to request the running sheet for, e.g. ``datetime.now()`` or
             similar. Note that only the date part is relevant, time will be ignored.
+        ignore_uncached_users : bool, optional
+            If set to `True` any booking for a user that is not present in the instance
+            attribuge `fullname_mapping` will be ignored in the resulting list.
 
         Returns
         -------
@@ -1131,6 +1134,10 @@ class PpmsConnection:
         for entry in entries:
             full = entry["User"]
             if full not in self.fullname_mapping:
+                if ignore_uncached_users:
+                    LOG.debug("Ignoring booking for uncached user [%s]", full)
+                    continue
+
                 LOG.info("Booking for an uncached user (%s) found!", full)
                 self.update_users()
 

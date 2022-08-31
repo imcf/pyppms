@@ -1,5 +1,11 @@
 # PyPPMS Changelog
 
+## 2.2.0
+
+- `pyppms.ppms.PpmsConnection.get_running_sheet()` now has an optional parameter
+  `ignore_uncached_users` (defaulting to `False`) that allows to process the running
+  sheet even if it contains users that are not in the `fullname_mapping` attribute
+
 ## 2.1.0
 
 - [API] `pyppms.ppms.PpmsConnection.get_user()` and
