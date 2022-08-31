@@ -246,8 +246,12 @@ class PpmsConnection:
         action = req_data["action"]
         intercept_dir = os.path.join(self.cache_path, action)
         if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
-            os.makedirs(intercept_dir)
-            LOG.debug("Created dir to store response: %s", intercept_dir)
+            try:
+                os.makedirs(intercept_dir)
+                LOG.debug("Created dir to store response: %s", intercept_dir)
+            except Exception as err:  # pylint: disable-msg=broad-except
+                LOG.warning("Failed creating [%s]: %s", intercept_dir, err)
+                return None
 
         signature = ""
         # different python versions are returning dict items in different order, so
@@ -332,6 +336,10 @@ class PpmsConnection:
             return
 
         intercept_file = self.__interception_path(req_data, create_dir=True)
+        if not intercept_file:
+            # FIXME: switch to loguru, turn into a trace-level message:
+            LOG.debug("Not storing intercepted results in cache.")
+            return
 
         try:
             with open(intercept_file, "w", encoding="utf-8") as outfile:

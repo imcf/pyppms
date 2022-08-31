@@ -4,7 +4,11 @@
 
 - `pyppms.ppms.PpmsConnection.get_running_sheet()` now has an optional parameter
   `ignore_uncached_users` (defaulting to `False`) that allows to process the running
-  sheet even if it contains users that are not in the `fullname_mapping` attribute
+  sheet even if it contains users that are not in the `fullname_mapping` attribute.
+- If the `cache_path` attribute is set for an `pyppms.ppms.PpmsConnection` instance but
+  creating the actual subdir for an intercepted response fails (e.g. due to permission
+  problems) the response-cache will not be updated. Before, the exception raised by
+  the underlying code (e.g. a `PermissionError`) was passed on.
 
 ## 2.1.0
 
