@@ -66,8 +66,7 @@ class PpmsBooking:
             raise
 
         LOG.debug(
-            "PpmsBooking initialized: username=[%s], system=[%s], "
-            "reservation start=[%s] end=[%s]",
+            "Created PpmsBooking: user=[%s], system=[%s], start=[%s] end=[%s]",
             self.username,
             system_id,
             starttime,
