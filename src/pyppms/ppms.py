@@ -621,6 +621,23 @@ class PpmsConnection:
         groups = response.text.splitlines()
         LOG.debug("%s groups in the PPMS database: %s", len(groups), ", ".join(groups))
         return groups
+    
+    def get_groups_active(self):
+        """Get a list of all active groups in PPMS.
+
+        Returns
+        -------
+        list(str)
+            A list with the active group identifiers in PPMS.
+        """
+        response = self.request("getgroups")
+
+        groups = response.text.splitlines()
+        active_groups = [x for x in groups if self.get_group(x)['active']]
+        LOG.debug("%s groups in the PPMS database: %s", len(active_groups), ", ".join(active_groups))
+        return active_groups
+        
+        
 
     def get_group(self, group_id):
         """Fetch group details from PPMS and create a dict from them.
