@@ -19,8 +19,8 @@ END = f"{DAY} {TIME_END}"
 USERNAME = "ppmsuser"
 SYS_ID = "42"
 SESSION_ID = "some_session_id"
-EXPECTED = f"username: {USERNAME} - system: {SYS_ID} - "
-EXPECTED += f"reservation start / end: [ %s / %s ] - session: {SESSION_ID}"
+EXPECTED = f"PpmsBooking(username=[{USERNAME}], system_id=[{SYS_ID}], "
+EXPECTED += f"starttime=[%s], endtime=[%s], session=[{SESSION_ID}])"
 
 
 def create_booking(

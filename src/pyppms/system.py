@@ -70,7 +70,7 @@ class PpmsSystem:
         self.autonomy_required = details["Autonomy Required"]
         self.autonomy_required_after_hours = details["Autonomy Required After Hours"]
         LOG.debug(
-            "PpmsSystem created: id=%s, name=[%s], localisation=[%s], system_type=[%s]",
+            "PpmsSystem(system_id=%s, name=[%s], localisation=[%s], system_type=[%s])",
             self.system_id,
             self.name,
             self.localisation,

@@ -5,4 +5,4 @@ from pyppms import __version__
 
 def test_version():
     """Ensure we're running against the expected package version."""
-    assert __version__ == "2.1.1-dev0"
+    assert __version__ == "2.2.0-dev0"

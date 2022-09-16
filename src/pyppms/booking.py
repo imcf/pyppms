@@ -65,13 +65,7 @@ class PpmsBooking:
             LOG.error("Parsing booking response failed (%s), text was:\n%s", err, text)
             raise
 
-        LOG.debug(
-            "Created PpmsBooking: user=[%s], system=[%s], start=[%s] end=[%s]",
-            self.username,
-            system_id,
-            starttime,
-            endtime,
-        )
+        LOG.debug(str(self))
 
     @classmethod
     def from_runningsheet(cls, entry, system_id, username, date):
@@ -129,7 +123,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.starttime = start
-        LOG.debug("Updated booking starttime: %s", self)
+        LOG.debug("New starttime: %s", self)
 
     def endtime_fromstr(self, time_str, date=None):
         """Change the ending time and / or day of a booking.
@@ -151,14 +145,15 @@ class PpmsBooking:
             microsecond=0,
         )
         self.endtime = end
-        LOG.debug("Updated booking endtime: %s", self)
+        LOG.debug("New endtime: %s", self)
 
     def __str__(self):
         msg = (
-            f"username: {self.username} - system: {self.system_id} - "
-            f"reservation start / end: [ {self.starttime} / {self.endtime} ]"
+            f"PpmsBooking(username=[{self.username}], system_id=[{self.system_id}], "
+            f"starttime=[{self.starttime}], endtime=[{self.endtime}]"
         )
         if self.session:
-            msg += f" - session: {self.session}"
+            msg += f", session=[{self.session}]"
+        msg += ")"
 
         return msg
