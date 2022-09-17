@@ -148,9 +148,14 @@ class PpmsBooking:
         LOG.debug("New endtime: %s", self)
 
     def __str__(self):
+        def fmt_time(time):
+            return datetime.strftime(time, "%Y-%m-%d %H:%M")
+
         msg = (
-            f"PpmsBooking(username=[{self.username}], system_id=[{self.system_id}], "
-            f"starttime=[{self.starttime}], endtime=[{self.endtime}]"
+            f"PpmsBooking(username=[{self.username}], "
+            f"system_id=[{self.system_id}], "
+            f"starttime=[{fmt_time(self.starttime)}], "
+            f"endtime=[{fmt_time(self.endtime)}]"
         )
         if self.session:
             msg += f", session=[{self.session}]"
