@@ -353,8 +353,6 @@ class PpmsConnection:
             LOG.error("Storing response text in [%s] failed: %s", intercept_file, err)
             LOG.error("Response text was:\n--------\n%s\n--------", response.text)
 
-    ############ users / groups ############
-
     def new_user(  # pylint: disable-msg=too-many-arguments
         self, login, lname, fname, email, ppms_group, phone=None, password=None
     ):
@@ -748,8 +746,6 @@ class PpmsConnection:
 
         return emails
 
-    ############ resources ############
-
     def get_systems(self, force_refresh=False):
         """Get a dict with all systems in PPMS.
 
@@ -857,8 +853,6 @@ class PpmsConnection:
         LOG.info("Found %s bookable systems %s", len(system_ids), loc_desc)
         LOG.debug("IDs of matching bookable systems %s: %s", loc_desc, system_ids)
         return system_ids
-
-    ############ system / user permissions ############
 
     def get_users_with_access_to_system(self, system_id):
         """Get a list of usernames allowed to book the system with the given ID.
@@ -1034,8 +1028,6 @@ class PpmsConnection:
             before), False otherwise.
         """
         return self.set_system_booking_permissions(username, system_id, "D")
-
-    ############ bookings ############
 
     def get_booking(self, system_id, booking_type="get"):
         """Get the current or next booking of a system.
