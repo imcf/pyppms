@@ -603,7 +603,16 @@ class PpmsConnection:
         -------
         list(int)
             A list with PPMS system IDs matching all of the given criteria.
+
+        Raises
+        ------
+        TypeError
+            Raised in case the `name_contains` parameter is of type `str` (it
+            needs to be `list(str)` instead).
         """
+        if isinstance(name_contains, str):
+            raise TypeError("`name_contains` must be a list of str, not str!")
+
         loc = localisation
         loc_desc = f"with location matching [{localisation}]"
         if localisation == "":

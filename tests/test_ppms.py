@@ -441,6 +441,15 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
     assert sys_ids == []
 
 
+def test_get_systems_matching__raises(ppms_connection, system_details_raw):
+    """Test get_systems_matching() with a wrong parameter type."""
+    with pytest.raises(TypeError):
+        ppms_connection.get_systems_matching("foo", "wrong-type")
+
+    with pytest.raises(TypeError):
+        ppms_connection.get_systems_matching("foo", "")
+
+
 ############ system / user permissions ############
 
 

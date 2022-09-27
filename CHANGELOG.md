@@ -2,6 +2,8 @@
 
 ## 2.2.0
 
+- `pyppms.ppms.PpmsConnection.get_systems_matching()` now raises a `TypeError` in case
+  the parameter `name_contains` is accidentially as `str` instead of a list.
 - `pyppms.ppms.PpmsConnection.get_running_sheet()` now has an optional parameter
   `ignore_uncached_users` (defaulting to `False`) that allows to process the running
   sheet even if it contains users that are not in the `fullname_mapping` attribute.
