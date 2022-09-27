@@ -9,6 +9,8 @@
   creating the actual subdir for an intercepted response fails (e.g. due to permission
   problems) the response-cache will not be updated. Before, the exception raised by
   the underlying code (e.g. a `PermissionError`) was passed on.
+- Methods of `pyppms.ppms.PpmsConnection` are now sorted in alphabetical order, making
+  it easier to locate them e.g. in the API documentation.
 
 ## 2.1.0
 

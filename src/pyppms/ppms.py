@@ -353,249 +353,6 @@ class PpmsConnection:
             LOG.error("Storing response text in [%s] failed: %s", intercept_file, err)
             LOG.error("Response text was:\n--------\n%s\n--------", response.text)
 
-    def new_user(  # pylint: disable-msg=too-many-arguments
-        self, login, lname, fname, email, ppms_group, phone=None, password=None
-    ):
-        """Create a new user in PPMS.
-
-        The method is asking PPMS to create a new user account with the given details.
-        In case an account with that login name already exists, it will log a warning
-        and return without sending any further requests to PPMS.
-
-        Parameters
-        ----------
-        login : str
-            The unique identifier for the user.
-        lname : str
-            The last name of the user.
-        fname : str
-            The first name of the user.
-        email : str
-            The email address of the user.
-        ppms_group : str
-            The unique identifier of the primary group of the new user. A new group will
-            be created if no group with the given name exists.
-        phone : str, optional
-            The phone number of the user.
-        password : str, optional
-            The password for the user. If no password is set the user will not be able
-            to log on to PPMS.
-
-        Raises
-        ------
-        RuntimeError
-            Will be raised in case creating the user fails.
-        """
-        if self.user_exists(login):
-            LOG.warning("NOT creating user [%s] as it already exists!", login)
-            return
-
-        req_data = {
-            "login": login,
-            "lname": lname,
-            "fname": fname,
-            "email": email,
-            "unitlogin": ppms_group,
-        }
-        if phone:
-            req_data["phone"] = phone
-        if password:
-            req_data["pwd"] = password
-
-        response = self.request("newuser", req_data)
-        if not "OK newuser" in response.text:
-            msg = f"Creating new user failed: {response.text}"
-            LOG.error(msg)
-            raise RuntimeError(msg)
-
-        LOG.info("Created user [%s] in PPMS.", login)
-        LOG.debug("Response was: %s", response.text)
-
-    def get_user_ids(self, active=False):
-        """Get a list with all user IDs in the PPMS system.
-
-        Parameters
-        ----------
-        active : bool, optional
-            Request only users marked as active in PPMS, by default False.
-            NOTE: "active" is a tri-state parameter in PPMS: "true", "false"
-            or empty!
-
-        Returns
-        -------
-        list
-            A list of all (or active-only) user IDs in PPMS.
-        """
-        # TODO: describe format of returned list and / or give an example!
-        parameters = {}
-        if active:
-            parameters["active"] = "true"
-
-        response = self.request("getusers", parameters)
-
-        users = response.text.splitlines()
-        active_desc = "active " if active else ""
-        LOG.info("%s %susers in the PPMS database", len(users), active_desc)
-        LOG.debug(", ".join(users))
-        return users
-
-    def get_user_dict(self, login_name, skip_cache=False):
-        """Get details on a given user from PPMS.
-
-        Parameters
-        ----------
-        login_name : str
-            The PPMS account / login name of the user to query.
-        skip_cache : bool, optional
-            Passed as-is to the :py:meth:`request()` method
-
-        Returns
-        -------
-        dict
-            A dict with the user details returned by the PUMAPI.
-
-        Example
-        -------
-        >>> conn.get_user_dict('pyppms')
-        ... {
-        ...     u'active': True,
-        ...     u'affiliation': u'',
-        ...     u'bcode': u'',
-        ...     u'email': u'pyppms@python-facility.example',
-        ...     u'fname': u'PumAPI',
-        ...     u'lname': u'Python',
-        ...     u'login': u'pyppms',
-        ...     u'mustchbcode': False,
-        ...     u'mustchpwd': False',
-        ...     u'phone': u'+98 (76) 54 3210',
-        ...     u'unitlogin': u'pyppms'
-        ... }
-
-        Raises
-        ------
-        KeyError
-            Raised in case the user account is unknown to PPMS.
-        ValueError
-            Raised if the user details can't be parsed from the PUMAPI response.
-        """
-        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
-
-        if not response.text:
-            msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.error(msg)
-            raise KeyError(msg)
-
-        # EXAMPLE:
-        # response.text = (
-        #     u'login,lname,fname,email,'
-        #     u'phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,'
-        #     u'active\r\n'
-        #     u'"pyppms","Python","PumAPI","pyppms@python-facility.example",'
-        #     u'"+98 (76) 54 3210","","","pyppms",false,false,'
-        #     u'true\r\n'
-        # )
-        details = dict_from_single_response(response.text)
-        LOG.debug("Details for user [%s]: %s", login_name, details)
-        return details
-
-    def get_user(self, login_name, skip_cache=False):
-        """Fetch user details from PPMS and create a PpmsUser object from it.
-
-        Parameters
-        ----------
-        login_name : str
-            The user's PPMS login name.
-        skip_cache : bool, optional
-            Passed as-is to the :py:meth:`request()` method
-
-        Returns
-        -------
-        pyppms.user.PpmsUser
-            The user object created from the PUMAPI response. The object will be
-            additionally stored in the self.users dict using the login_name as
-            the dict's key.
-
-        Raises
-        ------
-        KeyError
-            Raised if the user doesn't exist in PPMS.
-        """
-        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
-
-        if not response.text:
-            msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.error(msg)
-            raise KeyError(msg)
-
-        user = PpmsUser(response.text)
-        self.users[user.username] = user  # update / add to the cached user objs
-        self.fullname_mapping[user.fullname] = user.username
-        return user
-
-    def user_exists(self, login):
-        """Check if an account with the given login name already exists in PPMS.
-
-        Parameters
-        ----------
-        login : str
-            The login name to check for.
-
-        Returns
-        -------
-        bool
-            True in case an account with that name exists in PPMS, false otherwise.
-        """
-        try:
-            self.get_user(login)
-            return True
-        except KeyError:
-            return False
-
-    def get_users(self, force_refresh=False):
-        """Get user objects for all (or cached) PPMS users.
-
-        Parameters
-        ----------
-        force_refresh : bool, optional
-            Re-request information from PPMS even if user details have been
-            cached locally before, by default False.
-
-        Returns
-        -------
-        dict(pyppms.user.PpmsUser)
-            A dict of PpmsUser objects with the username (login) as key.
-        """
-        if self.users and not force_refresh:
-            LOG.debug("Using cached details for %s users", len(self.users))
-        else:
-            self.update_users()
-
-        return self.users
-
-    def update_users(self, user_ids=[]):
-        """Update cached details for a list of users from PPMS.
-
-        Get the user details on a list of users (or all active ones) from PPMS and store
-        them in the object's `users` dict. As a side effect, this will also fill the
-        cache directory in case the object's `cache_path` attribute is set.
-
-        WARNING - very slow, especially when the PPMS instance has many users!
-
-        Parameters
-        ----------
-        user_ids : list(str), optional
-            A list of user IDs (login names) to request the cache for, by
-            default [] which will result in all *active* users to be requested.
-        """
-        if not user_ids:
-            user_ids = self.get_user_ids(active=True)
-
-        LOG.debug("Updating details on %s users", len(user_ids))
-        for user_id in user_ids:
-            self.get_user(user_id, skip_cache=True)
-
-        LOG.debug("Collected details on %s users", len(self.users))
-
     def get_admins(self):
         """Get all PPMS administrator users.
 
@@ -614,19 +371,59 @@ class PpmsConnection:
         LOG.debug("%s admins in the PPMS database: %s", len(admins), ", ".join(admins))
         return users
 
-    def get_groups(self):
-        """Get a list of all groups in PPMS.
+    def get_booking(self, system_id, booking_type="get"):
+        """Get the current or next booking of a system.
+
+        WARNING: if the next booking is requested but it is too far in the future,
+        PUMAPI silently ignores it - the response is identical to a system that has no
+        future bookings and there is no error reported either. Currently it is unclear
+        where the cutoff is (e.g. lookups for a booking that is two years from now still
+        work fine, but a booking in about 10 years is silently skipped).
+
+        Parameters
+        ----------
+        system_id : int or int-like
+            The ID of the system in PPMS.
+        booking_type : {'get', 'next'}, optional
+            The type of booking to request, one of `get` (requesting the
+            currently running booking) and `next` (requesting the next upcoming
+            booking), by default `get`.
 
         Returns
         -------
-        list(str)
-            A list with the group identifiers in PPMS.
-        """
-        response = self.request("getgroups")
+        pyppms.booking.PpmsBooking or None
+            The booking object, or None if there is no booking for the system or the
+            request is refused by PUMAPI (e.g. "not authorized").
 
-        groups = response.text.splitlines()
-        LOG.debug("%s groups in the PPMS database: %s", len(groups), ", ".join(groups))
-        return groups
+        Raises
+        ------
+        ValueError
+            Raised if the specified `booking_type` is invalid.
+        """
+        valid = ["get", "next"]
+        if booking_type not in valid:
+            raise ValueError(
+                f"Value for 'booking_type' ({booking_type}) not in {valid}!"
+            )
+
+        try:
+            response = self.request(booking_type + "booking", {"id": system_id})
+        except requests.exceptions.ConnectionError:
+            LOG.error("Requesting booking status for system %s failed!", system_id)
+            return None
+
+        desc = "any future bookings"
+        if booking_type == "get":
+            desc = "a currently active booking"
+        if not response.text.strip():
+            LOG.debug("System [%s] doesn't have %s", system_id, desc)
+            return None
+
+        return PpmsBooking(response.text, booking_type, system_id)
+
+    def get_current_booking(self, system_id):
+        """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
+        return self.get_booking(system_id, "get")
 
     def get_group(self, group_id):
         """Fetch group details from PPMS and create a dict from them.
@@ -683,68 +480,94 @@ class PpmsConnection:
         )
         return users
 
-    def get_user_experience(self, login=None, system_id=None):
-        """Get user experience ("User rights") from PPMS.
-
-        Parameters
-        ----------
-        login : str, optional
-            An optional login name to request the experience / permissions for,
-            by default None
-        system_id : int, optional
-            An optional system ID to request the experience / permissions for,
-            by default None
-
-        Returns
-        -------
-        list(dict)
-            A list with dicts parsed from the user experience response.
-        """
-        data = {}
-        if login is not None:
-            data["login"] = login
-        if system_id is not None:
-            data["id"] = system_id
-        response = self.request("getuserexp", parameters=data)
-
-        parsed = parse_multiline_response(response.text)
-        LOG.debug(
-            "Received %s experience entries for filters [user:%s] and [id:%s]",
-            len(parsed),
-            login,
-            system_id,
-        )
-        return parsed
-
-    def get_users_emails(self, users=None, active=False):
-        """Get a list of user email addresses. WARNING - very slow!
-
-        Parameters
-        ----------
-        users : list(str), optional
-            A list of login names to retrieve the email addresses for, if
-            omitted addresses for all (or active ones) will be requested.
-        active : bool, optional
-            Request only addresses of users marked as active in PPMS, by default
-            False. Will be ignored if a list of usernames is given explicitly.
+    def get_groups(self):
+        """Get a list of all groups in PPMS.
 
         Returns
         -------
         list(str)
-            Email addresses of the users requested.
+            A list with the group identifiers in PPMS.
         """
-        emails = []
-        if users is None:
-            users = self.get_user_ids(active=active)
-        for user in users:
-            email = self.get_user_dict(user)["email"]
-            if not email:
-                LOG.warning("--- WARNING: no email for user [%s]! ---", user)
-                continue
-            # LOG.debug("%s: %s", user, email)
-            emails.append(email)
+        response = self.request("getgroups")
 
-        return emails
+        groups = response.text.splitlines()
+        LOG.debug("%s groups in the PPMS database: %s", len(groups), ", ".join(groups))
+        return groups
+
+    def get_next_booking(self, system_id):
+        """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
+        return self.get_booking(system_id, "next")
+
+    def get_running_sheet(self, core_facility_ref, date, ignore_uncached_users=False):
+        """Get the running sheet for a specific day on the given facility.
+
+        The so-called "running-sheet" consists of all bookings / reservations of
+        a facility on a specifc day.
+
+        WARNING: PUMAPI doesn't return a proper unique user identifier with the
+        'getrunningsheet' request, instead the so called "full name" is given to
+        identify the user - unfortunately this can lead to ambiguities as
+        multiple different accounts can have the same full name.
+
+        Parameters
+        ----------
+        core_facility_ref : int or int-like
+            The core facility ID for PPMS.
+        date : datetime.datetime
+            The date to request the running sheet for, e.g. ``datetime.now()`` or
+            similar. Note that only the date part is relevant, time will be ignored.
+        ignore_uncached_users : bool, optional
+            If set to `True` any booking for a user that is not present in the instance
+            attribuge `fullname_mapping` will be ignored in the resulting list.
+
+        Returns
+        -------
+        list(pyppms.booking.PpmsBooking)
+            A list with `PpmsBooking` objects for the given day. Empty in case
+            there are no bookings or parsing the response failed.
+        """
+        bookings = []
+        parameters = {
+            "plateformid": f"{core_facility_ref}",
+            "day": date.strftime("%Y-%m-%d"),
+        }
+        LOG.debug("Requesting runningsheet for %s", parameters["day"])
+        response = self.request("getrunningsheet", parameters)
+        try:
+            entries = parse_multiline_response(response.text, graceful=False)
+        except Exception as err:  # pylint: disable-msg=broad-except
+            LOG.error("Parsing runningsheet details failed: %s", err)
+            # NOTE: in case no future bookings exist the response will be empty!
+            LOG.error("Possibly the runningsheet is empty as no bookings exist?")
+            LOG.debug("Runningsheet PUMPAI response was: %s", response.text)
+            return bookings
+
+        for entry in entries:
+            full = entry["User"]
+            if full not in self.fullname_mapping:
+                if ignore_uncached_users:
+                    LOG.debug("Ignoring booking for uncached user [%s]", full)
+                    continue
+
+                LOG.info("Booking for an uncached user (%s) found!", full)
+                self.update_users()
+
+            if full not in self.fullname_mapping:
+                LOG.error("PPMS doesn't seem to know user [%s], skipping", full)
+                continue
+
+            LOG.info(
+                "Booking for user '%s' (%s) found", self.fullname_mapping[full], full
+            )
+            booking = PpmsBooking.from_runningsheet(
+                entry,
+                self._get_system_with_name(entry["Object"]),
+                self.fullname_mapping[full],
+                date,
+            )
+            bookings.append(booking)
+
+        return bookings
 
     def get_systems(self, force_refresh=False):
         """Get a dict with all systems in PPMS.
@@ -762,36 +585,6 @@ class PpmsConnection:
             self.update_systems()
 
         return self.systems
-
-    def update_systems(self):
-        """Update cached details for all bookable systems from PPMS.
-
-        Get the details on all bookable systems from PPMS and store them in the local
-        cache. If parsing the PUMAPI response for a system fails for any reason, the
-        system is skipped entirely.
-        """
-        LOG.debug("Updating list of bookable systems...")
-        systems = {}
-        parse_fails = 0
-        response = self.request("getsystems")
-        details = parse_multiline_response(response.text, graceful=False)
-        for detail in details:
-            try:
-                system = PpmsSystem(detail)
-            except ValueError as err:
-                LOG.error("Error processing `getsystems` response: %s", err)
-                parse_fails += 1
-                continue
-
-            systems[system.system_id] = system
-
-        LOG.debug(
-            "Updated %s bookable systems from PPMS (%s systems failed parsing)",
-            len(systems),
-            parse_fails,
-        )
-
-        self.systems = systems
 
     def get_systems_matching(self, localisation, name_contains):
         """Query PPMS for systems with a specific location and name.
@@ -854,6 +647,211 @@ class PpmsConnection:
         LOG.debug("IDs of matching bookable systems %s: %s", loc_desc, system_ids)
         return system_ids
 
+    def get_user(self, login_name, skip_cache=False):
+        """Fetch user details from PPMS and create a PpmsUser object from it.
+
+        Parameters
+        ----------
+        login_name : str
+            The user's PPMS login name.
+        skip_cache : bool, optional
+            Passed as-is to the :py:meth:`request()` method
+
+        Returns
+        -------
+        pyppms.user.PpmsUser
+            The user object created from the PUMAPI response. The object will be
+            additionally stored in the self.users dict using the login_name as
+            the dict's key.
+
+        Raises
+        ------
+        KeyError
+            Raised if the user doesn't exist in PPMS.
+        """
+        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
+
+        if not response.text:
+            msg = f"User [{login_name}] is unknown to PPMS"
+            LOG.error(msg)
+            raise KeyError(msg)
+
+        user = PpmsUser(response.text)
+        self.users[user.username] = user  # update / add to the cached user objs
+        self.fullname_mapping[user.fullname] = user.username
+        return user
+
+    def get_user_dict(self, login_name, skip_cache=False):
+        """Get details on a given user from PPMS.
+
+        Parameters
+        ----------
+        login_name : str
+            The PPMS account / login name of the user to query.
+        skip_cache : bool, optional
+            Passed as-is to the :py:meth:`request()` method
+
+        Returns
+        -------
+        dict
+            A dict with the user details returned by the PUMAPI.
+
+        Example
+        -------
+        >>> conn.get_user_dict('pyppms')
+        ... {
+        ...     u'active': True,
+        ...     u'affiliation': u'',
+        ...     u'bcode': u'',
+        ...     u'email': u'pyppms@python-facility.example',
+        ...     u'fname': u'PumAPI',
+        ...     u'lname': u'Python',
+        ...     u'login': u'pyppms',
+        ...     u'mustchbcode': False,
+        ...     u'mustchpwd': False',
+        ...     u'phone': u'+98 (76) 54 3210',
+        ...     u'unitlogin': u'pyppms'
+        ... }
+
+        Raises
+        ------
+        KeyError
+            Raised in case the user account is unknown to PPMS.
+        ValueError
+            Raised if the user details can't be parsed from the PUMAPI response.
+        """
+        response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
+
+        if not response.text:
+            msg = f"User [{login_name}] is unknown to PPMS"
+            LOG.error(msg)
+            raise KeyError(msg)
+
+        # EXAMPLE:
+        # response.text = (
+        #     u'login,lname,fname,email,'
+        #     u'phone,bcode,affiliation,unitlogin,mustchpwd,mustchbcode,'
+        #     u'active\r\n'
+        #     u'"pyppms","Python","PumAPI","pyppms@python-facility.example",'
+        #     u'"+98 (76) 54 3210","","","pyppms",false,false,'
+        #     u'true\r\n'
+        # )
+        details = dict_from_single_response(response.text)
+        LOG.debug("Details for user [%s]: %s", login_name, details)
+        return details
+
+    def get_user_experience(self, login=None, system_id=None):
+        """Get user experience ("User rights") from PPMS.
+
+        Parameters
+        ----------
+        login : str, optional
+            An optional login name to request the experience / permissions for,
+            by default None
+        system_id : int, optional
+            An optional system ID to request the experience / permissions for,
+            by default None
+
+        Returns
+        -------
+        list(dict)
+            A list with dicts parsed from the user experience response.
+        """
+        data = {}
+        if login is not None:
+            data["login"] = login
+        if system_id is not None:
+            data["id"] = system_id
+        response = self.request("getuserexp", parameters=data)
+
+        parsed = parse_multiline_response(response.text)
+        LOG.debug(
+            "Received %s experience entries for filters [user:%s] and [id:%s]",
+            len(parsed),
+            login,
+            system_id,
+        )
+        return parsed
+
+    def get_user_ids(self, active=False):
+        """Get a list with all user IDs in the PPMS system.
+
+        Parameters
+        ----------
+        active : bool, optional
+            Request only users marked as active in PPMS, by default False.
+            NOTE: "active" is a tri-state parameter in PPMS: "true", "false"
+            or empty!
+
+        Returns
+        -------
+        list
+            A list of all (or active-only) user IDs in PPMS.
+        """
+        # TODO: describe format of returned list and / or give an example!
+        parameters = {}
+        if active:
+            parameters["active"] = "true"
+
+        response = self.request("getusers", parameters)
+
+        users = response.text.splitlines()
+        active_desc = "active " if active else ""
+        LOG.info("%s %susers in the PPMS database", len(users), active_desc)
+        LOG.debug(", ".join(users))
+        return users
+
+    def get_users(self, force_refresh=False):
+        """Get user objects for all (or cached) PPMS users.
+
+        Parameters
+        ----------
+        force_refresh : bool, optional
+            Re-request information from PPMS even if user details have been
+            cached locally before, by default False.
+
+        Returns
+        -------
+        dict(pyppms.user.PpmsUser)
+            A dict of PpmsUser objects with the username (login) as key.
+        """
+        if self.users and not force_refresh:
+            LOG.debug("Using cached details for %s users", len(self.users))
+        else:
+            self.update_users()
+
+        return self.users
+
+    def get_users_emails(self, users=None, active=False):
+        """Get a list of user email addresses. WARNING - very slow!
+
+        Parameters
+        ----------
+        users : list(str), optional
+            A list of login names to retrieve the email addresses for, if
+            omitted addresses for all (or active ones) will be requested.
+        active : bool, optional
+            Request only addresses of users marked as active in PPMS, by default
+            False. Will be ignored if a list of usernames is given explicitly.
+
+        Returns
+        -------
+        list(str)
+            Email addresses of the users requested.
+        """
+        emails = []
+        if users is None:
+            users = self.get_user_ids(active=active)
+        for user in users:
+            email = self.get_user_dict(user)["email"]
+            if not email:
+                LOG.warning("--- WARNING: no email for user [%s]! ---", user)
+                continue
+            # LOG.debug("%s: %s", user, email)
+            emails.append(email)
+
+        return emails
+
     def get_users_with_access_to_system(self, system_id):
         """Get a list of usernames allowed to book the system with the given ID.
 
@@ -903,6 +901,102 @@ class PpmsConnection:
             raise ValueError(msg) from err
 
         return users
+
+    def give_user_access_to_system(self, username, system_id):
+        """Add permissions for a user to book a given system in PPMS.
+
+        Parameters
+        ----------
+        username : str
+            The username ('login') to allow for booking the system.
+        system_id : int or int-like
+            The ID of the system to add the permission for.
+
+        Returns
+        -------
+        bool
+            True in case the given username now has the permissions to book the
+            system with the specified ID (or if the user already had them
+            before), False otherwise.
+        """
+        return self.set_system_booking_permissions(username, system_id, "A")
+
+    def new_user(  # pylint: disable-msg=too-many-arguments
+        self, login, lname, fname, email, ppms_group, phone=None, password=None
+    ):
+        """Create a new user in PPMS.
+
+        The method is asking PPMS to create a new user account with the given details.
+        In case an account with that login name already exists, it will log a warning
+        and return without sending any further requests to PPMS.
+
+        Parameters
+        ----------
+        login : str
+            The unique identifier for the user.
+        lname : str
+            The last name of the user.
+        fname : str
+            The first name of the user.
+        email : str
+            The email address of the user.
+        ppms_group : str
+            The unique identifier of the primary group of the new user. A new group will
+            be created if no group with the given name exists.
+        phone : str, optional
+            The phone number of the user.
+        password : str, optional
+            The password for the user. If no password is set the user will not be able
+            to log on to PPMS.
+
+        Raises
+        ------
+        RuntimeError
+            Will be raised in case creating the user fails.
+        """
+        if self.user_exists(login):
+            LOG.warning("NOT creating user [%s] as it already exists!", login)
+            return
+
+        req_data = {
+            "login": login,
+            "lname": lname,
+            "fname": fname,
+            "email": email,
+            "unitlogin": ppms_group,
+        }
+        if phone:
+            req_data["phone"] = phone
+        if password:
+            req_data["pwd"] = password
+
+        response = self.request("newuser", req_data)
+        if not "OK newuser" in response.text:
+            msg = f"Creating new user failed: {response.text}"
+            LOG.error(msg)
+            raise RuntimeError(msg)
+
+        LOG.info("Created user [%s] in PPMS.", login)
+        LOG.debug("Response was: %s", response.text)
+
+    def remove_user_access_from_system(self, username, system_id):
+        """Remove permissions for a user to book a given system in PPMS.
+
+        Parameters
+        ----------
+        username : str
+            The username ('login') to remove booking permissions on the system.
+        system_id : int or int-like
+            The ID of the system to modify the permission for.
+
+        Returns
+        -------
+        bool
+            True in case the given username now has the permissions to book the
+            system with the specified ID (or if the user already had them
+            before), False otherwise.
+        """
+        return self.set_system_booking_permissions(username, system_id, "D")
 
     def set_system_booking_permissions(self, login, system_id, permission):
         """Set permissions for a user on a given system in PPMS.
@@ -991,169 +1085,75 @@ class PpmsConnection:
 
         return False
 
-    def give_user_access_to_system(self, username, system_id):
-        """Add permissions for a user to book a given system in PPMS.
+    def update_systems(self):
+        """Update cached details for all bookable systems from PPMS.
 
-        Parameters
-        ----------
-        username : str
-            The username ('login') to allow for booking the system.
-        system_id : int or int-like
-            The ID of the system to add the permission for.
-
-        Returns
-        -------
-        bool
-            True in case the given username now has the permissions to book the
-            system with the specified ID (or if the user already had them
-            before), False otherwise.
+        Get the details on all bookable systems from PPMS and store them in the local
+        cache. If parsing the PUMAPI response for a system fails for any reason, the
+        system is skipped entirely.
         """
-        return self.set_system_booking_permissions(username, system_id, "A")
-
-    def remove_user_access_from_system(self, username, system_id):
-        """Remove permissions for a user to book a given system in PPMS.
-
-        Parameters
-        ----------
-        username : str
-            The username ('login') to remove booking permissions on the system.
-        system_id : int or int-like
-            The ID of the system to modify the permission for.
-
-        Returns
-        -------
-        bool
-            True in case the given username now has the permissions to book the
-            system with the specified ID (or if the user already had them
-            before), False otherwise.
-        """
-        return self.set_system_booking_permissions(username, system_id, "D")
-
-    def get_booking(self, system_id, booking_type="get"):
-        """Get the current or next booking of a system.
-
-        WARNING: if the next booking is requested but it is too far in the future,
-        PUMAPI silently ignores it - the response is identical to a system that has no
-        future bookings and there is no error reported either. Currently it is unclear
-        where the cutoff is (e.g. lookups for a booking that is two years from now still
-        work fine, but a booking in about 10 years is silently skipped).
-
-        Parameters
-        ----------
-        system_id : int or int-like
-            The ID of the system in PPMS.
-        booking_type : {'get', 'next'}, optional
-            The type of booking to request, one of `get` (requesting the
-            currently running booking) and `next` (requesting the next upcoming
-            booking), by default `get`.
-
-        Returns
-        -------
-        pyppms.booking.PpmsBooking or None
-            The booking object, or None if there is no booking for the system or the
-            request is refused by PUMAPI (e.g. "not authorized").
-
-        Raises
-        ------
-        ValueError
-            Raised if the specified `booking_type` is invalid.
-        """
-        valid = ["get", "next"]
-        if booking_type not in valid:
-            raise ValueError(
-                f"Value for 'booking_type' ({booking_type}) not in {valid}!"
-            )
-
-        try:
-            response = self.request(booking_type + "booking", {"id": system_id})
-        except requests.exceptions.ConnectionError:
-            LOG.error("Requesting booking status for system %s failed!", system_id)
-            return None
-
-        desc = "any future bookings"
-        if booking_type == "get":
-            desc = "a currently active booking"
-        if not response.text.strip():
-            LOG.debug("System [%s] doesn't have %s", system_id, desc)
-            return None
-
-        return PpmsBooking(response.text, booking_type, system_id)
-
-    def get_current_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
-        return self.get_booking(system_id, "get")
-
-    def get_next_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
-        return self.get_booking(system_id, "next")
-
-    def get_running_sheet(self, core_facility_ref, date, ignore_uncached_users=False):
-        """Get the running sheet for a specific day on the given facility.
-
-        The so-called "running-sheet" consists of all bookings / reservations of
-        a facility on a specifc day.
-
-        WARNING: PUMAPI doesn't return a proper unique user identifier with the
-        'getrunningsheet' request, instead the so called "full name" is given to
-        identify the user - unfortunately this can lead to ambiguities as
-        multiple different accounts can have the same full name.
-
-        Parameters
-        ----------
-        core_facility_ref : int or int-like
-            The core facility ID for PPMS.
-        date : datetime.datetime
-            The date to request the running sheet for, e.g. ``datetime.now()`` or
-            similar. Note that only the date part is relevant, time will be ignored.
-        ignore_uncached_users : bool, optional
-            If set to `True` any booking for a user that is not present in the instance
-            attribuge `fullname_mapping` will be ignored in the resulting list.
-
-        Returns
-        -------
-        list(pyppms.booking.PpmsBooking)
-            A list with `PpmsBooking` objects for the given day. Empty in case
-            there are no bookings or parsing the response failed.
-        """
-        bookings = []
-        parameters = {
-            "plateformid": f"{core_facility_ref}",
-            "day": date.strftime("%Y-%m-%d"),
-        }
-        LOG.debug("Requesting runningsheet for %s", parameters["day"])
-        response = self.request("getrunningsheet", parameters)
-        try:
-            entries = parse_multiline_response(response.text, graceful=False)
-        except Exception as err:  # pylint: disable-msg=broad-except
-            LOG.error("Parsing runningsheet details failed: %s", err)
-            # NOTE: in case no future bookings exist the response will be empty!
-            LOG.error("Possibly the runningsheet is empty as no bookings exist?")
-            LOG.debug("Runningsheet PUMPAI response was: %s", response.text)
-            return bookings
-
-        for entry in entries:
-            full = entry["User"]
-            if full not in self.fullname_mapping:
-                if ignore_uncached_users:
-                    LOG.debug("Ignoring booking for uncached user [%s]", full)
-                    continue
-
-                LOG.info("Booking for an uncached user (%s) found!", full)
-                self.update_users()
-
-            if full not in self.fullname_mapping:
-                LOG.error("PPMS doesn't seem to know user [%s], skipping", full)
+        LOG.debug("Updating list of bookable systems...")
+        systems = {}
+        parse_fails = 0
+        response = self.request("getsystems")
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            try:
+                system = PpmsSystem(detail)
+            except ValueError as err:
+                LOG.error("Error processing `getsystems` response: %s", err)
+                parse_fails += 1
                 continue
 
-            LOG.info(
-                "Booking for user '%s' (%s) found", self.fullname_mapping[full], full
-            )
-            booking = PpmsBooking.from_runningsheet(
-                entry,
-                self._get_system_with_name(entry["Object"]),
-                self.fullname_mapping[full],
-                date,
-            )
-            bookings.append(booking)
+            systems[system.system_id] = system
 
-        return bookings
+        LOG.debug(
+            "Updated %s bookable systems from PPMS (%s systems failed parsing)",
+            len(systems),
+            parse_fails,
+        )
+
+        self.systems = systems
+
+    def update_users(self, user_ids=[]):
+        """Update cached details for a list of users from PPMS.
+
+        Get the user details on a list of users (or all active ones) from PPMS and store
+        them in the object's `users` dict. As a side effect, this will also fill the
+        cache directory in case the object's `cache_path` attribute is set.
+
+        WARNING - very slow, especially when the PPMS instance has many users!
+
+        Parameters
+        ----------
+        user_ids : list(str), optional
+            A list of user IDs (login names) to request the cache for, by
+            default [] which will result in all *active* users to be requested.
+        """
+        if not user_ids:
+            user_ids = self.get_user_ids(active=True)
+
+        LOG.debug("Updating details on %s users", len(user_ids))
+        for user_id in user_ids:
+            self.get_user(user_id, skip_cache=True)
+
+        LOG.debug("Collected details on %s users", len(self.users))
+
+    def user_exists(self, login):
+        """Check if an account with the given login name already exists in PPMS.
+
+        Parameters
+        ----------
+        login : str
+            The login name to check for.
+
+        Returns
+        -------
+        bool
+            True in case an account with that name exists in PPMS, false otherwise.
+        """
+        try:
+            self.get_user(login)
+            return True
+        except KeyError:
+            return False
