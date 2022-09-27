@@ -56,10 +56,6 @@ class PpmsConnection:
         ``auth_httpstatus``
     """
 
-    # TODO: all methods returning a list of user objects (get_group_users,
-    # get_admins, ...) should be refactored to return a dict with those objects
-    # instead, having the username ('login') as the key.
-
     def __init__(self, url, api_key, timeout=10, cache=""):
         """Constructor for the PPMS connection object.
 
