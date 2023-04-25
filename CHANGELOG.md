@@ -8,27 +8,31 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### Changed
 
-- `pyppms.ppms.PpmsConnection.get_systems_matching()` now raises a `TypeError` in case
-  the parameter `name_contains` is accidentially as `str` instead of a list.
+- `pyppms.ppms.PpmsConnection.get_systems_matching()` now raises a `TypeError`
+  in case the parameter `name_contains` is accidentially as `str` instead of a
+  list.
 - `pyppms.ppms.PpmsConnection.get_running_sheet()` now has an optional parameter
-  `ignore_uncached_users` (defaulting to `False`) that allows to process the running
-  sheet even if it contains users that are not in the `fullname_mapping` attribute.
-- If the `cache_path` attribute is set for an `pyppms.ppms.PpmsConnection` instance but
-  creating the actual subdir for an intercepted response fails (e.g. due to permission
-  problems) the response-cache will not be updated. Before, the exception raised by
-  the underlying code (e.g. a `PermissionError`) was passed on.
-- Methods of `pyppms.ppms.PpmsConnection` are now sorted in alphabetical order, making
-  it easier to locate them e.g. in the API documentation.
+  `ignore_uncached_users` (defaulting to `False`) that allows to process the
+  running sheet even if it contains users that are not in the `fullname_mapping`
+  attribute.
+- If the `cache_path` attribute is set for an `pyppms.ppms.PpmsConnection`
+  instance but creating the actual subdir for an intercepted response fails
+  (e.g. due to permission problems) the response-cache will not be updated.
+  Before, the exception raised by the underlying code (e.g. a `PermissionError`)
+  was passed on.
+- Methods of `pyppms.ppms.PpmsConnection` are now sorted in alphabetical order,
+  making it easier to locate them e.g. in the API documentation.
 
 ## 2.1.0
 
 ### Changed
 
 - [API] `pyppms.ppms.PpmsConnection.get_user()` and
-  `pyppms.ppms.PpmsConnection.get_user_dict()` now both accept an optional parameter
-  `skip_cache` that is passed on to the `pyppms.ppms.PpmsConnection.request()` call
-- [FIX] `pyppms.ppms.PpmsConnection.update_users()` now explicitly asks for the cache
-  to be skipped
+  `pyppms.ppms.PpmsConnection.get_user_dict()` now both accept an optional
+  parameter `skip_cache` that is passed on to the
+  `pyppms.ppms.PpmsConnection.request()` call
+- [FIX] `pyppms.ppms.PpmsConnection.update_users()` now explicitly asks for the
+  cache to be skipped
 
 ## 2.0.0
 
