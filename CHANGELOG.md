@@ -1,8 +1,12 @@
 # PyPPMS Changelog
 
+<!-- markdownlint-disable MD024 (no-duplicate-header) -->
+
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ## 2.2.0
+
+### Changed
 
 - `pyppms.ppms.PpmsConnection.get_systems_matching()` now raises a `TypeError` in case
   the parameter `name_contains` is accidentially as `str` instead of a list.
@@ -18,6 +22,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ## 2.1.0
 
+### Changed
+
 - [API] `pyppms.ppms.PpmsConnection.get_user()` and
   `pyppms.ppms.PpmsConnection.get_user_dict()` now both accept an optional parameter
   `skip_cache` that is passed on to the `pyppms.ppms.PpmsConnection.request()` call
@@ -25,6 +31,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   to be skipped
 
 ## 2.0.0
+
+### Changed
 
 - [API] 🧨 the signature for `pyppms.user.PpmsUser` has been changed and now
   expects a single argument (the PUMAPI response text)
