@@ -568,6 +568,13 @@ class PpmsConnection:
     def get_systems(self, force_refresh=False):
         """Get a dict with all systems in PPMS.
 
+        Parameters
+        ----------
+        force_refresh : bool, optional
+            If `True` the list of systems will be refreshed even if the object's
+            attribute `self.systems` is non-empty, by default `False`. Please
+            note that this will NOT skip the on-disk cache in case that exists!
+
         Returns
         -------
         dict(pyppms.system.PpmsSystem)
