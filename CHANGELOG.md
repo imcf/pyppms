@@ -23,6 +23,17 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - Methods of `pyppms.ppms.PpmsConnection` are now sorted in alphabetical order,
   making it easier to locate them e.g. in the API documentation.
 
+### Removed
+
+- The following previously deprecated (or not even implemented) methods of
+  `pyppms.ppms.PpmsConnection` have been removed in favor of
+  `pyppms.ppms.PpmsConnection.get_systems_matching()`:
+  - `_get_system_with_name()`
+  - `_get_machine_catalogue_from_system()`
+  - `get_bookable_ids()`
+- Removed the stub `pyppms.ppms.PpmsConnection.get_system()` that was only
+  raising a `NotImplementedError`.
+
 ## 2.1.0
 
 ### Changed
