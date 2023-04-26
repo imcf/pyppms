@@ -11,6 +11,7 @@
 import logging
 import os
 import os.path
+import shutil
 from io import open
 
 import requests
@@ -348,6 +349,17 @@ class PpmsConnection:
         except Exception as err:  # pylint: disable-msg=broad-except
             LOG.error("Storing response text in [%s] failed: %s", intercept_file, err)
             LOG.error("Response text was:\n--------\n%s\n--------", response.text)
+
+    def flush_cache(self):
+        """Flush the PyPPMS on-disk cache."""
+        if self.cache_path == "":
+            LOG.info("No cache path configured, not flushing!")
+            return
+        LOG.info("Flushing the on-disk cache at [%s]...", self.cache_path)
+        try:
+            shutil.rmtree(self.cache_path)
+        except Exception as ex:  # pylint: disable-msg=broad-except
+            LOG.warning("Removing the cache at [%s] failed: %s", self.cache_path, ex)
 
     def get_admins(self):
         """Get all PPMS administrator users.

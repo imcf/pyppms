@@ -6,6 +6,10 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ## 2.2.0
 
+### Added
+
+- `pyppms.ppms.PpmsConnection.flush_cache()` to flush the on-disk cache.
+
 ### Changed
 
 - `pyppms.ppms.PpmsConnection.get_systems_matching()` now raises a `TypeError`

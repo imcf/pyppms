@@ -7,7 +7,7 @@
 import logging
 import os.path
 from datetime import datetime
-from shutil import rmtree
+from shutil import rmtree, copytree
 
 import pyppmsconf
 import pytest
@@ -661,3 +661,34 @@ def test_get_running_sheet_fail(ppms_connection):
         "using mock that fails parsing, expected result is an empty list of bookings",
     )
     assert ppms_connection.get_running_sheet("2", date=day) == []
+
+
+############ cache ############
+
+
+def test_flush_cache(ppms_connection, caplog, tmp_path):
+    """Test flushing the on-disk PyPPMS cache.
+
+    - Make sure the temporary test-directory exists but doesn't contain a cache yet.
+    - Copy over one of the cache directories provided with the tests.
+    - Make sure the test-directory *does* contain a cache now.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Trigger the `flush_cache()` method.
+    - Verify the cache has been removed from the test-directory.
+    """
+    orig_cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_1")
+    fresh_cache_path = tmp_path / "pyppms_cache"
+
+    assert os.path.exists(tmp_path)
+    assert os.path.exists(orig_cache_path)
+
+    assert not os.path.exists(fresh_cache_path)
+    copytree(orig_cache_path, fresh_cache_path)
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
+
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+    ppms_connection.flush_cache()
+    _logger.info("Flushed connection cache path: %s", fresh_cache_path)
+    assert not os.path.exists(fresh_cache_path)
