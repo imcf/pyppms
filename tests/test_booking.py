@@ -112,6 +112,13 @@ def test_endtime_fromstr__date():
     assert booking.__str__() == EXPECTED % (START, newend)
 
 
+def test_noendtime_str():
+    """Test the booking object string formatting when no end time is set."""
+    booking = create_booking()
+    booking.endtime = None
+    assert "endtime=[===UNDEFINED===]" in booking.__str__()
+
+
 def test_booking_from_request():
     """Test the alternative from_booking_request() constructor."""
     time_delta = 15

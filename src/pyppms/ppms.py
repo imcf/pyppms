@@ -384,6 +384,9 @@ class PpmsConnection:
             The type of booking to request, one of `get` (requesting the
             currently running booking) and `next` (requesting the next upcoming
             booking), by default `get`.
+            NOTE: if `next` is requested the resulting booking object will **NOT** have
+            an end time (`endtime` will be `None`) as PUMAPI doesn't provide one in that
+            case!
 
         Returns
         -------

@@ -149,6 +149,10 @@ class PpmsBooking:
 
     def __str__(self):
         def fmt_time(time):
+            # in case a booking was created from a "nextbooking" response it will not
+            # have the `endtime` attribute set, so treat this separately:
+            if time is None:
+                return "===UNDEFINED==="
             return datetime.strftime(time, "%Y-%m-%d %H:%M")
 
         msg = (
