@@ -8,7 +8,12 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### Added
 
-- `pyppms.ppms.PpmsConnection.flush_cache()` to flush the on-disk cache.
+- `pyppms.ppms.PpmsConnection.flush_cache()` to flush the on-disk cache with an
+  optional argument `keep_users` (defaulting to `False`) that allows for
+  flushing the entire cache **except** for the user **details**. This provides
+  the opportunity of refreshing the cache on everything but *existing* users.
+  Note that this will **not** affect **new** users, they will still be
+  recognized and fetched from PUMAPI (and stored in the cache).
 
 ### Changed
 

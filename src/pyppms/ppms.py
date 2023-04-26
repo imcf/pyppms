@@ -350,16 +350,50 @@ class PpmsConnection:
             LOG.error("Storing response text in [%s] failed: %s", intercept_file, err)
             LOG.error("Response text was:\n--------\n%s\n--------", response.text)
 
-    def flush_cache(self):
-        """Flush the PyPPMS on-disk cache."""
+    def flush_cache(self, keep_users=False):
+        """Flush the PyPPMS on-disk cache.
+
+        Optionally flushes everything *except* the `getuser` cache if the
+        `keep_users` flag is set to `True`, as this is clearly the most
+        time-consuming operation when fetching data from PUMAPI and therefore
+        might want to be retained.
+
+        Please note that the `getusers` cache (plural, including the `s` suffix)
+        will be flushed no matter what, as this is simply a list of user IDs
+        that can be fetched with a single request. In consequence this means
+        that using the `keep_users` flag will allow you to have reasonably fast
+        reaction times while still getting information on *new* users live from
+        PUMAPI at the only cost of possibly having outdated information on
+        *existing* users.
+
+        Parameters
+        ----------
+        keep_users : bool, optional
+            If set to `True` the `getuser` sub-directory in the cache location
+            will be kept, by default `False`.
+        """
         if self.cache_path == "":
             LOG.info("No cache path configured, not flushing!")
             return
-        LOG.info("Flushing the on-disk cache at [%s]...", self.cache_path)
-        try:
-            shutil.rmtree(self.cache_path)
-        except Exception as ex:  # pylint: disable-msg=broad-except
-            LOG.warning("Removing the cache at [%s] failed: %s", self.cache_path, ex)
+
+        dirs_to_remove = [self.cache_path]  # by default remove the entire cache dir
+        keep_msg = ""
+        if keep_users:
+            keep_msg = " (keeping user details dirs)"
+            dirs_to_remove = []
+            cache_dirs = os.listdir(self.cache_path)
+            for subdir in cache_dirs:
+                if subdir == "getuser":
+                    continue
+                dirs_to_remove.append(os.path.join(self.cache_path, subdir))
+
+        LOG.info("Flushing the on-disk cache at [%s]%s...", self.cache_path, keep_msg)
+        for directory in dirs_to_remove:
+            try:
+                shutil.rmtree(directory)
+                LOG.debug("Removed directory [%s].", directory)
+            except Exception as ex:  # pylint: disable-msg=broad-except
+                LOG.warning("Removing the cache at [%s] failed: %s", directory, ex)
 
     def get_admins(self):
         """Get all PPMS administrator users.

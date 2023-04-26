@@ -692,3 +692,54 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
     ppms_connection.flush_cache()
     _logger.info("Flushed connection cache path: %s", fresh_cache_path)
     assert not os.path.exists(fresh_cache_path)
+
+
+def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
+    """Test flushing the on-disk PyPPMS cache while keeping the user details.
+
+    - Make sure the temporary test-directory exists but doesn't contain a cache yet.
+    - Create the cache directory there.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache provided
+      with the tests.
+    - Make sure the copied directories exist at the test-cache location.
+    - Trigger the `flush_cache(keep_users=True)` method.
+    - Verify the subdirs in `to_keep` have been retained at the test-directory.
+    - Verify the subdirs in `to_flush` have been removed from the test-directory.
+    """
+    to_keep = ["getuser"]
+    to_flush = ["auth", "getgroups", "getusers", "getbooking"]
+
+    orig_cache_root = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
+    fresh_cache_path = tmp_path / "pyppms_cache"
+
+    assert os.path.exists(tmp_path)
+    assert os.path.exists(orig_cache_root)
+
+    assert not os.path.exists(fresh_cache_path)
+    fresh_cache_path.mkdir()
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
+
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+
+    for subdir in to_keep + to_flush:
+        srcdir = os.path.join(orig_cache_root, subdir)
+        tgt_path = fresh_cache_path / subdir
+        assert not os.path.exists(tgt_path)
+        copytree(srcdir, tgt_path)
+        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        assert os.path.exists(tgt_path)
+
+    ppms_connection.flush_cache(keep_users=True)
+
+    for subdir in to_keep:
+        tgt_path = fresh_cache_path / subdir
+        _logger.debug("Verifying directory has been KEPT: %s", tgt_path)
+        assert os.path.exists(tgt_path)
+
+    for subdir in to_flush:
+        tgt_path = fresh_cache_path / subdir
+        _logger.debug("Verifying directory has been FLUSHED: %s", tgt_path)
+        assert not os.path.exists(tgt_path)
