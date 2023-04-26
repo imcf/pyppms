@@ -743,3 +743,87 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
         tgt_path = fresh_cache_path / subdir
         _logger.debug("Verifying directory has been FLUSHED: %s", tgt_path)
         assert not os.path.exists(tgt_path)
+
+
+@pytest.mark.online
+def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path):
+    """Test flush_cache() with `keep_users=True` and request a new user after.
+
+    This test has a huge overlap to the `test_flush_cache__keep_users()` one
+    (that works offline, unlike this one) with the main difference being that
+    after flushing the cache, the cached details of a known user are removed and
+    then exactly those details are requested. This will trigger an online
+    request for that user while requests for previously existing (cached and
+    preserved by the `keep_users` option set to `True`) users will be served
+    directly from the cache.
+
+    - Make sure the temporary test-directory exists and has no cache inside.
+    - Create the cache directory there.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache
+      provided with the tests.
+    - Trigger the `flush_cache(keep_users=True)` method.
+    - Simulate a new user in PPMS that is not yet cached locally:
+      - Remove a specific file of previously cached user details from the
+        `getuser` cache.
+      -
+      - Then copy back the `getusers` cache which contains the list of usernames
+        known to PPMS, which will include the username whose details have been
+        removed explicitly in the previous step.
+    - Request details of the preserved user, verify they're being served from
+      the cache by inspecting the log messages.
+    - Request details of the "pseudo-new" user, verify they're triggering an
+      on-line request to PUMAPI.
+    """
+    to_keep = ["getuser"]
+    to_flush = ["auth", "getgroups", "getusers", "getbooking"]
+
+    orig_cache_root = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
+    fresh_cache_path = tmp_path / "pyppms_cache"
+
+    assert os.path.exists(orig_cache_root)
+
+    assert not os.path.exists(fresh_cache_path)
+    fresh_cache_path.mkdir()
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
+
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+
+    for subdir in to_keep + to_flush:
+        srcdir = os.path.join(orig_cache_root, subdir)
+        tgt_path = fresh_cache_path / subdir
+        assert not os.path.exists(tgt_path)
+        copytree(srcdir, tgt_path)
+        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        assert os.path.exists(tgt_path)
+
+    ppms_connection.flush_cache(keep_users=True)
+
+    new_user_name = "pyppms-adm"  # simulated "new" user
+    old_user_name = "pyppms"  # previously existing, cached user (preserved)
+
+    _logger.info("Removing preserved user-cache for [%s]...", new_user_name)
+    new_user_cache = fresh_cache_path / "getuser" / f"login--{new_user_name}.txt"
+    old_user_cache = fresh_cache_path / "getuser" / f"login--{old_user_name}.txt"
+    assert os.path.isfile(new_user_cache)
+    os.unlink(new_user_cache)
+    assert not os.path.exists(new_user_cache)
+    assert os.path.exists(old_user_cache)
+
+    _logger.info("Restoring cache of existing user names...")
+    users_list = os.path.join(orig_cache_root, "getusers")
+    tgt_path = fresh_cache_path / "getusers"
+    copytree(users_list, tgt_path)
+    assert os.path.exists(tgt_path)
+    _logger.info("Restored user names cache to [%s].", tgt_path)
+
+    _logger.info("Requesting details from PUMAPI for cached user [%s]", old_user_name)
+    ppms_connection.get_user(old_user_name)
+    assert "No cache hit" not in caplog.text  # served from the cache
+
+    _logger.info("Requesting details from PUMAPI for 'new' user [%s]", new_user_name)
+    ppms_connection.get_user(new_user_name)
+    assert "No cache hit" in caplog.text  # requires an on-line request
+    assert os.path.exists(new_user_cache)
