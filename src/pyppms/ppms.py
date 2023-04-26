@@ -555,9 +555,17 @@ class PpmsConnection:
             LOG.info(
                 "Booking for user '%s' (%s) found", self.fullname_mapping[full], full
             )
+            system_name = entry["Object"]
+            system_ids = self.get_systems_matching("", [system_name])
+            if len(system_ids) != 1:
+                # NOTE: more than one result should not happen as PPMS doesn't allow for
+                # multiple systems having the same name - no result might happen though!
+                LOG.error("Ignoring booking for unknown system [%s]", system_name)
+                continue
+
             booking = PpmsBooking.from_runningsheet(
                 entry,
-                self._get_system_with_name(entry["Object"]),
+                system_ids[0],
                 self.fullname_mapping[full],
                 date,
             )
