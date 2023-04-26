@@ -4,16 +4,16 @@
 
 # pylint: disable-msg=protected-access
 
-import os.path
 import logging
+import os.path
 from datetime import datetime
-import pytest
-import requests.exceptions
 from shutil import rmtree
 
 import pyppmsconf
-from pyppms import ppms
+import pytest
+import requests.exceptions
 
+from pyppms import ppms
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69
