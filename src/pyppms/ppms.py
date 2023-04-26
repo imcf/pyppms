@@ -611,7 +611,8 @@ class PpmsConnection:
         ----------
         localisation : str
             A string that the system's "localisation" (i.e. the "Room" field in
-            the PPMS web interface) has to match.
+            the PPMS web interface) has to match. Can be an empty string which
+            will result in no filtering being done on the "Room" attribute.
         name_contains : list(str)
             A list of valid names (categories) of which the system's name has to
             match at least one for being included. Supply an empty list for
