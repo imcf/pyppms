@@ -7,6 +7,6 @@
 .. include:: ../../CHANGELOG.md
 """
 
-__version__ = "2.1.0-dev0"
+__version__ = "0.0.0"
 
 from .ppms import PpmsConnection

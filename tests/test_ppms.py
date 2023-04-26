@@ -4,16 +4,16 @@
 
 # pylint: disable-msg=protected-access
 
-import os.path
 import logging
+import os.path
 from datetime import datetime
-import pytest
-import requests.exceptions
-from shutil import rmtree
+from shutil import rmtree, copytree
 
 import pyppmsconf
-from pyppms import ppms
+import pytest
+import requests.exceptions
 
+from pyppms import ppms
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69
@@ -441,6 +441,15 @@ def test_get_systems_matching(ppms_connection, system_details_raw):
     assert sys_ids == []
 
 
+def test_get_systems_matching__raises(ppms_connection, system_details_raw):
+    """Test get_systems_matching() with a wrong parameter type."""
+    with pytest.raises(TypeError):
+        ppms_connection.get_systems_matching("foo", "wrong-type")
+
+    with pytest.raises(TypeError):
+        ppms_connection.get_systems_matching("foo", "")
+
+
 ############ system / user permissions ############
 
 
@@ -654,49 +663,167 @@ def test_get_running_sheet_fail(ppms_connection):
     assert ppms_connection.get_running_sheet("2", date=day) == []
 
 
-############ deprecated methods ############
+############ cache ############
 
 
-def test__get_system_with_name(ppms_connection, system_details_raw):
-    """Test the (deprecated) _get_system_with_name() method."""
-    logd("Testing with a well-known system name")
-    name = system_details_raw["Name"]
-    sys_id = ppms_connection._get_system_with_name(name)
-    print(f"_get_system_with_name: {sys_id}")
-    assert sys_id == int(system_details_raw["System id"])
+def test_flush_cache(ppms_connection, caplog, tmp_path):
+    """Test flushing the on-disk PyPPMS cache.
 
-    logd("Testing with a non-existing system name")
-    sys_id = ppms_connection._get_system_with_name("invalid-system-name")
-    assert sys_id == -1
+    - Make sure the temporary test-directory exists but doesn't contain a cache yet.
+    - Copy over one of the cache directories provided with the tests.
+    - Make sure the test-directory *does* contain a cache now.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Trigger the `flush_cache()` method.
+    - Verify the cache has been removed from the test-directory.
+    """
+    orig_cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_1")
+    fresh_cache_path = tmp_path / "pyppms_cache"
 
+    assert os.path.exists(tmp_path)
+    assert os.path.exists(orig_cache_path)
 
-def test__get_machine_catalogue_from_system(ppms_connection, system_details_raw):
-    """Test the (deprecated) _get_machine_catalogue_from_system() method."""
-    name = system_details_raw["Name"]
+    assert not os.path.exists(fresh_cache_path)
+    copytree(orig_cache_path, fresh_cache_path)
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
 
-    # define a list of categories we are interested in:
-    categories = ["VDI (Development)", "VDI (CAD)", "VDI (BigMemory)"]
-
-    # ask to which one the given machine belongs:
-    cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
-
-    # expected be the first one:
-    assert cat == categories[0]
-
-    # test when no category is found:
-    cat = ppms_connection._get_machine_catalogue_from_system(name, categories[1:])
-    assert cat == ""
-
-    # test with a system name that doesn't exist
-    name = "_invalid_pyppms_system_name_"
-    cat = ppms_connection._get_machine_catalogue_from_system(name, categories)
-    assert cat == ""
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+    ppms_connection.flush_cache()
+    _logger.info("Flushed connection cache path: %s", fresh_cache_path)
+    assert not os.path.exists(fresh_cache_path)
 
 
-def test_not_implemented_errors(ppms_connection):
-    """Test methods raising a NotImplementedError."""
-    with pytest.raises(NotImplementedError):
-        ppms_connection.get_bookable_ids("", "")
+def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
+    """Test flushing the on-disk PyPPMS cache while keeping the user details.
 
-    with pytest.raises(NotImplementedError):
-        ppms_connection.get_system(99)
+    - Make sure the temporary test-directory exists but doesn't contain a cache yet.
+    - Create the cache directory there.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache provided
+      with the tests.
+    - Make sure the copied directories exist at the test-cache location.
+    - Trigger the `flush_cache(keep_users=True)` method.
+    - Verify the subdirs in `to_keep` have been retained at the test-directory.
+    - Verify the subdirs in `to_flush` have been removed from the test-directory.
+    """
+    to_keep = ["getuser"]
+    to_flush = ["auth", "getgroups", "getusers", "getbooking"]
+
+    orig_cache_root = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
+    fresh_cache_path = tmp_path / "pyppms_cache"
+
+    assert os.path.exists(tmp_path)
+    assert os.path.exists(orig_cache_root)
+
+    assert not os.path.exists(fresh_cache_path)
+    fresh_cache_path.mkdir()
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
+
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+
+    for subdir in to_keep + to_flush:
+        srcdir = os.path.join(orig_cache_root, subdir)
+        tgt_path = fresh_cache_path / subdir
+        assert not os.path.exists(tgt_path)
+        copytree(srcdir, tgt_path)
+        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        assert os.path.exists(tgt_path)
+
+    ppms_connection.flush_cache(keep_users=True)
+
+    for subdir in to_keep:
+        tgt_path = fresh_cache_path / subdir
+        _logger.debug("Verifying directory has been KEPT: %s", tgt_path)
+        assert os.path.exists(tgt_path)
+
+    for subdir in to_flush:
+        tgt_path = fresh_cache_path / subdir
+        _logger.debug("Verifying directory has been FLUSHED: %s", tgt_path)
+        assert not os.path.exists(tgt_path)
+
+
+@pytest.mark.online
+def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path):
+    """Test flush_cache() with `keep_users=True` and request a new user after.
+
+    This test has a huge overlap to the `test_flush_cache__keep_users()` one
+    (that works offline, unlike this one) with the main difference being that
+    after flushing the cache, the cached details of a known user are removed and
+    then exactly those details are requested. This will trigger an online
+    request for that user while requests for previously existing (cached and
+    preserved by the `keep_users` option set to `True`) users will be served
+    directly from the cache.
+
+    - Make sure the temporary test-directory exists and has no cache inside.
+    - Create the cache directory there.
+    - Update the connection object's `cache_path` to point to the test location.
+    - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache
+      provided with the tests.
+    - Trigger the `flush_cache(keep_users=True)` method.
+    - Simulate a new user in PPMS that is not yet cached locally:
+      - Remove a specific file of previously cached user details from the
+        `getuser` cache.
+      -
+      - Then copy back the `getusers` cache which contains the list of usernames
+        known to PPMS, which will include the username whose details have been
+        removed explicitly in the previous step.
+    - Request details of the preserved user, verify they're being served from
+      the cache by inspecting the log messages.
+    - Request details of the "pseudo-new" user, verify they're triggering an
+      on-line request to PUMAPI.
+    """
+    to_keep = ["getuser"]
+    to_flush = ["auth", "getgroups", "getusers", "getbooking"]
+
+    orig_cache_root = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
+    fresh_cache_path = tmp_path / "pyppms_cache"
+
+    assert os.path.exists(orig_cache_root)
+
+    assert not os.path.exists(fresh_cache_path)
+    fresh_cache_path.mkdir()
+    assert os.path.exists(fresh_cache_path)
+    _logger.info("Cache path created: %s", fresh_cache_path)
+
+    ppms_connection.cache_path = fresh_cache_path
+    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+
+    for subdir in to_keep + to_flush:
+        srcdir = os.path.join(orig_cache_root, subdir)
+        tgt_path = fresh_cache_path / subdir
+        assert not os.path.exists(tgt_path)
+        copytree(srcdir, tgt_path)
+        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        assert os.path.exists(tgt_path)
+
+    ppms_connection.flush_cache(keep_users=True)
+
+    new_user_name = "pyppms-adm"  # simulated "new" user
+    old_user_name = "pyppms"  # previously existing, cached user (preserved)
+
+    _logger.info("Removing preserved user-cache for [%s]...", new_user_name)
+    new_user_cache = fresh_cache_path / "getuser" / f"login--{new_user_name}.txt"
+    old_user_cache = fresh_cache_path / "getuser" / f"login--{old_user_name}.txt"
+    assert os.path.isfile(new_user_cache)
+    os.unlink(new_user_cache)
+    assert not os.path.exists(new_user_cache)
+    assert os.path.exists(old_user_cache)
+
+    _logger.info("Restoring cache of existing user names...")
+    users_list = os.path.join(orig_cache_root, "getusers")
+    tgt_path = fresh_cache_path / "getusers"
+    copytree(users_list, tgt_path)
+    assert os.path.exists(tgt_path)
+    _logger.info("Restored user names cache to [%s].", tgt_path)
+
+    _logger.info("Requesting details from PUMAPI for cached user [%s]", old_user_name)
+    ppms_connection.get_user(old_user_name)
+    assert "No cache hit" not in caplog.text  # served from the cache
+
+    _logger.info("Requesting details from PUMAPI for 'new' user [%s]", new_user_name)
+    ppms_connection.get_user(new_user_name)
+    assert "No cache hit" in caplog.text  # requires an on-line request
+    assert os.path.exists(new_user_cache)

@@ -8,7 +8,7 @@ from pyppms.common import time_rel_to_abs, parse_multiline_response
 
 
 FMT_DATE = r"%Y-%m-%d"
-FMT_TIME = r"%H:%M:00"
+FMT_TIME = r"%H:%M"
 FMT = f"{FMT_DATE} {FMT_TIME}"
 DAY = datetime.now().strftime(FMT_DATE)
 TIME_START = datetime.now().strftime(FMT_TIME)
@@ -19,8 +19,8 @@ END = f"{DAY} {TIME_END}"
 USERNAME = "ppmsuser"
 SYS_ID = "42"
 SESSION_ID = "some_session_id"
-EXPECTED = f"username: {USERNAME} - system: {SYS_ID} - "
-EXPECTED += f"reservation start / end: [ %s / %s ] - session: {SESSION_ID}"
+EXPECTED = f"PpmsBooking(username=[{USERNAME}], system_id=[{SYS_ID}], "
+EXPECTED += f"starttime=[%s], endtime=[%s], session=[{SESSION_ID}])"
 
 
 def create_booking(
@@ -58,7 +58,7 @@ def test_starttime_fromstr__time():
     """Test changing the starting time of a booking."""
     booking = create_booking()
 
-    newtime = "12:45:00"
+    newtime = "12:45"
     booking.starttime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
     newstart = f"{DAY} {newtime}"
@@ -70,7 +70,7 @@ def test_starttime_fromstr__date():
     booking = create_booking()
 
     newdate = "2019-04-01"
-    newtime = "12:45:00"
+    newtime = "12:45"
     startdate = datetime.strptime(newdate, FMT_DATE)
     booking.starttime_fromstr(newtime, startdate)
 
@@ -87,7 +87,7 @@ def test_endtime_fromstr__time():
     """Test changing the ending time of a booking."""
     booking = create_booking()
 
-    newtime = "12:45:00"
+    newtime = "12:45"
     booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
     newend = f"{DAY} {newtime}"
@@ -99,7 +99,7 @@ def test_endtime_fromstr__date():
     booking = create_booking()
 
     newdate = "2019-06-01"
-    newtime = "12:45:00"
+    newtime = "12:45"
     enddate = datetime.strptime(newdate, FMT_DATE)
     booking.endtime_fromstr(newtime, enddate)
 
@@ -110,6 +110,13 @@ def test_endtime_fromstr__date():
     booking.endtime_fromstr(newtime, date=None)
     newend = f"{datetime.now().strftime(FMT_DATE)} {newtime}"
     assert booking.__str__() == EXPECTED % (START, newend)
+
+
+def test_noendtime_str():
+    """Test the booking object string formatting when no end time is set."""
+    booking = create_booking()
+    booking.endtime = None
+    assert "endtime=[===UNDEFINED===]" in booking.__str__()
 
 
 def test_booking_from_request():
