@@ -871,7 +871,7 @@ class PpmsConnection:
         LOG.debug(", ".join(users))
         return users
 
-    def get_users(self, force_refresh=False):
+    def get_users(self, force_refresh=False, active_only=True):
         """Get user objects for all (or cached) PPMS users.
 
         Parameters
@@ -879,6 +879,9 @@ class PpmsConnection:
         force_refresh : bool, optional
             Re-request information from PPMS even if user details have been
             cached locally before, by default False.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
 
         Returns
         -------
@@ -888,7 +891,7 @@ class PpmsConnection:
         if self.users and not force_refresh:
             LOG.debug("Using cached details for %s users", len(self.users))
         else:
-            self.update_users()
+            self.update_users(active_only=active_only)
 
         return self.users
 
@@ -1185,7 +1188,7 @@ class PpmsConnection:
 
         self.systems = systems
 
-    def update_users(self, user_ids=[]):
+    def update_users(self, user_ids=[], active_only=True):
         """Update cached details for a list of users from PPMS.
 
         Get the user details on a list of users (or all active ones) from PPMS and store
@@ -1199,9 +1202,12 @@ class PpmsConnection:
         user_ids : list(str), optional
             A list of user IDs (login names) to request the cache for, by
             default [] which will result in all *active* users to be requested.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
         """
         if not user_ids:
-            user_ids = self.get_user_ids(active=True)
+            user_ids = self.get_user_ids(active=active_only)
 
         LOG.debug("Updating details on %s users", len(user_ids))
         for user_id in user_ids:

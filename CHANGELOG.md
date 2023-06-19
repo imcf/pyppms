@@ -4,9 +4,14 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
-## 2.2.1
+## 2.3.0
 
 ### Added
+
+- `pyppms.ppms.PpmsConnection.update_users()` and
+  `pyppms.ppms.PpmsConnection.get_users()` now both have an optional parameter
+  `active_only` (defaulting to `True`) that can be used to also request users
+  that are marked as *inactive* in PPMS.
 
 ### Changed
 
