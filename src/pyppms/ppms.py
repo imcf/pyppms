@@ -743,7 +743,7 @@ class PpmsConnection:
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.error(msg)
+            LOG.debug(msg)
             raise KeyError(msg)
 
         user = PpmsUser(response.text)

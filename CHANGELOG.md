@@ -4,6 +4,18 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 2.2.1
+
+### Added
+
+### Changed
+
+- `pyppms.ppms.PpmsConnection.get_user()` is only logging a `DEBUG` level
+  message (before: `ERROR`) in case the requested user can't be found since it
+  also raises a `KeyError`. This is done to prevent cluttering up the logs of
+  calling code that might use this method to figure out if an account exists in
+  PPMS and properly deals with the exception raised.
+
 ## 2.2.0
 
 ### Added
