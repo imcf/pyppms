@@ -563,7 +563,7 @@ class PpmsConnection:
             similar. Note that only the date part is relevant, time will be ignored.
         ignore_uncached_users : bool, optional
             If set to `True` any booking for a user that is not present in the instance
-            attribuge `fullname_mapping` will be ignored in the resulting list.
+            attribute `fullname_mapping` will be ignored in the resulting list.
 
         Returns
         -------
