@@ -321,7 +321,7 @@ class PpmsConnection:
             text = infile.read()
         log.debug(
             "Read intercepted response text from [{}]",
-            intercept_file[len(self.cache_path) :],
+            intercept_file[len(str(self.cache_path)) :],
         )
 
         status_code = 200
