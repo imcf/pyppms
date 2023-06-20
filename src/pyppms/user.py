@@ -40,7 +40,7 @@ class PpmsUser:
         self.ppms_group = details["unitlogin"]
         self._fullname = f'{details["lname"]} {details["fname"]}'
 
-        log.debug(
+        log.trace(
             "PpmsUser initialized: username=[{}], email=[{}], ppms_group=[{}], "
             "fullname=[{}], active=[{}]",
             self.username,

@@ -345,8 +345,7 @@ class PpmsConnection:
 
         intercept_file = self.__interception_path(req_data, create_dir=True)
         if not intercept_file:
-            # FIXME: switch to loguru, turn into a trace-level message:
-            log.debug("Not storing intercepted results in cache.")
+            log.trace("Not storing intercepted results in cache.")
             return
 
         try:

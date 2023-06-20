@@ -67,7 +67,7 @@ class PpmsSystem:
         self.bookable = details["Bookable"]
         self.autonomy_required = details["Autonomy Required"]
         self.autonomy_required_after_hours = details["Autonomy Required After Hours"]
-        log.debug(
+        log.trace(
             "PpmsSystem(system_id={}, name=[{}], localisation=[{}], system_type=[{}])",
             self.system_id,
             self.name,

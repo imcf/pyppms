@@ -64,7 +64,7 @@ class PpmsBooking:
             log.error("Parsing booking response failed ({}), text was:\n{}", err, text)
             raise
 
-        log.debug(str(self))
+        log.trace(str(self))
 
     @classmethod
     def from_runningsheet(cls, entry, system_id, username, date):
