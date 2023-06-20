@@ -39,6 +39,9 @@ class PpmsConnection:
         The timeout value used in the ``requests.post`` calls.
     cache_path : str
         A path to a local directory used for caching responses.
+    cache_users_only : bool
+        Flag indicating that only PPMS user details will be stored in the
+        on-disk cache, nothing else.
     users : dict
         A dict with usernames as keys, mapping to the related
         :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the object's
