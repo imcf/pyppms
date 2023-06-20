@@ -8,21 +8,18 @@
 # pylint: disable-msg=too-many-instance-attributes
 # pylint: disable-msg=too-many-public-methods
 
-import logging
 import os
 import os.path
 import shutil
 from io import open
 
 import requests
+from loguru import logger as log
 
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
 from .system import PpmsSystem
 from .booking import PpmsBooking
-
-
-LOG = logging.getLogger(__name__)
 
 
 class PpmsConnection:
@@ -128,15 +125,15 @@ class PpmsConnection:
         requests.exceptions.ConnectionError
             Raised in case authentication failed for any reason.
         """
-        LOG.debug(
-            "Attempting authentication against %s with key [%s...%s]",
+        log.debug(
+            "Attempting authentication against {} with key [{}...{}]",
             self.url,
             self.api_key[:2],
             self.api_key[-2:],
         )
         self.status["auth_state"] = "attempting"
         response = self.request("auth")
-        LOG.debug("Authenticate response: %s", response.text)
+        log.debug(f"Authenticate response: {response.text}")
         self.status["auth_response"] = response.text
         self.status["auth_httpstatus"] = response.status_code
 
@@ -146,7 +143,7 @@ class PpmsConnection:
         if "error" in response.text.lower():
             self.status["auth_state"] = "FAILED-ERROR"
             msg = f"Authentication failed with an error: {response.text}"
-            LOG.error(msg)
+            log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
         status_ok = requests.codes.ok  # pylint: disable-msg=no-member
@@ -154,8 +151,8 @@ class PpmsConnection:
         if response.status_code != status_ok:
             # NOTE: branch excluded from coverage as we don't have a known way
             # to produce such a response from the API
-            LOG.warning(
-                "Unexpected combination of response [%s] and status code [%s], it's "
+            log.warning(
+                "Unexpected combination of response [{}] and status code [{}], it's "
                 "unclear if authentication succeeded (assuming it didn't)",
                 response.status_code,
                 response.text,
@@ -166,11 +163,11 @@ class PpmsConnection:
                 f"Authenticating against {self.url} with key "
                 f"[{self.api_key[:2]}...{self.api_key[-2:]}] FAILED!"
             )
-            LOG.error(msg)
+            log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
-        LOG.info("Authentication succeeded, response=[%s]", response.text)
-        LOG.debug("HTTP Status: %s", response.status_code)
+        log.info(f"Authentication succeeded, response=[{response.text}]")
+        log.debug(f"HTTP Status: {response.status_code}")
         self.status["auth_state"] = "good"
 
     def request(self, action, parameters={}, skip_cache=False):
@@ -204,7 +201,7 @@ class PpmsConnection:
         """
         req_data = {"action": action, "apikey": self.api_key}
         req_data.update(parameters)
-        # LOG.debug("Request parameters: %s", parameters)
+        # log.debug("Request parameters: {}", parameters)
 
         response = None
         read_from_cache = False
@@ -214,7 +211,7 @@ class PpmsConnection:
             response = self.__intercept_read(req_data)
             read_from_cache = True
         except LookupError as err:
-            LOG.debug("Doing an on-line request: %s", err)
+            log.debug(f"Doing an on-line request: {err}")
             response = requests.post(self.url, data=req_data, timeout=self.timeout)
 
         # store the response if it hasn't been read from the cache before:
@@ -227,7 +224,7 @@ class PpmsConnection:
         if "request not authorized" in response.text.lower():
             self.status["auth_state"] = "FAILED"
             msg = f"Not authorized to run action `{req_data['action']}`"
-            LOG.error(msg)
+            log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
         return response
@@ -252,16 +249,16 @@ class PpmsConnection:
         action = req_data["action"]
 
         if self.cache_users_only and action != "getuser":
-            LOG.debug(f"NOT caching '{action}' (cache_users_only is set)")
+            log.debug(f"NOT caching '{action}' (cache_users_only is set)")
             return None
 
         intercept_dir = os.path.join(self.cache_path, action)
         if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
             try:
                 os.makedirs(intercept_dir)
-                LOG.debug("Created dir to store response: %s", intercept_dir)
+                log.debug(f"Created dir to store response: {intercept_dir}")
             except Exception as err:  # pylint: disable-msg=broad-except
-                LOG.warning("Failed creating [%s]: %s", intercept_dir, err)
+                log.warning(f"Failed creating [{intercept_dir}]: {err}")
                 return None
 
         signature = ""
@@ -319,14 +316,14 @@ class PpmsConnection:
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
             text = infile.read()
-        LOG.debug("Read intercepted response text from [%s]", intercept_file)
+        log.debug(f"Read intercepted response text from [{intercept_file}]")
 
         status_code = 200
         status_file = os.path.splitext(intercept_file)[0] + "_status-code.txt"
         if os.path.exists(status_file):
             with open(status_file, "r", encoding="utf-8") as infile:
                 status_code = infile.read()
-            LOG.debug("Read intercepted response status code from [%s]", status_file)
+            log.debug(f"Read intercepted response status code from [{status_file}]")
         return PseudoResponse(text, status_code)
 
     def __intercept_store(self, req_data, response):  # pragma: no cover
@@ -349,20 +346,20 @@ class PpmsConnection:
         intercept_file = self.__interception_path(req_data, create_dir=True)
         if not intercept_file:
             # FIXME: switch to loguru, turn into a trace-level message:
-            LOG.debug("Not storing intercepted results in cache.")
+            log.debug("Not storing intercepted results in cache.")
             return
 
         try:
             with open(intercept_file, "w", encoding="utf-8") as outfile:
                 outfile.write(response.text)
-            LOG.debug(
-                "Wrote response text to [%s] (%s lines)",
+            log.debug(
+                "Wrote response text to [{}] ({} lines)",
                 intercept_file,
                 len(response.text.splitlines()),
             )
         except Exception as err:  # pylint: disable-msg=broad-except
-            LOG.error("Storing response text in [%s] failed: %s", intercept_file, err)
-            LOG.error("Response text was:\n--------\n%s\n--------", response.text)
+            log.error("Storing response text in [{}] failed: {}", intercept_file, err)
+            log.error("Response text was:\n--------\n{}\n--------", response.text)
 
     def flush_cache(self, keep_users=False):
         """Flush the PyPPMS on-disk cache.
@@ -387,7 +384,7 @@ class PpmsConnection:
             will be kept, by default `False`.
         """
         if self.cache_path == "":
-            LOG.info("No cache path configured, not flushing!")
+            log.info("No cache path configured, not flushing!")
             return
 
         dirs_to_remove = [self.cache_path]  # by default remove the entire cache dir
@@ -401,13 +398,13 @@ class PpmsConnection:
                     continue
                 dirs_to_remove.append(os.path.join(self.cache_path, subdir))
 
-        LOG.info("Flushing the on-disk cache at [%s]%s...", self.cache_path, keep_msg)
+        log.info("Flushing the on-disk cache at [{}] {}...", self.cache_path, keep_msg)
         for directory in dirs_to_remove:
             try:
                 shutil.rmtree(directory)
-                LOG.debug("Removed directory [%s].", directory)
+                log.debug("Removed directory [{}].", directory)
             except Exception as ex:  # pylint: disable-msg=broad-except
-                LOG.warning("Removing the cache at [%s] failed: %s", directory, ex)
+                log.warning("Removing the cache at [{}] failed: {}", directory, ex)
 
     def get_admins(self):
         """Get all PPMS administrator users.
@@ -424,7 +421,7 @@ class PpmsConnection:
         for username in admins:
             user = self.get_user(username)
             users.append(user)
-        LOG.debug("%s admins in the PPMS database: %s", len(admins), ", ".join(admins))
+        log.debug("{} admins in the PPMS database: {}", len(admins), ", ".join(admins))
         return users
 
     def get_booking(self, system_id, booking_type="get"):
@@ -468,14 +465,14 @@ class PpmsConnection:
         try:
             response = self.request(booking_type + "booking", {"id": system_id})
         except requests.exceptions.ConnectionError:
-            LOG.error("Requesting booking status for system %s failed!", system_id)
+            log.error("Requesting booking status for system {} failed!", system_id)
             return None
 
         desc = "any future bookings"
         if booking_type == "get":
             desc = "a currently active booking"
         if not response.text.strip():
-            LOG.debug("System [%s] doesn't have %s", system_id, desc)
+            log.debug("System [{}] doesn't have {}", system_id, desc)
             return None
 
         return PpmsBooking(response.text, booking_type, system_id)
@@ -499,16 +496,16 @@ class PpmsConnection:
             line of the PUMAPI response, values from the data line.
         """
         response = self.request("getgroup", {"unitlogin": group_id})
-        LOG.debug("Group details returned by PPMS (raw): %s", response.text)
+        log.debug("Group details returned by PPMS (raw): {}", response.text)
 
         if not response.text:
             msg = f"Group [{group_id}] is unknown to PPMS"
-            LOG.error(msg)
+            log.error(msg)
             raise KeyError(msg)
 
         details = dict_from_single_response(response.text)
 
-        LOG.debug("Details of group %s: %s", group_id, details)
+        log.debug("Details of group {}: {}", group_id, details)
         return details
 
     def get_group_users(self, unitlogin):
@@ -531,8 +528,8 @@ class PpmsConnection:
         for username in members:
             user = self.get_user(username)
             users.append(user)
-        LOG.debug(
-            "%s members in PPMS group [%s]: %s",
+        log.debug(
+            "{} members in PPMS group [{}]: {}",
             len(members),
             unitlogin,
             ", ".join(members),
@@ -550,7 +547,7 @@ class PpmsConnection:
         response = self.request("getgroups")
 
         groups = response.text.splitlines()
-        LOG.debug("%s groups in the PPMS database: %s", len(groups), ", ".join(groups))
+        log.debug("{} groups in the PPMS database: {}", len(groups), ", ".join(groups))
         return groups
 
     def get_next_booking(self, system_id):
@@ -590,40 +587,40 @@ class PpmsConnection:
             "plateformid": f"{core_facility_ref}",
             "day": date.strftime("%Y-%m-%d"),
         }
-        LOG.debug("Requesting runningsheet for %s", parameters["day"])
+        log.debug("Requesting runningsheet for {}", parameters["day"])
         response = self.request("getrunningsheet", parameters)
         try:
             entries = parse_multiline_response(response.text, graceful=False)
         except Exception as err:  # pylint: disable-msg=broad-except
-            LOG.error("Parsing runningsheet details failed: %s", err)
+            log.error("Parsing runningsheet details failed: {}", err)
             # NOTE: in case no future bookings exist the response will be empty!
-            LOG.error("Possibly the runningsheet is empty as no bookings exist?")
-            LOG.debug("Runningsheet PUMPAI response was: %s", response.text)
+            log.error("Possibly the runningsheet is empty as no bookings exist?")
+            log.debug("Runningsheet PUMPAI response was: {}", response.text)
             return bookings
 
         for entry in entries:
             full = entry["User"]
             if full not in self.fullname_mapping:
                 if ignore_uncached_users:
-                    LOG.debug("Ignoring booking for uncached user [%s]", full)
+                    log.debug("Ignoring booking for uncached user [{}]", full)
                     continue
 
-                LOG.info("Booking for an uncached user (%s) found!", full)
+                log.info("Booking for an uncached user ({}) found!", full)
                 self.update_users()
 
             if full not in self.fullname_mapping:
-                LOG.error("PPMS doesn't seem to know user [%s], skipping", full)
+                log.error("PPMS doesn't seem to know user [{}], skipping", full)
                 continue
 
-            LOG.info(
-                "Booking for user '%s' (%s) found", self.fullname_mapping[full], full
+            log.info(
+                "Booking for user '{}' ({}) found", self.fullname_mapping[full], full
             )
             system_name = entry["Object"]
             system_ids = self.get_systems_matching("", [system_name])
             if len(system_ids) != 1:
                 # NOTE: more than one result should not happen as PPMS doesn't allow for
                 # multiple systems having the same name - no result might happen though!
-                LOG.error("Ignoring booking for unknown system [%s]", system_name)
+                log.error("Ignoring booking for unknown system [{}]", system_name)
                 continue
 
             booking = PpmsBooking.from_runningsheet(
@@ -654,7 +651,7 @@ class PpmsConnection:
             fails for any reason, the system is skipped entirely.
         """
         if self.systems and not force_refresh:
-            LOG.debug("Using cached details for %s systems", len(self.systems))
+            log.debug("Using cached details for {} systems", len(self.systems))
         else:
             self.update_systems()
 
@@ -697,8 +694,8 @@ class PpmsConnection:
         if localisation == "":
             loc_desc = "(no location filter given)"
 
-        LOG.info(
-            "Querying PPMS for systems %s, name matching any of %s",
+        log.info(
+            "Querying PPMS for systems {}, name matching any of {}",
             loc_desc,
             name_contains,
         )
@@ -706,29 +703,29 @@ class PpmsConnection:
         systems = self.get_systems()
         for sys_id, system in systems.items():
             if loc.lower() not in str(system.localisation).lower():
-                LOG.debug(
-                    "System [%s] location (%s) is NOT matching (%s), ignoring",
+                log.debug(
+                    "System [{}] location ({}) is NOT matching ({}), ignoring",
                     system.name,
                     system.localisation,
                     loc,
                 )
                 continue
 
-            # LOG.debug('System [%s] is matching location [%s], checking if '
-            #           'the name is matching any of the valid pattern %s',
+            # log.debug('System [{}] is matching location [{}], checking if '
+            #           'the name is matching any of the valid pattern {}',
             #           system.name, loc, name_contains)
             for valid_name in name_contains:
                 if valid_name in system.name:
-                    LOG.debug("System [%s] matches all criteria", system.name)
+                    log.debug("System [{}] matches all criteria", system.name)
                     system_ids.append(sys_id)
                     break
 
             # if sys_id not in system_ids:
-            #     LOG.debug('System [%s] does NOT match a valid name: %s',
+            #     log.debug('System [{}] does NOT match a valid name: {}',
             #               system.name, name_contains)
 
-        LOG.info("Found %s bookable systems %s", len(system_ids), loc_desc)
-        LOG.debug("IDs of matching bookable systems %s: %s", loc_desc, system_ids)
+        log.info("Found {} bookable systems {}", len(system_ids), loc_desc)
+        log.debug("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
     def get_user(self, login_name, skip_cache=False):
@@ -757,7 +754,7 @@ class PpmsConnection:
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.debug(msg)
+            log.debug(msg)
             raise KeyError(msg)
 
         user = PpmsUser(response.text)
@@ -808,7 +805,7 @@ class PpmsConnection:
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.error(msg)
+            log.error(msg)
             raise KeyError(msg)
 
         # EXAMPLE:
@@ -821,7 +818,7 @@ class PpmsConnection:
         #     u'true\r\n'
         # )
         details = dict_from_single_response(response.text)
-        LOG.debug("Details for user [%s]: %s", login_name, details)
+        log.debug("Details for user [{}]: {}", login_name, details)
         return details
 
     def get_user_experience(self, login=None, system_id=None):
@@ -849,8 +846,8 @@ class PpmsConnection:
         response = self.request("getuserexp", parameters=data)
 
         parsed = parse_multiline_response(response.text)
-        LOG.debug(
-            "Received %s experience entries for filters [user:%s] and [id:%s]",
+        log.debug(
+            "Received {} experience entries for filters [user:{}] and [id:{}]",
             len(parsed),
             login,
             system_id,
@@ -881,8 +878,8 @@ class PpmsConnection:
 
         users = response.text.splitlines()
         active_desc = "active " if active else ""
-        LOG.info("%s %susers in the PPMS database", len(users), active_desc)
-        LOG.debug(", ".join(users))
+        log.info("{} {}users in the PPMS database", len(users), active_desc)
+        log.debug(", ".join(users))
         return users
 
     def get_users(self, force_refresh=False, active_only=True):
@@ -903,7 +900,7 @@ class PpmsConnection:
             A dict of PpmsUser objects with the username (login) as key.
         """
         if self.users and not force_refresh:
-            LOG.debug("Using cached details for %s users", len(self.users))
+            log.debug("Using cached details for {} users", len(self.users))
         else:
             self.update_users(active_only=active_only)
 
@@ -932,9 +929,9 @@ class PpmsConnection:
         for user in users:
             email = self.get_user_dict(user)["email"]
             if not email:
-                LOG.warning("--- WARNING: no email for user [%s]! ---", user)
+                log.warning("--- WARNING: no email for user [{}]! ---", user)
                 continue
-            # LOG.debug("%s: %s", user, email)
+            # log.debug("{}: {}", user, email)
             emails.append(email)
 
         return emails
@@ -967,15 +964,15 @@ class PpmsConnection:
             for line in lines:
                 permission, username = line.split(":")
                 if permission.upper() == "D":
-                    LOG.debug(
-                        "User [%s] is deactivated for booking system [%s], skipping",
+                    log.debug(
+                        "User [{}] is deactivated for booking system [{}], skipping",
                         username,
                         system_id,
                     )
                     continue
 
-                LOG.debug(
-                    "User [%s] has permission to book system [%s]", username, system_id
+                log.debug(
+                    "User [{}] has permission to book system [{}]", username, system_id
                 )
                 users.append(username)
 
@@ -984,7 +981,7 @@ class PpmsConnection:
                 f"Unable to parse data returned by PUMAPI: {response.text} - "
                 f"ERROR: {err}"
             )
-            LOG.error(msg)
+            log.error(msg)
             raise ValueError(msg) from err
 
         return users
@@ -1042,7 +1039,7 @@ class PpmsConnection:
             Will be raised in case creating the user fails.
         """
         if self.user_exists(login):
-            LOG.warning("NOT creating user [%s] as it already exists!", login)
+            log.warning("NOT creating user [{}] as it already exists!", login)
             return
 
         req_data = {
@@ -1060,11 +1057,11 @@ class PpmsConnection:
         response = self.request("newuser", req_data)
         if not "OK newuser" in response.text:
             msg = f"Creating new user failed: {response.text}"
-            LOG.error(msg)
+            log.error(msg)
             raise RuntimeError(msg)
 
-        LOG.info("Created user [%s] in PPMS.", login)
-        LOG.debug("Response was: %s", response.text)
+        log.info("Created user [{}] in PPMS.", login)
+        log.debug("Response was: {}", response.text)
 
     def remove_user_access_from_system(self, username, system_id):
         """Remove permissions for a user to book a given system in PPMS.
@@ -1138,8 +1135,8 @@ class PpmsConnection:
             except KeyError as err:
                 raise KeyError(f"Invalid permission [{shortname}] given") from err
 
-        LOG.debug(
-            "Setting permission level [%s] for user [%s] on system [%s]",
+        log.debug(
+            "Setting permission level [{}] for user [{}] on system [{}]",
             permission_name(permission),
             login,
             system_id,
@@ -1151,10 +1148,10 @@ class PpmsConnection:
         # NOTE: the 'setright' action will accept ANY permission type and return 'done'
         # on the request, so there is no way to check from the response if setting the
         # permission really worked!!
-        # LOG.debug('Request returned text: %s', response.text)
+        # log.debug('Request returned text: {}', response.text)
         if response.text.lower().strip() == "done":
-            LOG.debug(
-                "User [%s] now has permission level [%s] on system [%s]",
+            log.debug(
+                "User [{}] now has permission level [{}] on system [{}]",
                 login,
                 permission_name(permission),
                 system_id,
@@ -1162,13 +1159,13 @@ class PpmsConnection:
             return True
 
         if "invalid user" in response.text.lower():
-            LOG.warning("User [%s] doesn't seem to exist in PPMS", login)
+            log.warning("User [{}] doesn't seem to exist in PPMS", login)
         elif "system right not authorized" in response.text.lower():
-            LOG.error(
-                "Unable to set permissions for system %s: %s", system_id, response.text
+            log.error(
+                "Unable to set permissions for system {}: {}", system_id, response.text
             )
         else:
-            LOG.error("Unexpected response, assuming request failed: %s", response.text)
+            log.error("Unexpected response, assuming request failed: {}", response.text)
 
         return False
 
@@ -1179,7 +1176,7 @@ class PpmsConnection:
         cache. If parsing the PUMAPI response for a system fails for any reason, the
         system is skipped entirely.
         """
-        LOG.debug("Updating list of bookable systems...")
+        log.debug("Updating list of bookable systems...")
         systems = {}
         parse_fails = 0
         response = self.request("getsystems")
@@ -1188,14 +1185,14 @@ class PpmsConnection:
             try:
                 system = PpmsSystem(detail)
             except ValueError as err:
-                LOG.error("Error processing `getsystems` response: %s", err)
+                log.error("Error processing `getsystems` response: {}", err)
                 parse_fails += 1
                 continue
 
             systems[system.system_id] = system
 
-        LOG.debug(
-            "Updated %s bookable systems from PPMS (%s systems failed parsing)",
+        log.debug(
+            "Updated {} bookable systems from PPMS ({} systems failed parsing)",
             len(systems),
             parse_fails,
         )
@@ -1223,11 +1220,11 @@ class PpmsConnection:
         if not user_ids:
             user_ids = self.get_user_ids(active=active_only)
 
-        LOG.debug("Updating details on %s users", len(user_ids))
+        log.debug("Updating details on {} users", len(user_ids))
         for user_id in user_ids:
             self.get_user(user_id, skip_cache=True)
 
-        LOG.debug("Collected details on %s users", len(self.users))
+        log.debug("Collected details on {} users", len(self.users))
 
     def user_exists(self, login):
         """Check if an account with the given login name already exists in PPMS.

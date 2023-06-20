@@ -3,11 +3,10 @@
 # pylint: disable-msg=fixme
 
 from datetime import datetime, timedelta
-import logging
 import csv
 from io import StringIO
 
-LOG = logging.getLogger(__name__)
+from loguru import logger as log
 
 
 def process_response_values(values):
@@ -74,7 +73,7 @@ def dict_from_single_response(text, graceful=True):
     try:
         lines = list(csv.reader(StringIO(text), delimiter=","))
         if len(lines) != 2:
-            LOG.warning("Response expected to have exactly two lines: %s", text)
+            log.warning("Response expected to have exactly two lines: {}", text)
             if not graceful:
                 raise ValueError("Invalid response format!")
         header = lines[0]
@@ -82,20 +81,20 @@ def dict_from_single_response(text, graceful=True):
         process_response_values(data)
         if len(header) != len(data):
             msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-            LOG.warning("%s (%s vs. %s)", msg, len(header), len(data))
+            log.warning("{} ({} vs. {})", msg, len(header), len(data))
             if not graceful:
                 raise ValueError(msg)
             minimum = min(len(header), len(data))
             if minimum < len(header):
-                LOG.warning("Discarding header-fields: %s", header[minimum:])
+                log.warning("Discarding header-fields: {}", header[minimum:])
                 header = header[:minimum]
             else:
-                LOG.warning("Discarding data-fields: %s", data[minimum:])
+                log.warning("Discarding data-fields: {}", data[minimum:])
                 data = data[:minimum]
 
     except Exception as err:
         msg = f"Unable to parse data returned by PUMAPI: {text} - ERROR: {err}"
-        LOG.error(msg)
+        log.error(msg)
         raise ValueError(msg) from err
 
     parsed = dict(zip(header, data))
@@ -135,7 +134,7 @@ def parse_multiline_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) < 2:
-            LOG.warning("Response expected to have two or more lines: %s", text)
+            log.warning("Response expected to have two or more lines: {}", text)
             if not graceful:
                 raise ValueError("Invalid response format!")
             return parsed
@@ -152,20 +151,20 @@ def parse_multiline_response(text, graceful=True):
             lines_min = min(lines_min, len(data))
             if len(header) != len(data):
                 msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-                LOG.warning("%s (%s vs. %s)", msg, len(header), len(data))
+                log.warning("{} ({} vs. {})", msg, len(header), len(data))
                 if not graceful:
                     raise ValueError(msg)
 
                 minimum = min(len(header), len(data))
                 if minimum < len(header):
-                    LOG.warning("Discarding header-fields: %s", header[minimum:])
+                    log.warning("Discarding header-fields: {}", header[minimum:])
                     header = header[:minimum]
                 else:
-                    LOG.warning("Discarding data-fields: %s", data[minimum:])
+                    log.warning("Discarding data-fields: {}", data[minimum:])
                     data = data[:minimum]
 
             details = dict(zip(header, data))
-            # LOG.debug(details)
+            # log.debug(details)
             parsed.append(details)
 
         if lines_min != lines_max:
@@ -173,11 +172,11 @@ def parse_multiline_response(text, graceful=True):
                 "Inconsistent data detected, not all dicts will have the "
                 "same number of elements!"
             )
-            LOG.warning(msg)
+            log.warning(msg)
 
     except Exception as err:
         msg = f"Unable to parse data returned by PUMAPI: {text} - ERROR: {err}"
-        LOG.error(msg)
+        log.error(msg)
         raise ValueError(msg) from err
 
     return parsed

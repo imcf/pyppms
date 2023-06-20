@@ -1,10 +1,8 @@
 """Module representing user objects in PPMS."""
 
-import logging
+from loguru import logger as log
 
 from .common import dict_from_single_response
-
-LOG = logging.getLogger(__name__)
 
 
 class PpmsUser:
@@ -42,9 +40,9 @@ class PpmsUser:
         self.ppms_group = details["unitlogin"]
         self._fullname = f'{details["lname"]} {details["fname"]}'
 
-        LOG.debug(
-            "PpmsUser initialized: username=[%s], email=[%s], ppms_group=[%s], "
-            "fullname=[%s], active=[%s]",
+        log.debug(
+            "PpmsUser initialized: username=[{}], email=[{}], ppms_group=[{}], "
+            "fullname=[{}], active=[{}]",
             self.username,
             self.email,
             self.ppms_group,

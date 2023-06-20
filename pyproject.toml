@@ -20,6 +20,7 @@ repository = "https://github.com/imcf/pyppms"
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.31.0"
+loguru = "^0.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
