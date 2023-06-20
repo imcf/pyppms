@@ -57,7 +57,7 @@ class PpmsConnection:
         ``auth_httpstatus``
     """
 
-    def __init__(self, url, api_key, timeout=10, cache=""):
+    def __init__(self, url, api_key, timeout=10, cache="", cache_users_only=False):
         """Constructor for the PPMS connection object.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
@@ -83,6 +83,11 @@ class PpmsConnection:
             individual text files. Useful for testing and for speeding up
             slow requests like 'getusers'. By default empty, which will result
             in no caching being done.
+        cache_users_only : bool, optional
+            If set to `True`, only `getuser` requests will be cached on disk.
+            This can be used in to speed up the slow requests (through the
+            cache), while everything else will be handled through online
+            requests. By default `False`.
 
         Raises
         ------
@@ -101,6 +106,7 @@ class PpmsConnection:
             "auth_httpstatus": -1,
         }
         self.cache_path = cache
+        self.cache_users_only = cache_users_only
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
@@ -241,6 +247,11 @@ class PpmsConnection:
             request (except credentials like 'apikey').
         """
         action = req_data["action"]
+
+        if self.cache_users_only and action != "getuser":
+            LOG.debug(f"NOT caching '{action}' (cache_users_only is set)")
+            return None
+
         intercept_dir = os.path.join(self.cache_path, action)
         if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
             try:
@@ -300,7 +311,7 @@ class PpmsConnection:
             raise LookupError("No cache path configured")
 
         intercept_file = self.__interception_path(req_data, create_dir=False)
-        if not os.path.exists(intercept_file):  # pragma: no cover
+        if not intercept_file or not os.path.exists(intercept_file):  # pragma: no cover
             raise LookupError(f"No cache hit for [{intercept_file}]")
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
