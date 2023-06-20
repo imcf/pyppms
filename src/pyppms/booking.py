@@ -122,7 +122,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.starttime = start
-        log.debug("New starttime: {}", self)
+        log.trace("New starttime: {}", self)
 
     def endtime_fromstr(self, time_str, date=None):
         """Change the ending time and / or day of a booking.
@@ -144,7 +144,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.endtime = end
-        log.debug("New endtime: {}", self)
+        log.trace("New endtime: {}", self)
 
     def __str__(self):
         def fmt_time(time):

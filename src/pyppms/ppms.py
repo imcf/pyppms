@@ -133,7 +133,7 @@ class PpmsConnection:
         )
         self.status["auth_state"] = "attempting"
         response = self.request("auth")
-        log.debug(f"Authenticate response: {response.text}")
+        log.trace(f"Authenticate response: {response.text}")
         self.status["auth_response"] = response.text
         self.status["auth_httpstatus"] = response.status_code
 
@@ -166,8 +166,11 @@ class PpmsConnection:
             log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
-        log.info(f"Authentication succeeded, response=[{response.text}]")
-        log.debug(f"HTTP Status: {response.status_code}")
+        log.info(
+            "Authentication succeeded, response=[{}], http_status=[{}]",
+            response.text,
+            response.status_code,
+        )
         self.status["auth_state"] = "good"
 
     def request(self, action, parameters={}, skip_cache=False):
@@ -249,14 +252,14 @@ class PpmsConnection:
         action = req_data["action"]
 
         if self.cache_users_only and action != "getuser":
-            log.debug(f"NOT caching '{action}' (cache_users_only is set)")
+            log.trace(f"NOT caching '{action}' (cache_users_only is set)")
             return None
 
         intercept_dir = os.path.join(self.cache_path, action)
         if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
             try:
                 os.makedirs(intercept_dir)
-                log.debug(f"Created dir to store response: {intercept_dir}")
+                log.trace(f"Created dir to store response: {intercept_dir}")
             except Exception as err:  # pylint: disable-msg=broad-except
                 log.warning(f"Failed creating [{intercept_dir}]: {err}")
                 return None
@@ -316,7 +319,10 @@ class PpmsConnection:
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
             text = infile.read()
-        log.debug(f"Read intercepted response text from [{intercept_file}]")
+        log.debug(
+            "Read intercepted response text from [{}]",
+            intercept_file[len(self.cache_path) :],
+        )
 
         status_code = 200
         status_file = os.path.splitext(intercept_file)[0] + "_status-code.txt"
@@ -702,7 +708,7 @@ class PpmsConnection:
         systems = self.get_systems()
         for sys_id, system in systems.items():
             if loc.lower() not in str(system.localisation).lower():
-                log.debug(
+                log.trace(
                     "System [{}] location ({}) is NOT matching ({}), ignoring",
                     system.name,
                     system.localisation,
@@ -715,7 +721,7 @@ class PpmsConnection:
             #           system.name, loc, name_contains)
             for valid_name in name_contains:
                 if valid_name in system.name:
-                    log.debug("System [{}] matches all criteria", system.name)
+                    log.trace("System [{}] matches all criteria", system.name)
                     system_ids.append(sys_id)
                     break
 
