@@ -158,3 +158,17 @@ class PpmsBooking:
         msg += ")"
 
         return msg
+
+    @property
+    def desc(self):
+        """Format a "short" description of the object.
+
+        Returns
+        -------
+        str
+            A string containing `username`, `system_id` and the booking times.
+        """
+        return (
+            f"{self.username}@{self.system_id} "
+            f"[{fmt_time(self.starttime)} -- {fmt_time(self.endtime)}]"
+        )
