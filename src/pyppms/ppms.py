@@ -57,7 +57,7 @@ class PpmsConnection:
         ``auth_httpstatus``
     """
 
-    def __init__(self, url, api_key, timeout=10, cache=""):
+    def __init__(self, url, api_key, timeout=10, cache="", cache_users_only=False):
         """Constructor for the PPMS connection object.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
@@ -83,6 +83,11 @@ class PpmsConnection:
             individual text files. Useful for testing and for speeding up
             slow requests like 'getusers'. By default empty, which will result
             in no caching being done.
+        cache_users_only : bool, optional
+            If set to `True`, only `getuser` requests will be cached on disk.
+            This can be used in to speed up the slow requests (through the
+            cache), while everything else will be handled through online
+            requests. By default `False`.
 
         Raises
         ------
@@ -101,6 +106,7 @@ class PpmsConnection:
             "auth_httpstatus": -1,
         }
         self.cache_path = cache
+        self.cache_users_only = cache_users_only
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
@@ -241,6 +247,11 @@ class PpmsConnection:
             request (except credentials like 'apikey').
         """
         action = req_data["action"]
+
+        if self.cache_users_only and action != "getuser":
+            LOG.debug(f"NOT caching '{action}' (cache_users_only is set)")
+            return None
+
         intercept_dir = os.path.join(self.cache_path, action)
         if create_dir and not os.path.exists(intercept_dir):  # pragma: no cover
             try:
@@ -300,7 +311,7 @@ class PpmsConnection:
             raise LookupError("No cache path configured")
 
         intercept_file = self.__interception_path(req_data, create_dir=False)
-        if not os.path.exists(intercept_file):  # pragma: no cover
+        if not intercept_file or not os.path.exists(intercept_file):  # pragma: no cover
             raise LookupError(f"No cache hit for [{intercept_file}]")
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
@@ -563,7 +574,7 @@ class PpmsConnection:
             similar. Note that only the date part is relevant, time will be ignored.
         ignore_uncached_users : bool, optional
             If set to `True` any booking for a user that is not present in the instance
-            attribuge `fullname_mapping` will be ignored in the resulting list.
+            attribute `fullname_mapping` will be ignored in the resulting list.
 
         Returns
         -------
@@ -743,7 +754,7 @@ class PpmsConnection:
 
         if not response.text:
             msg = f"User [{login_name}] is unknown to PPMS"
-            LOG.error(msg)
+            LOG.debug(msg)
             raise KeyError(msg)
 
         user = PpmsUser(response.text)
@@ -871,7 +882,7 @@ class PpmsConnection:
         LOG.debug(", ".join(users))
         return users
 
-    def get_users(self, force_refresh=False):
+    def get_users(self, force_refresh=False, active_only=True):
         """Get user objects for all (or cached) PPMS users.
 
         Parameters
@@ -879,6 +890,9 @@ class PpmsConnection:
         force_refresh : bool, optional
             Re-request information from PPMS even if user details have been
             cached locally before, by default False.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
 
         Returns
         -------
@@ -888,7 +902,7 @@ class PpmsConnection:
         if self.users and not force_refresh:
             LOG.debug("Using cached details for %s users", len(self.users))
         else:
-            self.update_users()
+            self.update_users(active_only=active_only)
 
         return self.users
 
@@ -1185,7 +1199,7 @@ class PpmsConnection:
 
         self.systems = systems
 
-    def update_users(self, user_ids=[]):
+    def update_users(self, user_ids=[], active_only=True):
         """Update cached details for a list of users from PPMS.
 
         Get the user details on a list of users (or all active ones) from PPMS and store
@@ -1199,9 +1213,12 @@ class PpmsConnection:
         user_ids : list(str), optional
             A list of user IDs (login names) to request the cache for, by
             default [] which will result in all *active* users to be requested.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
         """
         if not user_ids:
-            user_ids = self.get_user_ids(active=True)
+            user_ids = self.get_user_ids(active=active_only)
 
         LOG.debug("Updating details on %s users", len(user_ids))
         for user_id in user_ids:

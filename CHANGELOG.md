@@ -4,6 +4,33 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 2.3.0
+
+### Added
+
+- `pyppms.ppms.PpmsConnection()` now takes an optional parameter
+  `cache_users_only` that will prevent any request but `getuser` from being
+  stored in the local cache. This is useful in scenarios where frequent requests
+  to PPMS are being done to fetch booking states and such that would be slowed
+  down enormously if no user caching was present. Obviously the cached users
+  need to be refreshed explicitly on a regular basis then. Defaults to `False`
+  which will result in the same behavior as before.
+  Please note that several things are implicitly being cached (in memory) during
+  the lifetime of the `PpmsConnection` object (e.g. the PPMS systems) unless
+  their corresponding method is being called with `force_refresh=True`.
+- `pyppms.ppms.PpmsConnection.update_users()` and
+  `pyppms.ppms.PpmsConnection.get_users()` now both have an optional parameter
+  `active_only` (defaulting to `True`) that can be used to also request users
+  that are marked as *inactive* in PPMS.
+
+### Changed
+
+- `pyppms.ppms.PpmsConnection.get_user()` is only logging a `DEBUG` level
+  message (before: `ERROR`) in case the requested user can't be found since it
+  also raises a `KeyError`. This is done to prevent cluttering up the logs of
+  calling code that might use this method to figure out if an account exists in
+  PPMS and properly deals with the exception raised.
+
 ## 2.2.0
 
 ### Added

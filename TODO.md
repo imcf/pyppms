@@ -1,5 +1,7 @@
 # PyPPMS Development ToDos
 
+- explain cache setup for a production scenario (`cache_users_only` and regular
+  explicit cache refreshes for example)
 - all methods returning a list of user objects (get_group_users, get_admins, ...) should
   be refactored to return a dict with those objects instead, having the username
   ('login') as the key.
