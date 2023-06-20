@@ -1,11 +1,10 @@
 """Module representing bookings / reservations in PPMS."""
 
-import logging
 from datetime import datetime
 
-from .common import time_rel_to_abs
+from loguru import logger as log
 
-LOG = logging.getLogger(__name__)
+from .common import time_rel_to_abs
 
 
 class PpmsBooking:
@@ -62,10 +61,10 @@ class PpmsBooking:
             self.endtime = endtime
             self.session = lines[2]
         except Exception as err:
-            LOG.error("Parsing booking response failed (%s), text was:\n%s", err, text)
+            log.error("Parsing booking response failed ({}), text was:\n{}", err, text)
             raise
 
-        LOG.debug(str(self))
+        log.trace(str(self))
 
     @classmethod
     def from_runningsheet(cls, entry, system_id, username, date):
@@ -96,8 +95,8 @@ class PpmsBooking:
             booking.starttime_fromstr(entry["Start time"], date)
             booking.endtime_fromstr(entry["End time"], date)
         except Exception as err:
-            LOG.error(
-                "Parsing runningsheet entry failed (%s), text was:\n%s", err, entry
+            log.error(
+                "Parsing runningsheet entry failed ({}), text was:\n{}", err, entry
             )
             raise
 
@@ -123,7 +122,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.starttime = start
-        LOG.debug("New starttime: %s", self)
+        log.debug("New starttime: {}", self)
 
     def endtime_fromstr(self, time_str, date=None):
         """Change the ending time and / or day of a booking.
@@ -145,7 +144,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.endtime = end
-        LOG.debug("New endtime: %s", self)
+        log.debug("New endtime: {}", self)
 
     def __str__(self):
         def fmt_time(time):

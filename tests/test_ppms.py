@@ -1,7 +1,6 @@
 """Tests for the 'ppms' module."""
 
 # pylint: disable-msg=fixme
-
 # pylint: disable-msg=protected-access
 
 import logging
@@ -13,13 +12,12 @@ import pyppmsconf
 import pytest
 import requests.exceptions
 
+from loguru import logger as log
+
 from pyppms import ppms
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69
-
-
-_logger = logging.getLogger()
 
 
 @pytest.fixture
@@ -58,8 +56,8 @@ def switch_cache_post_change(conn, suffix):
     suffix : str (or str-like)
     """
     new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{suffix}")
-    _logger.debug("Switching response cache path to reflect a PPMS status change.")
-    _logger.debug("New cache path: [%s]", new_path)
+    log.debug("Switching response cache path to reflect a PPMS status change.")
+    log.debug(f"New cache path: [{new_path}]")
     conn.cache_path = new_path
 
 
@@ -79,14 +77,14 @@ def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
         An explanatory message that will be logged with switching the cache path.
     """
     new_path = os.path.join(pyppmsconf.MOCKS_PATH, mocktype)
-    _logger.debug("Switching response cache path for reason:\n>>> %s <<<", message)
-    _logger.debug("New cache path: [%s]", new_path)
+    log.debug(f"Switching response cache path for reason:\n>>> {message} <<<")
+    log.debug(f"New cache path: [{new_path}]")
     conn.cache_path = new_path
 
 
 def logd(msg, *args):
     """Simple logging wrapper for log messages from test functions."""
-    _logger.debug("\n>>> " + msg, *args)
+    log.debug("\n>>> " + msg, *args)
 
 
 ############ connection ############
@@ -628,14 +626,14 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     day = datetime.strptime(date, r"%Y-%m-%d")
 
-    logd("Testing runningsheet details for %s", date)
+    logd("Testing runningsheet details for {}", date)
     for booking in ppms_connection.get_running_sheet("2", date=day):
         assert booking.system_id == int(system_details_raw["System id"])
         endtime = find_endtime(sessions, booking.starttime)
         assert endtime is not None
         print(f"matching booking end time: {endtime}")
         assert booking.endtime == endtime
-        print(booking.__str__())
+        print(str(booking))
 
     logd("Testing fullname that cannot be mapped to a user")
     switch_cache_mocks(ppms_connection, "runningsheet_single_unknown_fullname")
@@ -685,12 +683,12 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
     assert not os.path.exists(fresh_cache_path)
     copytree(orig_cache_path, fresh_cache_path)
     assert os.path.exists(fresh_cache_path)
-    _logger.info("Cache path created: %s", fresh_cache_path)
+    log.info(f"Cache path created: {fresh_cache_path}")
 
     ppms_connection.cache_path = fresh_cache_path
-    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+    log.info(f"Updated connection cache path: {fresh_cache_path}")
     ppms_connection.flush_cache()
-    _logger.info("Flushed connection cache path: %s", fresh_cache_path)
+    log.info(f"Flushed connection cache path: {fresh_cache_path}")
     assert not os.path.exists(fresh_cache_path)
 
 
@@ -719,29 +717,29 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
     assert not os.path.exists(fresh_cache_path)
     fresh_cache_path.mkdir()
     assert os.path.exists(fresh_cache_path)
-    _logger.info("Cache path created: %s", fresh_cache_path)
+    log.info(f"Cache path created: {fresh_cache_path}")
 
     ppms_connection.cache_path = fresh_cache_path
-    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+    log.info(f"Updated connection cache path: {fresh_cache_path}")
 
     for subdir in to_keep + to_flush:
         srcdir = os.path.join(orig_cache_root, subdir)
         tgt_path = fresh_cache_path / subdir
         assert not os.path.exists(tgt_path)
         copytree(srcdir, tgt_path)
-        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
     ppms_connection.flush_cache(keep_users=True)
 
     for subdir in to_keep:
         tgt_path = fresh_cache_path / subdir
-        _logger.debug("Verifying directory has been KEPT: %s", tgt_path)
+        log.debug(f"Verifying directory has been KEPT: {tgt_path}")
         assert os.path.exists(tgt_path)
 
     for subdir in to_flush:
         tgt_path = fresh_cache_path / subdir
-        _logger.debug("Verifying directory has been FLUSHED: %s", tgt_path)
+        log.debug(f"Verifying directory has been FLUSHED: {tgt_path}")
         assert not os.path.exists(tgt_path)
 
 
@@ -786,17 +784,17 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     assert not os.path.exists(fresh_cache_path)
     fresh_cache_path.mkdir()
     assert os.path.exists(fresh_cache_path)
-    _logger.info("Cache path created: %s", fresh_cache_path)
+    log.info(f"Cache path created: {fresh_cache_path}")
 
     ppms_connection.cache_path = fresh_cache_path
-    _logger.info("Updated connection cache path: %s", fresh_cache_path)
+    log.info(f"Updated connection cache path: {fresh_cache_path}")
 
     for subdir in to_keep + to_flush:
         srcdir = os.path.join(orig_cache_root, subdir)
         tgt_path = fresh_cache_path / subdir
         assert not os.path.exists(tgt_path)
         copytree(srcdir, tgt_path)
-        _logger.info("Copied [%s] to [%s]", subdir, tgt_path)
+        log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
     ppms_connection.flush_cache(keep_users=True)
@@ -804,7 +802,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     new_user_name = "pyppms-adm"  # simulated "new" user
     old_user_name = "pyppms"  # previously existing, cached user (preserved)
 
-    _logger.info("Removing preserved user-cache for [%s]...", new_user_name)
+    log.info(f"Removing preserved user-cache for [{new_user_name}]...")
     new_user_cache = fresh_cache_path / "getuser" / f"login--{new_user_name}.txt"
     old_user_cache = fresh_cache_path / "getuser" / f"login--{old_user_name}.txt"
     assert os.path.isfile(new_user_cache)
@@ -812,18 +810,18 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     assert not os.path.exists(new_user_cache)
     assert os.path.exists(old_user_cache)
 
-    _logger.info("Restoring cache of existing user names...")
+    log.info("Restoring cache of existing user names...")
     users_list = os.path.join(orig_cache_root, "getusers")
     tgt_path = fresh_cache_path / "getusers"
     copytree(users_list, tgt_path)
     assert os.path.exists(tgt_path)
-    _logger.info("Restored user names cache to [%s].", tgt_path)
+    log.info(f"Restored user names cache to [{tgt_path}].")
 
-    _logger.info("Requesting details from PUMAPI for cached user [%s]", old_user_name)
+    log.info(f"Requesting details from PUMAPI for cached user [{old_user_name}]")
     ppms_connection.get_user(old_user_name)
     assert "No cache hit" not in caplog.text  # served from the cache
 
-    _logger.info("Requesting details from PUMAPI for 'new' user [%s]", new_user_name)
+    log.info(f"Requesting details from PUMAPI for 'new' user [{new_user_name}]")
     ppms_connection.get_user(new_user_name)
     assert "No cache hit" in caplog.text  # requires an on-line request
     assert os.path.exists(new_user_cache)

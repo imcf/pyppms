@@ -4,6 +4,9 @@
 
 import pytest
 
+from loguru import logger
+from _pytest.logging import LogCaptureFixture
+
 from ppms_values import values
 
 from pyppms.user import PpmsUser
@@ -11,7 +14,31 @@ from pyppms.user import PpmsUser
 
 __PPMS_VALUES__ = values()
 
+
 ### pytest setup ###
+
+
+@pytest.fixture
+def caplog(caplog: LogCaptureFixture):
+    """Override the built-in caplog fixture to propagate Loguru messages to it.
+
+    Parameters
+    ----------
+    caplog : LogCaptureFixture
+
+    Yields
+    ------
+    LogCaptureFixture
+    """
+    handler_id = logger.add(
+        caplog.handler,
+        format="{message}",
+        level=0,
+        filter=lambda record: record["level"].no >= caplog.handler.level,
+        enqueue=False,  # Set to 'True' if your test is spawning child processes.
+    )
+    yield caplog
+    logger.remove(handler_id)
 
 
 def pytest_addoption(parser):

@@ -4,6 +4,14 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.0.0
+
+### Changed
+
+- 🧨 Minimum required Python version is now `3.9`.
+- Dependencies have been updated to their latest (compatible) versions.
+- Logging is now done through [Loguru](https://pypi.org/project/loguru/).
+
 ## 2.3.0
 
 ### Added

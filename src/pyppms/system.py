@@ -3,9 +3,7 @@
 # pylint: disable-msg=too-many-instance-attributes
 # pylint: disable-msg=too-many-arguments
 
-import logging
-
-LOG = logging.getLogger(__name__)
+from loguru import logger as log
 
 
 class PpmsSystem:
@@ -56,7 +54,7 @@ class PpmsSystem:
         try:
             self.system_id = int(details["System id"])
         except ValueError as err:
-            LOG.error("Unable to parse system ID: %s - %s", details["System id"], err)
+            log.error("Unable to parse system ID: {} - {}", details["System id"], err)
             raise
 
         self.name = details["Name"]
@@ -69,16 +67,16 @@ class PpmsSystem:
         self.bookable = details["Bookable"]
         self.autonomy_required = details["Autonomy Required"]
         self.autonomy_required_after_hours = details["Autonomy Required After Hours"]
-        LOG.debug(
-            "PpmsSystem(system_id=%s, name=[%s], localisation=[%s], system_type=[%s])",
+        log.trace(
+            "PpmsSystem(system_id={}, name=[{}], localisation=[{}], system_type=[{}])",
             self.system_id,
             self.name,
             self.localisation,
             self.system_type,
         )
-        # LOG.debug('PpmsSystem details: core_facility_ref=%s, schedules=%s, '
-        #           'active=%s, stats=%s, bookable=%s, autonomy_required=%s, '
-        #           'autonomy_required_after_hours=%s', core_facility_ref,
+        # log.debug('PpmsSystem details: core_facility_ref={}, schedules={}, '
+        #           'active={}, stats={}, bookable={}, autonomy_required={}, '
+        #           'autonomy_required_after_hours={}', core_facility_ref,
         #           schedules, active, stats, bookable, autonomy_required,
         #           autonomy_required_after_hours)
 

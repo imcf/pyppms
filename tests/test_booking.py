@@ -43,11 +43,11 @@ def test_ppmsbooking():
     """Test the PpmsBooking constructor."""
     # run constructor with 'system_id' being a str
     booking = create_booking()
-    assert booking.__str__() == EXPECTED % (START, END)
+    assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being an int
     booking = create_booking(system_id=42)
-    assert booking.__str__() == EXPECTED % (START, END)
+    assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being something not int-like
     with pytest.raises(ValueError):
@@ -62,7 +62,7 @@ def test_starttime_fromstr__time():
     booking.starttime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
     newstart = f"{DAY} {newtime}"
-    assert booking.__str__() == EXPECTED % (newstart, END)
+    assert str(booking) == EXPECTED % (newstart, END)
 
 
 def test_starttime_fromstr__date():
@@ -75,12 +75,12 @@ def test_starttime_fromstr__date():
     booking.starttime_fromstr(newtime, startdate)
 
     newstart = f"{newdate} {newtime}"
-    assert booking.__str__() == EXPECTED % (newstart, END)
+    assert str(booking) == EXPECTED % (newstart, END)
 
     # test with date set to 'None' (resulting in current date to be used)
     booking.starttime_fromstr(newtime, date=None)
     newstart = f"{datetime.now().strftime(FMT_DATE)} {newtime}"
-    assert booking.__str__() == EXPECTED % (newstart, END)
+    assert str(booking) == EXPECTED % (newstart, END)
 
 
 def test_endtime_fromstr__time():
@@ -91,7 +91,7 @@ def test_endtime_fromstr__time():
     booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
 
     newend = f"{DAY} {newtime}"
-    assert booking.__str__() == EXPECTED % (START, newend)
+    assert str(booking) == EXPECTED % (START, newend)
 
 
 def test_endtime_fromstr__date():
@@ -104,19 +104,19 @@ def test_endtime_fromstr__date():
     booking.endtime_fromstr(newtime, enddate)
 
     newend = f"{newdate} {newtime}"
-    assert booking.__str__() == EXPECTED % (START, newend)
+    assert str(booking) == EXPECTED % (START, newend)
 
     # test with date set to 'None' (resulting in current date to be used)
     booking.endtime_fromstr(newtime, date=None)
     newend = f"{datetime.now().strftime(FMT_DATE)} {newtime}"
-    assert booking.__str__() == EXPECTED % (START, newend)
+    assert str(booking) == EXPECTED % (START, newend)
 
 
 def test_noendtime_str():
     """Test the booking object string formatting when no end time is set."""
     booking = create_booking()
     booking.endtime = None
-    assert "endtime=[===UNDEFINED===]" in booking.__str__()
+    assert "endtime=[===UNDEFINED===]" in str(booking)
 
 
 def test_booking_from_request():
@@ -174,7 +174,7 @@ def test_runningsheet(
             username=fullname_mapping[entry["User"]],
             date=datetime.now(),
         )
-        print(booking.__str__())
+        print(str(booking))
         assert booking.username == user_details_raw["login"]
         assert booking.system_id == int(system_details_raw["System id"])
         assert booking.starttime > d_start
