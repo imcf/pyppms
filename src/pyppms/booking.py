@@ -4,7 +4,7 @@ from datetime import datetime
 
 from loguru import logger as log
 
-from .common import time_rel_to_abs
+from .common import time_rel_to_abs, fmt_time
 
 
 class PpmsBooking:
@@ -147,13 +147,6 @@ class PpmsBooking:
         log.trace("New endtime: {}", self)
 
     def __str__(self):
-        def fmt_time(time):
-            # in case a booking was created from a "nextbooking" response it will not
-            # have the `endtime` attribute set, so treat this separately:
-            if time is None:
-                return "===UNDEFINED==="
-            return datetime.strftime(time, "%Y-%m-%d %H:%M")
-
         msg = (
             f"PpmsBooking(username=[{self.username}], "
             f"system_id=[{self.system_id}], "

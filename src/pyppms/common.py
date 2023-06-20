@@ -198,3 +198,23 @@ def time_rel_to_abs(minutes_from_now):
     now = datetime.now().replace(second=0, microsecond=0)
     abstime = now + timedelta(minutes=int(minutes_from_now))
     return abstime
+
+
+def fmt_time(time):
+    """Format a `datetime` or `None` object to string.
+
+    This is useful to apply it to booking times as they might be `None` e.g. in
+    case they have been created from a "nextbooking" response.
+
+    Parameters
+    ----------
+    time : datetime.datetime or None
+
+    Returns
+    -------
+    str
+        The formatted time, or a specific string in case the input was `None`.
+    """
+    if time is None:
+        return "===UNDEFINED==="
+    return datetime.strftime(time, "%Y-%m-%d %H:%M")
