@@ -20,6 +20,7 @@ from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
 from .system import PpmsSystem
 from .booking import PpmsBooking
+from .exceptions import NoDataError
 
 
 class PpmsConnection:
@@ -596,12 +597,14 @@ class PpmsConnection:
         response = self.request("getrunningsheet", parameters)
         try:
             entries = parse_multiline_response(response.text, graceful=False)
+        except NoDataError:
+            # in case no bookings exist the response will be empty!
+            log.debug("Runningsheet for the given day was empty!")
+            return []
         except Exception as err:  # pylint: disable-msg=broad-except
             log.error("Parsing runningsheet details failed: {}", err)
-            # NOTE: in case no future bookings exist the response will be empty!
-            log.error("Possibly the runningsheet is empty as no bookings exist?")
-            log.debug("Runningsheet PUMPAI response was: {}", response.text)
-            return bookings
+            log.debug("Runningsheet PUMPAI response was: >>>{}<<<", response.text)
+            return []
 
         for entry in entries:
             full = entry["User"]

@@ -8,6 +8,8 @@ from io import StringIO
 
 from loguru import logger as log
 
+from .exceptions import NoDataError
+
 
 def process_response_values(values):
     """Process (in-place) a list of strings, remove quotes, detect boolean etc.
@@ -120,11 +122,15 @@ def parse_multiline_response(text, graceful=True):
     -------
     list(dict)
         A list with dicts where the latter ones have the same form as produced
-        by the dict_from_single_response() function. Note that when graceful
+        by the dict_from_single_response() function. May be empty in case the
+        PUMAPI response didn't contain any useful data. Note that when graceful
         mode is requested, consistency among the dicts is not guaranteed.
 
     Raises
     ------
+    NoDataError
+        Raised when the response text was too short (less than two lines) and
+        the `graceful` parameter has been set to false.
     ValueError
         Raised when the response text is inconsistent and the `graceful`
         parameter has been set to false, or if parsing fails for any other
@@ -134,10 +140,10 @@ def parse_multiline_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) < 2:
-            log.warning("Response expected to have two or more lines: {}", text)
+            log.info("Response has less than TWO lines: >>>{}<<<", text)
             if not graceful:
-                raise ValueError("Invalid response format!")
-            return parsed
+                raise NoDataError("Invalid response format!")
+            return []
 
         header = lines[0].split(",")
         for i, entry in enumerate(header):
@@ -173,6 +179,9 @@ def parse_multiline_response(text, graceful=True):
                 "same number of elements!"
             )
             log.warning(msg)
+
+    except NoDataError as err:
+        raise err
 
     except Exception as err:
         msg = f"Unable to parse data returned by PUMAPI: {text} - ERROR: {err}"

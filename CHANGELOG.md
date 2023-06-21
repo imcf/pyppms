@@ -12,6 +12,11 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   be None (in which case a fixed string is returned).
 - `pyppms.booking.PpmsBooking.desc` has been added as a property to retrieve a
   shorter description of the object than calling `str()` on it.
+- `pyppms.exceptions.NoDataError` has been added to indicate a PUMAPI response
+  did *not* contain any useful data.
+- `pyppms.common.parse_multiline_response()` will now raise the newly added
+  `NoDataError` in case the requested *runningsheet* for a day doesn't contain
+  any bookings to allow for properly dealing with "empty" days.
 
 ### Changed
 
