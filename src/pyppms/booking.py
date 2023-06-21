@@ -4,7 +4,7 @@ from datetime import datetime
 
 from loguru import logger as log
 
-from .common import time_rel_to_abs
+from .common import time_rel_to_abs, fmt_time
 
 
 class PpmsBooking:
@@ -122,7 +122,7 @@ class PpmsBooking:
             microsecond=0,
         )
         self.starttime = start
-        log.debug("New starttime: {}", self)
+        log.trace("New starttime: {}", self)
 
     def endtime_fromstr(self, time_str, date=None):
         """Change the ending time and / or day of a booking.
@@ -144,16 +144,9 @@ class PpmsBooking:
             microsecond=0,
         )
         self.endtime = end
-        log.debug("New endtime: {}", self)
+        log.trace("New endtime: {}", self)
 
     def __str__(self):
-        def fmt_time(time):
-            # in case a booking was created from a "nextbooking" response it will not
-            # have the `endtime` attribute set, so treat this separately:
-            if time is None:
-                return "===UNDEFINED==="
-            return datetime.strftime(time, "%Y-%m-%d %H:%M")
-
         msg = (
             f"PpmsBooking(username=[{self.username}], "
             f"system_id=[{self.system_id}], "
@@ -165,3 +158,17 @@ class PpmsBooking:
         msg += ")"
 
         return msg
+
+    @property
+    def desc(self):
+        """Format a "short" description of the object.
+
+        Returns
+        -------
+        str
+            A string containing `username`, `system_id` and the booking times.
+        """
+        return (
+            f"{self.username}@{self.system_id} "
+            f"[{fmt_time(self.starttime)} -- {fmt_time(self.endtime)}]"
+        )

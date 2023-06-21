@@ -4,6 +4,25 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.1.0
+
+### Added
+
+- `pyppms.common.fmt_time()` to string-format a datetime object that might also
+  be None (in which case a fixed string is returned).
+- `pyppms.booking.PpmsBooking.desc` has been added as a property to retrieve a
+  shorter description of the object than calling `str()` on it.
+- `pyppms.exceptions.NoDataError` has been added to indicate a PUMAPI response
+  did *not* contain any useful data.
+- `pyppms.common.parse_multiline_response()` will now raise the newly added
+  `NoDataError` in case the requested *runningsheet* for a day doesn't contain
+  any bookings to allow for properly dealing with "empty" days.
+
+### Changed
+
+- Several log messages have been demoted from `debug` to `trace` level and might
+  have been shortened / combined to reduce logging clutter.
+
 ## 3.0.0
 
 ### Changed
