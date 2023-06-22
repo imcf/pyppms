@@ -126,7 +126,7 @@ class PpmsConnection:
         requests.exceptions.ConnectionError
             Raised in case authentication failed for any reason.
         """
-        log.debug(
+        log.trace(
             "Attempting authentication against {} with key [{}...{}]",
             self.url,
             self.api_key[:2],
@@ -215,7 +215,7 @@ class PpmsConnection:
             response = self.__intercept_read(req_data)
             read_from_cache = True
         except LookupError as err:
-            log.debug(f"Doing an on-line request: {err}")
+            log.trace(f"Doing an on-line request: {err}")
             response = requests.post(self.url, data=req_data, timeout=self.timeout)
 
         # store the response if it hasn't been read from the cache before:
@@ -408,7 +408,7 @@ class PpmsConnection:
         for directory in dirs_to_remove:
             try:
                 shutil.rmtree(directory)
-                log.debug("Removed directory [{}].", directory)
+                log.trace("Removed directory [{}].", directory)
             except Exception as ex:  # pylint: disable-msg=broad-except
                 log.warning("Removing the cache at [{}] failed: {}", directory, ex)
 
@@ -427,7 +427,7 @@ class PpmsConnection:
         for username in admins:
             user = self.get_user(username)
             users.append(user)
-        log.debug("{} admins in the PPMS database: {}", len(admins), ", ".join(admins))
+        log.trace("{} admins in the PPMS database: {}", len(admins), ", ".join(admins))
         return users
 
     def get_booking(self, system_id, booking_type="get"):
@@ -478,7 +478,7 @@ class PpmsConnection:
         if booking_type == "get":
             desc = "a currently active booking"
         if not response.text.strip():
-            log.debug("System [{}] doesn't have {}", system_id, desc)
+            log.trace("System [{}] doesn't have {}", system_id, desc)
             return None
 
         return PpmsBooking(response.text, booking_type, system_id)
@@ -502,7 +502,7 @@ class PpmsConnection:
             line of the PUMAPI response, values from the data line.
         """
         response = self.request("getgroup", {"unitlogin": group_id})
-        log.debug("Group details returned by PPMS (raw): {}", response.text)
+        log.trace("Group details returned by PPMS (raw): {}", response.text)
 
         if not response.text:
             msg = f"Group [{group_id}] is unknown to PPMS"
@@ -511,7 +511,7 @@ class PpmsConnection:
 
         details = dict_from_single_response(response.text)
 
-        log.debug("Details of group {}: {}", group_id, details)
+        log.trace("Details of group {}: {}", group_id, details)
         return details
 
     def get_group_users(self, unitlogin):
@@ -534,7 +534,7 @@ class PpmsConnection:
         for username in members:
             user = self.get_user(username)
             users.append(user)
-        log.debug(
+        log.trace(
             "{} members in PPMS group [{}]: {}",
             len(members),
             unitlogin,
@@ -553,7 +553,7 @@ class PpmsConnection:
         response = self.request("getgroups")
 
         groups = response.text.splitlines()
-        log.debug("{} groups in the PPMS database: {}", len(groups), ", ".join(groups))
+        log.trace("{} groups in the PPMS database: {}", len(groups), ", ".join(groups))
         return groups
 
     def get_next_booking(self, system_id):
@@ -593,17 +593,17 @@ class PpmsConnection:
             "plateformid": f"{core_facility_ref}",
             "day": date.strftime("%Y-%m-%d"),
         }
-        log.debug("Requesting runningsheet for {}", parameters["day"])
+        log.trace("Requesting runningsheet for {}", parameters["day"])
         response = self.request("getrunningsheet", parameters)
         try:
             entries = parse_multiline_response(response.text, graceful=False)
         except NoDataError:
             # in case no bookings exist the response will be empty!
-            log.debug("Runningsheet for the given day was empty!")
+            log.trace("Runningsheet for the given day was empty!")
             return []
         except Exception as err:  # pylint: disable-msg=broad-except
             log.error("Parsing runningsheet details failed: {}", err)
-            log.debug("Runningsheet PUMPAI response was: >>>{}<<<", response.text)
+            log.trace("Runningsheet PUMPAI response was: >>>{}<<<", response.text)
             return []
 
         for entry in entries:
@@ -620,7 +620,7 @@ class PpmsConnection:
                 log.error("PPMS doesn't seem to know user [{}], skipping", full)
                 continue
 
-            log.debug(
+            log.trace(
                 "Booking for user '{}' ({}) found", self.fullname_mapping[full], full
             )
             system_name = entry["Object"]
@@ -659,7 +659,7 @@ class PpmsConnection:
             fails for any reason, the system is skipped entirely.
         """
         if self.systems and not force_refresh:
-            log.debug("Using cached details for {} systems", len(self.systems))
+            log.trace("Using cached details for {} systems", len(self.systems))
         else:
             self.update_systems()
 
@@ -702,7 +702,7 @@ class PpmsConnection:
         if localisation == "":
             loc_desc = "(no location filter given)"
 
-        log.debug(
+        log.trace(
             "Querying PPMS for systems {}, name matching any of {}",
             loc_desc,
             name_contains,
@@ -719,7 +719,7 @@ class PpmsConnection:
                 )
                 continue
 
-            # log.debug('System [{}] is matching location [{}], checking if '
+            # log.trace('System [{}] is matching location [{}], checking if '
             #           'the name is matching any of the valid pattern {}',
             #           system.name, loc, name_contains)
             for valid_name in name_contains:
@@ -729,11 +729,11 @@ class PpmsConnection:
                     break
 
             # if sys_id not in system_ids:
-            #     log.debug('System [{}] does NOT match a valid name: {}',
+            #     log.trace('System [{}] does NOT match a valid name: {}',
             #               system.name, name_contains)
 
-        log.debug("Found {} bookable systems {}", len(system_ids), loc_desc)
-        log.debug("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
+        log.trace("Found {} bookable systems {}", len(system_ids), loc_desc)
+        log.trace("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
     def get_user(self, login_name, skip_cache=False):
@@ -826,7 +826,7 @@ class PpmsConnection:
         #     u'true\r\n'
         # )
         details = dict_from_single_response(response.text)
-        log.debug("Details for user [{}]: {}", login_name, details)
+        log.trace("Details for user [{}]: {}", login_name, details)
         return details
 
     def get_user_experience(self, login=None, system_id=None):
@@ -854,7 +854,7 @@ class PpmsConnection:
         response = self.request("getuserexp", parameters=data)
 
         parsed = parse_multiline_response(response.text)
-        log.debug(
+        log.trace(
             "Received {} experience entries for filters [user:{}] and [id:{}]",
             len(parsed),
             login,
@@ -886,8 +886,8 @@ class PpmsConnection:
 
         users = response.text.splitlines()
         active_desc = "active " if active else ""
-        log.debug("{} {}users in the PPMS database", len(users), active_desc)
-        log.debug(", ".join(users))
+        log.trace("{} {}users in the PPMS database", len(users), active_desc)
+        log.trace(", ".join(users))
         return users
 
     def get_users(self, force_refresh=False, active_only=True):
@@ -908,7 +908,7 @@ class PpmsConnection:
             A dict of PpmsUser objects with the username (login) as key.
         """
         if self.users and not force_refresh:
-            log.debug("Using cached details for {} users", len(self.users))
+            log.trace("Using cached details for {} users", len(self.users))
         else:
             self.update_users(active_only=active_only)
 
@@ -939,7 +939,7 @@ class PpmsConnection:
             if not email:
                 log.warning("--- WARNING: no email for user [{}]! ---", user)
                 continue
-            # log.debug("{}: {}", user, email)
+            # log.trace("{}: {}", user, email)
             emails.append(email)
 
         return emails
@@ -972,14 +972,14 @@ class PpmsConnection:
             for line in lines:
                 permission, username = line.split(":")
                 if permission.upper() == "D":
-                    log.debug(
+                    log.trace(
                         "User [{}] is deactivated for booking system [{}], skipping",
                         username,
                         system_id,
                     )
                     continue
 
-                log.debug(
+                log.trace(
                     "User [{}] has permission to book system [{}]", username, system_id
                 )
                 users.append(username)
@@ -1069,7 +1069,7 @@ class PpmsConnection:
             raise RuntimeError(msg)
 
         log.debug("Created user [{}] in PPMS.", login)
-        log.debug("Response was: {}", response.text)
+        log.trace("Response was: {}", response.text)
 
     def remove_user_access_from_system(self, username, system_id):
         """Remove permissions for a user to book a given system in PPMS.
@@ -1156,9 +1156,9 @@ class PpmsConnection:
         # NOTE: the 'setright' action will accept ANY permission type and return 'done'
         # on the request, so there is no way to check from the response if setting the
         # permission really worked!!
-        # log.debug('Request returned text: {}', response.text)
+        # log.trace('Request returned text: {}', response.text)
         if response.text.lower().strip() == "done":
-            log.debug(
+            log.trace(
                 "User [{}] now has permission level [{}] on system [{}]",
                 login,
                 permission_name(permission),
@@ -1184,7 +1184,7 @@ class PpmsConnection:
         cache. If parsing the PUMAPI response for a system fails for any reason, the
         system is skipped entirely.
         """
-        log.debug("Updating list of bookable systems...")
+        log.trace("Updating list of bookable systems...")
         systems = {}
         parse_fails = 0
         response = self.request("getsystems")
@@ -1199,7 +1199,7 @@ class PpmsConnection:
 
             systems[system.system_id] = system
 
-        log.debug(
+        log.trace(
             "Updated {} bookable systems from PPMS ({} systems failed parsing)",
             len(systems),
             parse_fails,
@@ -1228,7 +1228,7 @@ class PpmsConnection:
         if not user_ids:
             user_ids = self.get_user_ids(active=active_only)
 
-        log.debug("Updating details on {} users", len(user_ids))
+        log.trace("Updating details on {} users", len(user_ids))
         for user_id in user_ids:
             self.get_user(user_id, skip_cache=True)
 

@@ -4,6 +4,13 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.1.1
+
+### Changed
+
+- Several log messages have been demoted to lower levels for further reducing
+  logging clutter.
+
 ## 3.1.0
 
 ### Added
