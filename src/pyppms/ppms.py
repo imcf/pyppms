@@ -40,6 +40,8 @@ class PpmsConnection:
     cache_users_only : bool
         Flag indicating that only PPMS user details will be stored in the
         on-disk cache, nothing else.
+    last_served_from_cache
+        Indicates if the last request was served from the cache or on-line.
     users : dict
         A dict with usernames as keys, mapping to the related
         :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the object's
@@ -108,6 +110,8 @@ class PpmsConnection:
         }
         self.cache_path = cache
         self.cache_users_only = cache_users_only
+        self.last_served_from_cache = False
+        """Indicates if the last request was served from the cache or on-line."""
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
@@ -208,18 +212,18 @@ class PpmsConnection:
         # log.debug("Request parameters: {}", parameters)
 
         response = None
-        read_from_cache = False
         try:
             if skip_cache:  # pragma: no cover
                 raise LookupError("Skipping the cache has been requested")
             response = self.__intercept_read(req_data)
-            read_from_cache = True
+            self.last_served_from_cache = True
         except LookupError as err:
             log.trace(f"Doing an on-line request: {err}")
             response = requests.post(self.url, data=req_data, timeout=self.timeout)
+            self.last_served_from_cache = False
 
         # store the response if it hasn't been read from the cache before:
-        if not read_from_cache:  # pragma: no cover
+        if not self.last_served_from_cache:  # pragma: no cover
             self.__intercept_store(req_data, response)
 
         # NOTE: the HTTP status code returned is always `200` even if
