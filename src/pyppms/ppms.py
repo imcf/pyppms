@@ -167,7 +167,7 @@ class PpmsConnection:
             log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
-        log.info(
+        log.debug(
             "Authentication succeeded, response=[{}], http_status=[{}]",
             response.text,
             response.status_code,
@@ -390,7 +390,7 @@ class PpmsConnection:
             will be kept, by default `False`.
         """
         if self.cache_path == "":
-            log.info("No cache path configured, not flushing!")
+            log.debug("No cache path configured, not flushing!")
             return
 
         dirs_to_remove = [self.cache_path]  # by default remove the entire cache dir
@@ -404,7 +404,7 @@ class PpmsConnection:
                     continue
                 dirs_to_remove.append(os.path.join(self.cache_path, subdir))
 
-        log.info("Flushing the on-disk cache at [{}] {}...", self.cache_path, keep_msg)
+        log.debug("Flushing the on-disk cache at [{}] {}...", self.cache_path, keep_msg)
         for directory in dirs_to_remove:
             try:
                 shutil.rmtree(directory)
@@ -613,14 +613,14 @@ class PpmsConnection:
                     log.debug("Ignoring booking for uncached user [{}]", full)
                     continue
 
-                log.info("Booking for an uncached user ({}) found!", full)
+                log.debug("Booking for an uncached user ({}) found!", full)
                 self.update_users()
 
             if full not in self.fullname_mapping:
                 log.error("PPMS doesn't seem to know user [{}], skipping", full)
                 continue
 
-            log.info(
+            log.debug(
                 "Booking for user '{}' ({}) found", self.fullname_mapping[full], full
             )
             system_name = entry["Object"]
@@ -702,7 +702,7 @@ class PpmsConnection:
         if localisation == "":
             loc_desc = "(no location filter given)"
 
-        log.info(
+        log.debug(
             "Querying PPMS for systems {}, name matching any of {}",
             loc_desc,
             name_contains,
@@ -732,7 +732,7 @@ class PpmsConnection:
             #     log.debug('System [{}] does NOT match a valid name: {}',
             #               system.name, name_contains)
 
-        log.info("Found {} bookable systems {}", len(system_ids), loc_desc)
+        log.debug("Found {} bookable systems {}", len(system_ids), loc_desc)
         log.debug("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
@@ -886,7 +886,7 @@ class PpmsConnection:
 
         users = response.text.splitlines()
         active_desc = "active " if active else ""
-        log.info("{} {}users in the PPMS database", len(users), active_desc)
+        log.debug("{} {}users in the PPMS database", len(users), active_desc)
         log.debug(", ".join(users))
         return users
 
@@ -1068,7 +1068,7 @@ class PpmsConnection:
             log.error(msg)
             raise RuntimeError(msg)
 
-        log.info("Created user [{}] in PPMS.", login)
+        log.debug("Created user [{}] in PPMS.", login)
         log.debug("Response was: {}", response.text)
 
     def remove_user_access_from_system(self, username, system_id):

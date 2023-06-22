@@ -140,7 +140,7 @@ def parse_multiline_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) < 2:
-            log.info("Response has less than TWO lines: >>>{}<<<", text)
+            log.debug("Response has less than TWO lines: >>>{}<<<", text)
             if not graceful:
                 raise NoDataError("Invalid response format!")
             return []
