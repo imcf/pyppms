@@ -271,19 +271,19 @@ def test_get_user__skip_cache(caplog, ppms_connection, ppms_user):
     assert os.path.exists(cached) is False
 
     ppms_connection.get_user(ppms_user.username)
-    assert "Doing an on-line request: No cache hit for" in caplog.text
+    assert ppms_connection.last_served_from_cache is False
     assert "Read intercepted response text from" not in caplog.text
 
     assert os.path.exists(cached) is True
 
     caplog.clear()
     ppms_connection.get_user(ppms_user.username)
-    assert "Doing an on-line request: No cache hit for" not in caplog.text
+    assert ppms_connection.last_served_from_cache is True
     assert "Read intercepted response text from" in caplog.text
 
     caplog.clear()
     ppms_connection.get_user(ppms_user.username, skip_cache=True)
-    assert "Doing an on-line request: Skipping the cache" in caplog.text
+    assert ppms_connection.last_served_from_cache is False
     assert "Read intercepted response text from" not in caplog.text
 
     # make sure to clean up the test-specific cache again:
@@ -409,12 +409,10 @@ def test_update_systems(ppms_connection, caplog):
     """Test the get_systems() method."""
     caplog.set_level(logging.DEBUG)
     switch_cache_mocks(ppms_connection, "update_systems__broken_id")
-    systems = ppms_connection.get_systems()
-
+    assert len(ppms_connection.systems) == 0
+    ppms_connection.get_systems()
     # results should contain exaclty one system:
-    assert len(systems) == 1
-    assert "Updated 1 bookable systems from PPMS" in caplog.text
-    assert "1 systems failed parsing" in caplog.text
+    assert len(ppms_connection.systems) == 1
 
 
 def test_get_systems_matching(ppms_connection, system_details_raw):
@@ -819,9 +817,11 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
 
     log.info(f"Requesting details from PUMAPI for cached user [{old_user_name}]")
     ppms_connection.get_user(old_user_name)
-    assert "No cache hit" not in caplog.text  # served from the cache
+    assert ppms_connection.last_served_from_cache is True
+    # assert "No cache hit" not in caplog.text  # served from the cache
 
     log.info(f"Requesting details from PUMAPI for 'new' user [{new_user_name}]")
     ppms_connection.get_user(new_user_name)
-    assert "No cache hit" in caplog.text  # requires an on-line request
+    assert ppms_connection.last_served_from_cache is False
+    # assert "No cache hit" in caplog.text  # requires an on-line request
     assert os.path.exists(new_user_cache)

@@ -4,6 +4,18 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.2.0
+
+### Added
+
+- `pyppms.booking.PpmsBooking.last_served_from_cache` has been added to indicate
+  if the last request was served from the cache or on-line.
+
+### Changed
+
+- Several log messages have been demoted to lower levels for further reducing
+  logging clutter.
+
 ## 3.1.0
 
 ### Added
