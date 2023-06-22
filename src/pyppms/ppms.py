@@ -171,7 +171,7 @@ class PpmsConnection:
             log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
-        log.debug(
+        log.trace(
             "Authentication succeeded, response=[{}], http_status=[{}]",
             response.text,
             response.status_code,
