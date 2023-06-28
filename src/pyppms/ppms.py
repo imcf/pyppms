@@ -40,7 +40,7 @@ class PpmsConnection:
     cache_users_only : bool
         Flag indicating that only PPMS user details will be stored in the
         on-disk cache, nothing else.
-    last_served_from_cache
+    last_served_from_cache : bool
         Indicates if the last request was served from the cache or on-line.
     users : dict
         A dict with usernames as keys, mapping to the related
