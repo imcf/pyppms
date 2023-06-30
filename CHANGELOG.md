@@ -4,6 +4,15 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.2.1
+
+### Fixed
+
+- `pyppms.booking.PpmsBooking.endtime_fromstr()` contained a bug where the
+  end time of a booking finishing at midnight got wrongly assigning it to the
+  *start* of the given day instead of the end. This is now fixed by setting the
+  end time to the start of the following day.
+
 ## 3.2.0
 
 ### Added

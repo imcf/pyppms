@@ -40,7 +40,7 @@ class PpmsConnection:
     cache_users_only : bool
         Flag indicating that only PPMS user details will be stored in the
         on-disk cache, nothing else.
-    last_served_from_cache
+    last_served_from_cache : bool
         Indicates if the last request was served from the cache or on-line.
     users : dict
         A dict with usernames as keys, mapping to the related
@@ -171,7 +171,7 @@ class PpmsConnection:
             log.error(msg)
             raise requests.exceptions.ConnectionError(msg)
 
-        log.debug(
+        log.trace(
             "Authentication succeeded, response=[{}], http_status=[{}]",
             response.text,
             response.status_code,
@@ -614,10 +614,10 @@ class PpmsConnection:
             full = entry["User"]
             if full not in self.fullname_mapping:
                 if ignore_uncached_users:
-                    log.debug("Ignoring booking for uncached user [{}]", full)
+                    log.debug(f"Ignoring booking for uncached / unknown user [{full}]")
                     continue
 
-                log.debug("Booking for an uncached user ({}) found!", full)
+                log.debug(f"Booking refers an uncached user ({full}), updating users!")
                 self.update_users()
 
             if full not in self.fullname_mapping:
@@ -625,7 +625,7 @@ class PpmsConnection:
                 continue
 
             log.trace(
-                "Booking for user '{}' ({}) found", self.fullname_mapping[full], full
+                f"Booking for user '{self.fullname_mapping[full]}' ({full}) found"
             )
             system_name = entry["Object"]
             system_ids = self.get_systems_matching("", [system_name])
