@@ -1,6 +1,6 @@
 """Module representing bookings / reservations in PPMS."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from loguru import logger as log
 
@@ -144,6 +144,9 @@ class PpmsBooking:
             second=0,
             microsecond=0,
         )
+        if end.hour == 0 and end.minute == 0:
+            end = end + timedelta(days=1)
+            log.debug(f"Booking end is midnight, adjust date to {end}")
         self.endtime = end
         log.trace("New endtime: {}", self)
 
