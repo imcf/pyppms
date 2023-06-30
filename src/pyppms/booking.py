@@ -100,6 +100,7 @@ class PpmsBooking:
             )
             raise
 
+        log.trace(f"Created booking from runningsheet: {booking}")
         return booking
 
     def starttime_fromstr(self, time_str, date=None):
