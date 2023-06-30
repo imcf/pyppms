@@ -17,7 +17,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### Added
 
-- `pyppms.booking.PpmsBooking.last_served_from_cache` has been added to indicate
+- `pyppms.ppms.PpmsConnection.last_served_from_cache` has been added to indicate
   if the last request was served from the cache or on-line.
 
 ### Changed
