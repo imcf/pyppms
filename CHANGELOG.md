@@ -4,6 +4,15 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.3.0
+
+### Added
+
+- `pyppms.ppms.get_running_sheet()` now has an optional parameter `localisation`
+  (defaulting to an empty `str`) that will be passed to the call to
+  `pyppms.ppms.get_systems_matching()`, allowing to restrict the runningsheet to
+  systems of a given "room".
+
 ## 3.2.1
 
 ### Fixed
