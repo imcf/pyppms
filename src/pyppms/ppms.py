@@ -633,6 +633,10 @@ class PpmsConnection:
                 f"Booking for user '{self.fullname_mapping[full]}' ({full}) found"
             )
             system_name = entry["Object"]
+            # FIXME: add a test with one system name being a subset of another system
+            # (this will result in more than one result and should be fixed e.g. by
+            # adding an optional parameter "exact" to get_systems_matching() or
+            # similar)
             system_ids = self.get_systems_matching(localisation, [system_name])
             if len(system_ids) < 1:
                 if localisation:
