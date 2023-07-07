@@ -634,7 +634,14 @@ class PpmsConnection:
             )
             system_name = entry["Object"]
             system_ids = self.get_systems_matching(localisation, [system_name])
-            if len(system_ids) != 1:
+            if len(system_ids) < 1:
+                if localisation:
+                    log.debug(f"Given criteria return zero systems for [{system_name}]")
+                else:
+                    log.warning(f"No systems matching criteria for [{system_name}]")
+                continue
+
+            if len(system_ids) > 1:
                 # NOTE: more than one result should not happen as PPMS doesn't allow for
                 # multiple systems having the same name - no result might happen though!
                 log.error("Ignoring booking for unknown system [{}]", system_name)
