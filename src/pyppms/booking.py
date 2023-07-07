@@ -66,6 +66,7 @@ class PpmsBooking:
 
         log.trace(str(self))
 
+    # FIXME: date is of type datetime.datetime, NOT datetime.date !!!
     @classmethod
     def from_runningsheet(cls, entry, system_id, username, date):
         """Alternative constructor using a (parsed) getrunningsheet response.

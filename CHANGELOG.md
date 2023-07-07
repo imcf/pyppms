@@ -4,20 +4,29 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 3.3.0
+
+### Added
+
+- `pyppms.ppms.get_running_sheet()` now has an optional parameter `localisation`
+  (defaulting to an empty `str`) that will be passed to the call to
+  `pyppms.ppms.get_systems_matching()`, allowing to restrict the runningsheet to
+  systems of a given "room".
+
 ## 3.2.1
 
 ### Fixed
 
-- `pyppms.booking.PpmsBooking.endtime_fromstr()` contained a bug where the
-  end time of a booking finishing at midnight got wrongly assigning it to the
-  *start* of the given day instead of the end. This is now fixed by setting the
-  end time to the start of the following day.
+- 🕛🌃 end time: `pyppms.booking.PpmsBooking.endtime_fromstr()` contained a bug
+  where the end time of a booking finishing at midnight got wrongly assigned to
+  the *start* of the given day (instead of the end). This is now fixed by
+  setting the end time to the start of the following day.
 
 ## 3.2.0
 
 ### Added
 
-- `pyppms.booking.PpmsBooking.last_served_from_cache` has been added to indicate
+- `pyppms.ppms.PpmsConnection.last_served_from_cache` has been added to indicate
   if the last request was served from the cache or on-line.
 
 ### Changed
