@@ -564,7 +564,9 @@ class PpmsConnection:
         """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
 
-    def get_running_sheet(self, core_facility_ref, date, ignore_uncached_users=False):
+    def get_running_sheet(
+        self, core_facility_ref, date, ignore_uncached_users=False, localisation=""
+    ):
         """Get the running sheet for a specific day on the given facility.
 
         The so-called "running-sheet" consists of all bookings / reservations of
@@ -585,6 +587,9 @@ class PpmsConnection:
         ignore_uncached_users : bool, optional
             If set to `True` any booking for a user that is not present in the instance
             attribute `fullname_mapping` will be ignored in the resulting list.
+        localisation : str, optional
+            If given, the runningsheet will be limited to systems where the
+            `localisation` (~"room") field matches the given value.
 
         Returns
         -------
@@ -628,7 +633,7 @@ class PpmsConnection:
                 f"Booking for user '{self.fullname_mapping[full]}' ({full}) found"
             )
             system_name = entry["Object"]
-            system_ids = self.get_systems_matching("", [system_name])
+            system_ids = self.get_systems_matching(localisation, [system_name])
             if len(system_ids) != 1:
                 # NOTE: more than one result should not happen as PPMS doesn't allow for
                 # multiple systems having the same name - no result might happen though!
