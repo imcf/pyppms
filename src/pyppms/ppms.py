@@ -370,7 +370,7 @@ class PpmsConnection:
             log.error("Storing response text in [{}] failed: {}", intercept_file, err)
             log.error("Response text was:\n--------\n{}\n--------", response.text)
 
-    def flush_cache(self, keep_users=False):
+    def cache_flush(self, keep_users=False):
         """Flush the PyPPMS on-disk cache.
 
         Optionally flushes everything *except* the `getuser` cache if the
@@ -622,7 +622,7 @@ class PpmsConnection:
                     continue
 
                 log.debug(f"Booking refers an uncached user ({full}), updating users!")
-                self.update_users()
+                self.cache_update_users()
 
             if full not in self.fullname_mapping:
                 log.error("PPMS doesn't seem to know user [{}], skipping", full)
@@ -680,7 +680,7 @@ class PpmsConnection:
         if self.systems and not force_refresh:
             log.trace("Using cached details for {} systems", len(self.systems))
         else:
-            self.update_systems()
+            self.cache_update_systems()
 
         return self.systems
 
@@ -929,7 +929,7 @@ class PpmsConnection:
         if self.users and not force_refresh:
             log.trace("Using cached details for {} users", len(self.users))
         else:
-            self.update_users(active_only=active_only)
+            self.cache_update_users(active_only=active_only)
 
         return self.users
 
@@ -1198,7 +1198,7 @@ class PpmsConnection:
 
         return False
 
-    def update_systems(self):
+    def cache_update_systems(self):
         """Update cached details for all bookable systems from PPMS.
 
         Get the details on all bookable systems from PPMS and store them in the local
@@ -1228,7 +1228,7 @@ class PpmsConnection:
 
         self.systems = systems
 
-    def update_users(self, user_ids=[], active_only=True):
+    def cache_update_users(self, user_ids=[], active_only=True):
         """Update cached details for a list of users from PPMS.
 
         Get the user details on a list of users (or all active ones) from PPMS and store

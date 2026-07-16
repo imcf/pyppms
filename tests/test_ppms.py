@@ -228,7 +228,7 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     ppms_connection.get_users()
 
     logd("Adding users to the connection to avoid the requesting step")
-    ppms_connection.update_users(user_ids=testusers_logins)
+    ppms_connection.cache_update_users(user_ids=testusers_logins)
 
     logd("Asking the connection for the (pre-seeded / cached) users:")
     users = ppms_connection.get_users()
@@ -405,13 +405,18 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert len(systems) > 0
 
 
-def test_update_systems(ppms_connection, caplog):
-    """Test the get_systems() method."""
+def test_cache_update_systems(ppms_connection, caplog):
+    """Test the cache_update_systems() method.
+
+    This is done indirectly by switching to an empty cache and then calling the
+    `get_systems()` method which will trigger the `cache_update_systems()`
+    method if the PpmsConnection object has no systems stored.
+    """
     caplog.set_level(logging.DEBUG)
-    switch_cache_mocks(ppms_connection, "update_systems__broken_id")
+    switch_cache_mocks(ppms_connection, "cache_update_systems__uncached_id")
     assert len(ppms_connection.systems) == 0
     ppms_connection.get_systems()
-    # results should contain exaclty one system:
+    # results should contain exactly one system:
     assert len(ppms_connection.systems) == 1
 
 
@@ -669,7 +674,7 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
     - Copy over one of the cache directories provided with the tests.
     - Make sure the test-directory *does* contain a cache now.
     - Update the connection object's `cache_path` to point to the test location.
-    - Trigger the `flush_cache()` method.
+    - Trigger the `cache_flush()` method.
     - Verify the cache has been removed from the test-directory.
     """
     orig_cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_1")
@@ -685,7 +690,7 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
 
     ppms_connection.cache_path = fresh_cache_path
     log.info(f"Updated connection cache path: {fresh_cache_path}")
-    ppms_connection.flush_cache()
+    ppms_connection.cache_flush()
     log.info(f"Flushed connection cache path: {fresh_cache_path}")
     assert not os.path.exists(fresh_cache_path)
 
@@ -699,7 +704,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
     - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache provided
       with the tests.
     - Make sure the copied directories exist at the test-cache location.
-    - Trigger the `flush_cache(keep_users=True)` method.
+    - Trigger the `cache_flush(keep_users=True)` method.
     - Verify the subdirs in `to_keep` have been retained at the test-directory.
     - Verify the subdirs in `to_flush` have been removed from the test-directory.
     """
@@ -728,7 +733,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
         log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
-    ppms_connection.flush_cache(keep_users=True)
+    ppms_connection.cache_flush(keep_users=True)
 
     for subdir in to_keep:
         tgt_path = fresh_cache_path / subdir
@@ -743,7 +748,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
 
 @pytest.mark.online
 def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path):
-    """Test flush_cache() with `keep_users=True` and request a new user after.
+    """Test cache_flush() with `keep_users=True` and request a new user after.
 
     This test has a huge overlap to the `test_flush_cache__keep_users()` one
     (that works offline, unlike this one) with the main difference being that
@@ -758,7 +763,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     - Update the connection object's `cache_path` to point to the test location.
     - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache
       provided with the tests.
-    - Trigger the `flush_cache(keep_users=True)` method.
+    - Trigger the `cache_flush(keep_users=True)` method.
     - Simulate a new user in PPMS that is not yet cached locally:
       - Remove a specific file of previously cached user details from the
         `getuser` cache.
@@ -795,7 +800,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
         log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
-    ppms_connection.flush_cache(keep_users=True)
+    ppms_connection.cache_flush(keep_users=True)
 
     new_user_name = "pyppms-adm"  # simulated "new" user
     old_user_name = "pyppms"  # previously existing, cached user (preserved)

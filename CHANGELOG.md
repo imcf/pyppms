@@ -4,6 +4,22 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 4.0.0
+
+### 🧨 Breaking Changes
+
+The following methods have been renamed in order to make it explicit they are
+affecting the PyPPMS **cache** rather than the state of the corresponding
+objects in PPMS:
+
+- `pyppms.ppms.PpmsConnection.update_systems` is now called
+  `pyppms.ppms.PpmsConnection.cache_update_systems`.
+- `pyppms.ppms.PpmsConnection.update_users` got renamed to
+  `pyppms.ppms.PpmsConnection.cache_update_users`.
+- For consistency reasons `pyppms.ppms.PpmsConnection.flush_cache` was renamed
+  to `pyppms.ppms.PpmsConnection.cache_flush` such that all methods dealing with
+  the _cache state_ now start with the prefix `cache_`.
+
 ## 3.3.0
 
 ### Added
