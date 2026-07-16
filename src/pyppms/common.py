@@ -218,6 +218,7 @@ def fmt_time(time):
     Parameters
     ----------
     time : datetime.datetime or None
+        The datetime object to be formatted.
 
     Returns
     -------

@@ -7,7 +7,6 @@ from loguru import logger as log
 
 
 class PpmsSystem:
-
     """Object representing a bookable system in PPMS.
 
     Attributes
@@ -80,7 +79,7 @@ class PpmsSystem:
         #           schedules, active, stats, bookable, autonomy_required,
         #           autonomy_required_after_hours)
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105 (undocumented-magic-method)
         return (
             f"system_id: {self.system_id}, "
             f"name: {self.name}, "

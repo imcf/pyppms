@@ -6,7 +6,6 @@ from .common import dict_from_single_response
 
 
 class PpmsUser:
-
     """Object representing a user in PPMS.
 
     Attributes
@@ -75,5 +74,5 @@ class PpmsUser:
             f"active: {self.active}"
         )
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105 (undocumented-magic-method)
         return str(self.username)

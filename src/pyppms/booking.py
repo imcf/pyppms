@@ -8,7 +8,6 @@ from .common import time_rel_to_abs, fmt_time
 
 
 class PpmsBooking:
-
     """Object representing a booking (reservation) in PPMS.
 
     Attributes
@@ -151,7 +150,7 @@ class PpmsBooking:
         self.endtime = end
         log.trace("New endtime: {}", self)
 
-    def __str__(self):
+    def __str__(self):  # noqa: D105 (undocumented-magic-method)
         msg = (
             f"PpmsBooking(username=[{self.username}], "
             f"system_id=[{self.system_id}], "

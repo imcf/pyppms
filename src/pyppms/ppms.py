@@ -24,7 +24,6 @@ from .exceptions import NoDataError
 
 
 class PpmsConnection:
-
     """Connection object to communicate with a PPMS instance.
 
     Attributes
@@ -61,7 +60,7 @@ class PpmsConnection:
     """
 
     def __init__(self, url, api_key, timeout=10, cache="", cache_users_only=False):
-        """Constructor for the PPMS connection object.
+        """Create a PPMS connection object instance.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
         against it using the given API key (or use cache-only mode if key is an
@@ -179,7 +178,7 @@ class PpmsConnection:
         self.status["auth_state"] = "good"
 
     def request(self, action, parameters={}, skip_cache=False):
-        """Generic method to submit a request to PPMS and return the result.
+        """Submit a request to PPMS and return the result.
 
         This convenience method deals with adding the API key to a given
         request, submitting it to the PUMAPI and checking the response for some
@@ -309,7 +308,7 @@ class PpmsConnection:
 
         # pylint: disable-msg=too-few-public-methods
         class PseudoResponse:
-            """Dummy response object with attribs 'text' and 'status_code'."""
+            """Dummy object with attributes 'text' and 'status_code'."""
 
             def __init__(self, text, status_code):
                 self.text = text
@@ -488,7 +487,7 @@ class PpmsConnection:
         return PpmsBooking(response.text, booking_type, system_id)
 
     def get_current_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
+        """Call `get_booking()` with 'booking_type' set to 'get'."""
         return self.get_booking(system_id, "get")
 
     def get_group(self, group_id):
@@ -561,7 +560,7 @@ class PpmsConnection:
         return groups
 
     def get_next_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
+        """Call `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
 
     def get_running_sheet(
@@ -935,7 +934,9 @@ class PpmsConnection:
         return self.users
 
     def get_users_emails(self, users=None, active=False):
-        """Get a list of user email addresses. WARNING - very slow!
+        """Get a list of user email addresses.
+
+        🔥 **WARNING - very slow!** 🔥
 
         Parameters
         ----------
