@@ -1115,7 +1115,7 @@ class PpmsConnection:
 
         Parameters
         ----------
-        username : str
+        login : str
             The username ('login') to allow for booking the system.
         system_id : int or int-like
             The ID of the system to add the permission for.
