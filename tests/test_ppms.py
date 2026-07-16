@@ -527,7 +527,7 @@ def test_get_booking(ppms_connection, system_details_raw):
     ------
     RuntimeError
         Raised in case no booking in PPMS could be found so one can be created
-        manaully (the API doesn't provide a way to do this).
+        manually (the API doesn't provide a way to do this).
     """
     # test with a non-existing system ID:
     sys_id = 0

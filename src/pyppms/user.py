@@ -30,7 +30,7 @@ class PpmsUser:
         Parameters
         ----------
         response_text : str
-            The text returned by a PUMAP `getuser` call.
+            The text returned by a PUMAPI `getuser` call.
         """
         details = dict_from_single_response(response_text, graceful=True)
 
@@ -58,7 +58,7 @@ class PpmsUser:
         -------
         str
             The full name ("<LASTNAME> <GIVENNAME>") of the user in PPMS, or the
-            user accocunt name if the former one is empty.
+            user account name if the former one is empty.
         """
         if self._fullname == "":
             return self.username

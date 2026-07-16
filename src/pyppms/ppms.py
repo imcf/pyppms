@@ -570,7 +570,7 @@ class PpmsConnection:
         """Get the running sheet for a specific day on the given facility.
 
         The so-called "running-sheet" consists of all bookings / reservations of
-        a facility on a specifc day.
+        a facility on a specific day.
 
         WARNING: PUMAPI doesn't return a proper unique user identifier with the
         'getrunningsheet' request, instead the so called "full name" is given to
@@ -612,7 +612,7 @@ class PpmsConnection:
             return []
         except Exception as err:  # pylint: disable-msg=broad-except
             log.error("Parsing runningsheet details failed: {}", err)
-            log.trace("Runningsheet PUMPAI response was: >>>{}<<<", response.text)
+            log.trace("Runningsheet PUMAPI response was: >>>{}<<<", response.text)
             return []
 
         for entry in entries:
@@ -981,7 +981,7 @@ class PpmsConnection:
         Raises
         ------
         ValueError
-            Raised in case parsing the response failes for any reason.
+            Raised in case parsing the response fails for any reason.
         """
         users = []
 
