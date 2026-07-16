@@ -19,7 +19,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 - 🕛🌃 end time: `pyppms.booking.PpmsBooking.endtime_fromstr()` contained a bug
   where the end time of a booking finishing at midnight got wrongly assigned to
-  the *start* of the given day (instead of the end). This is now fixed by
+  the _start_ of the given day (instead of the end). This is now fixed by
   setting the end time to the start of the following day.
 
 ## 3.2.0
@@ -43,9 +43,9 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.booking.PpmsBooking.desc` has been added as a property to retrieve a
   shorter description of the object than calling `str()` on it.
 - `pyppms.exceptions.NoDataError` has been added to indicate a PUMAPI response
-  did *not* contain any useful data.
+  did _not_ contain any useful data.
 - `pyppms.common.parse_multiline_response()` will now raise the newly added
-  `NoDataError` in case the requested *runningsheet* for a day doesn't contain
+  `NoDataError` in case the requested _runningsheet_ for a day doesn't contain
   any bookings to allow for properly dealing with "empty" days.
 
 ### Changed
@@ -78,7 +78,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.ppms.PpmsConnection.update_users()` and
   `pyppms.ppms.PpmsConnection.get_users()` now both have an optional parameter
   `active_only` (defaulting to `True`) that can be used to also request users
-  that are marked as *inactive* in PPMS.
+  that are marked as _inactive_ in PPMS.
 
 ### Changed
 
@@ -95,7 +95,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.ppms.PpmsConnection.flush_cache()` to flush the on-disk cache with an
   optional argument `keep_users` (defaulting to `False`) that allows for
   flushing the entire cache **except** for the user **details**. This provides
-  the opportunity of refreshing the cache on everything but *existing* users.
+  the opportunity of refreshing the cache on everything but _existing_ users.
   Note that this will **not** affect **new** users, they will still be
   recognized and fetched from PUMAPI (and stored in the cache).
 
