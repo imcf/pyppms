@@ -38,7 +38,7 @@ class PpmsUser:
         self.email = str(details["email"])
         self.active = details["active"]
         self.ppms_group = details["unitlogin"]
-        self._fullname = f'{details["lname"]} {details["fname"]}'
+        self._fullname = f"{details['lname']} {details['fname']}"
 
         log.trace(
             "PpmsUser initialized: username=[{}], email=[{}], ppms_group=[{}], "
