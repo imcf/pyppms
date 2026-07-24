@@ -1,7 +1,5 @@
 """Common functions related to Stratocore's PPMS Utility Management API."""
 
-# pylint: disable-msg=fixme
-
 from datetime import datetime, timedelta
 import csv
 from io import StringIO
