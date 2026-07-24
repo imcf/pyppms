@@ -28,6 +28,7 @@ pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 pyyaml = "^6.0.3"
 ruff = "^0.16.0"
+ipython = "<9"
 
 [build-system]
 build-backend = "poetry_dynamic_versioning.backend"
