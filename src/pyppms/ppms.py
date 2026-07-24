@@ -415,6 +415,63 @@ class PpmsConnection:
             except Exception as ex:  # pylint: disable-msg=broad-except
                 log.warning("Removing the cache at [{}] failed: {}", directory, ex)
 
+    def cache_update_systems(self):
+        """Update cached details for all bookable systems from PPMS.
+
+        Get the details on all bookable systems from PPMS and store them in the local
+        cache. If parsing the PUMAPI response for a system fails for any reason, the
+        system is skipped entirely.
+        """
+        log.trace("Updating list of bookable systems...")
+        systems = {}
+        parse_fails = 0
+        response = self.request("getsystems")
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            try:
+                system = PpmsSystem(detail)
+            except ValueError as err:
+                log.error("Error processing `getsystems` response: {}", err)
+                parse_fails += 1
+                continue
+
+            systems[system.system_id] = system
+
+        log.trace(
+            "Updated {} bookable systems from PPMS ({} systems failed parsing)",
+            len(systems),
+            parse_fails,
+        )
+
+        self.systems = systems
+
+    def cache_update_users(self, user_ids=[], active_only=True):
+        """Update cached details for a list of users from PPMS.
+
+        Get the user details on a list of users (or all active ones) from PPMS and store
+        them in the object's `users` dict. As a side effect, this will also fill the
+        cache directory in case the object's `cache_path` attribute is set.
+
+        WARNING - very slow, especially when the PPMS instance has many users!
+
+        Parameters
+        ----------
+        user_ids : list(str), optional
+            A list of user IDs (login names) to request the cache for, by
+            default [] which will result in all *active* users to be requested.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
+        """
+        if not user_ids:
+            user_ids = self.get_user_ids(active=active_only)
+
+        log.trace("Updating details on {} users", len(user_ids))
+        for user_id in user_ids:
+            self.get_user(user_id, skip_cache=True)
+
+        log.debug("Collected details on {} users", len(self.users))
+
     def get_admins(self):
         """Get all PPMS administrator users.
 
@@ -1197,63 +1254,6 @@ class PpmsConnection:
             log.error("Unexpected response, assuming request failed: {}", response.text)
 
         return False
-
-    def cache_update_systems(self):
-        """Update cached details for all bookable systems from PPMS.
-
-        Get the details on all bookable systems from PPMS and store them in the local
-        cache. If parsing the PUMAPI response for a system fails for any reason, the
-        system is skipped entirely.
-        """
-        log.trace("Updating list of bookable systems...")
-        systems = {}
-        parse_fails = 0
-        response = self.request("getsystems")
-        details = parse_multiline_response(response.text, graceful=False)
-        for detail in details:
-            try:
-                system = PpmsSystem(detail)
-            except ValueError as err:
-                log.error("Error processing `getsystems` response: {}", err)
-                parse_fails += 1
-                continue
-
-            systems[system.system_id] = system
-
-        log.trace(
-            "Updated {} bookable systems from PPMS ({} systems failed parsing)",
-            len(systems),
-            parse_fails,
-        )
-
-        self.systems = systems
-
-    def cache_update_users(self, user_ids=[], active_only=True):
-        """Update cached details for a list of users from PPMS.
-
-        Get the user details on a list of users (or all active ones) from PPMS and store
-        them in the object's `users` dict. As a side effect, this will also fill the
-        cache directory in case the object's `cache_path` attribute is set.
-
-        WARNING - very slow, especially when the PPMS instance has many users!
-
-        Parameters
-        ----------
-        user_ids : list(str), optional
-            A list of user IDs (login names) to request the cache for, by
-            default [] which will result in all *active* users to be requested.
-        active_only : bool, optional
-            If set to `False` also "inactive" users will be fetched from PPMS,
-            by default `True`.
-        """
-        if not user_ids:
-            user_ids = self.get_user_ids(active=active_only)
-
-        log.trace("Updating details on {} users", len(user_ids))
-        for user_id in user_ids:
-            self.get_user(user_id, skip_cache=True)
-
-        log.debug("Collected details on {} users", len(self.users))
 
     def user_exists(self, login):
         """Check if an account with the given login name already exists in PPMS.
