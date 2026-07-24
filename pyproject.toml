@@ -50,17 +50,17 @@ markers = [
 # ]
 
 select = [
-    "D",
-    "D212",  # summary lines must be on the first physical line of the docstring
-    "D401",  # imperative mood for all docstrings
-    "D415",  # summary line has to end in a punctuation mark
-    "D417",  # require documentation for _all_ function parameters
+  "D",
+  "D212", # summary lines must be on the first physical line of the docstring
+  "D401", # imperative mood for all docstrings
+  "D415", # summary line has to end in a punctuation mark
+  "D417", # require documentation for _all_ function parameters
 ]
 
 ignore = [
-    "D202",  # no blank lines allowed after function docstring
-    ## D211 conflicts with ruff's formatting as of 2025-04-14, so don't use it:
-    # "D211",  # no blank lines allowed before class docstring
+  "D202", # no blank lines allowed after function docstring
+  ## D211 conflicts with ruff's formatting as of 2025-04-14, so don't use it:
+  # "D211",  # no blank lines allowed before class docstring
 ]
 
 
