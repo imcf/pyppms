@@ -11,10 +11,8 @@ FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M"
 FMT = f"{FMT_DATE} {FMT_TIME}"
 DAY = datetime.now().strftime(FMT_DATE)
-TIME_START = datetime.now().strftime(FMT_TIME)
-TIME_END = (datetime.now() + timedelta(minutes=45)).strftime(FMT_TIME)
-START = f"{DAY} {TIME_START}"
-END = f"{DAY} {TIME_END}"
+START = datetime.now().strftime(FMT)
+END = (datetime.now() + timedelta(minutes=45)).strftime(FMT)
 
 USERNAME = "ppmsuser"
 SYS_ID = "42"
