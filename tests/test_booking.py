@@ -28,7 +28,7 @@ def create_booking(
     system_id=SYS_ID,
     session_id=SESSION_ID,
 ):
-    """Helper function to create a PpmsBooking object with default values.
+    """Create a PpmsBooking object with default values.
 
     Returns
     -------
