@@ -85,12 +85,12 @@ def extend_raw_details(raw_details):
         and 'api_response'.
     """
     details = raw_details.copy()
-    details["fullname"] = f'{details["lname"]} {details["fname"]}'
+    details["fullname"] = f"{details['lname']} {details['fname']}"
     details["expected"] = (
-        f'username: {details["login"]}, '
-        f'email: {details["email"]}, '
-        f'fullname: {details["fullname"]}, '
-        f'ppms_group: {details["unitlogin"]}, '
+        f"username: {details['login']}, "
+        f"email: {details['email']}, "
+        f"fullname: {details['fullname']}, "
+        f"ppms_group: {details['unitlogin']}, "
         "active: True"
     )
 
