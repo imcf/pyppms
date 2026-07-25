@@ -104,7 +104,7 @@ def dict_from_single_response(text, graceful=True):
     return parsed
 
 
-def parse_multiline_response(text, graceful=True):
+def parse_multiline_response(text, graceful=True, use_pandas=True):
     """Parse a multi-line CSV response from PUMAPI.
 
     In the first attempt, pandas will be used for parsing the CSV as it provides
@@ -123,6 +123,9 @@ def parse_multiline_response(text, graceful=True):
         by default True. In graceful mode, any inconsistency detected in the
         data will be logged as a warning, in non-graceful mode they will raise
         an Exception.
+    use_pandas : bool, optional
+        May be used to skip the pandas-approach for parsing the response,
+        default is True.
 
     Returns
     -------
@@ -142,20 +145,21 @@ def parse_multiline_response(text, graceful=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
-    try:
-        log.trace("Trying the pandas approach on data...")
-        df = pd.read_csv(StringIO(text))
-        parsed = df.to_dict("records")
-        log.trace(f"Parsed {len(parsed)} datasets using pandas.")
-        if len(parsed) == 0:
-            log.debug(f"Response has no data: >>>{text}<<<")
-            if not graceful:
-                raise NoDataError("Invalid response format!")
-            return []
-        return parsed
+    if use_pandas:
+        try:
+            log.trace("Trying the pandas approach on data...")
+            df = pd.read_csv(StringIO(text))
+            parsed = df.to_dict("records")
+            log.trace(f"Parsed {len(parsed)} datasets using pandas.")
+            if len(parsed) == 0:
+                log.debug(f"Response has no data: >>>{text}<<<")
+                if not graceful:
+                    raise NoDataError("Invalid response format!")
+                return []
+            return parsed
 
-    except Exception as err:
-        log.debug(f"Failed via pandas, trying native approach: {err}")
+        except Exception as err:
+            log.debug(f"Failed via pandas, trying native approach: {err}")
 
     parsed = []
     try:
