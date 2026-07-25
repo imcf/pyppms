@@ -1,5 +1,9 @@
 """Tests for the PpmsUser class."""
 
+from pyppms.common import set_loglevel
+
+set_loglevel("TRACE")
+
 
 def test_user_details(user_details, ppms_user):
     """Test the PpmsUser constructor, __str__() and details()."""

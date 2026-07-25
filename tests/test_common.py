@@ -8,6 +8,8 @@ import pytest
 
 from pyppms import common
 
+common.set_loglevel("TRACE")
+
 
 def test_dict_from_single_response():
     """Test the two-line-response-to-dict converter."""

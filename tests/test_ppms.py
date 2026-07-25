@@ -15,9 +15,12 @@ import requests.exceptions
 from loguru import logger as log
 
 from pyppms import ppms
+from pyppms.common import set_loglevel
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69
+
+set_loglevel("TRACE")
 
 
 @pytest.fixture

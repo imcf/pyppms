@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import pytest
 
 from pyppms.booking import PpmsBooking
-from pyppms.common import time_rel_to_abs, parse_multiline_response
+from pyppms.common import time_rel_to_abs, parse_multiline_response, set_loglevel
+
+set_loglevel("TRACE")
 
 
 FMT_DATE = r"%Y-%m-%d"
