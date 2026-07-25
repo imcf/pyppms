@@ -21,6 +21,7 @@ repository = "https://github.com/imcf/pyppms"
 python = "^3.9"
 requests = "^2.31.0"
 loguru = "^0.7.0"
+pandas = "<3"
 
 [tool.poetry.group.dev.dependencies]
 pdoc = "^14.0.0"
