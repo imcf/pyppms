@@ -156,6 +156,8 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
         try:
             log.trace("Trying the pandas approach on data...")
             df = pd.read_csv(StringIO(text), skipinitialspace=True)
+            # convert 'Nan' to empty strings:
+            df = df.fillna("")
             parsed = df.to_dict("records")
             log.trace(f"Parsed {len(parsed)} datasets using pandas.")
             return parsed
