@@ -155,7 +155,7 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
     if use_pandas:
         try:
             log.trace("Trying the pandas approach on data...")
-            df = pd.read_csv(StringIO(text))
+            df = pd.read_csv(StringIO(text), skipinitialspace=True)
             parsed = df.to_dict("records")
             log.trace(f"Parsed {len(parsed)} datasets using pandas.")
             return parsed
