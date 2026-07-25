@@ -5,6 +5,8 @@ import sys
 from datetime import datetime, timedelta
 from io import StringIO
 
+import pandas as pd
+
 from loguru import logger as log
 
 from .exceptions import NoDataError
@@ -105,6 +107,11 @@ def dict_from_single_response(text, graceful=True):
 def parse_multiline_response(text, graceful=True):
     """Parse a multi-line CSV response from PUMAPI.
 
+    In the first attempt, pandas will be used for parsing the CSV as it provides
+    superior handling of all kinds of ill-formatted CSV (which is quite common
+    with PUMAPI). Only in case that fails, a "legacy" / native approach will be
+    used for parsing.
+
     Parameters
     ----------
     text : str
@@ -135,6 +142,21 @@ def parse_multiline_response(text, graceful=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
+    try:
+        log.trace("Trying the pandas approach on data...")
+        df = pd.read_csv(StringIO(text))
+        parsed = df.to_dict("records")
+        log.trace(f"Parsed {len(parsed)} datasets using pandas.")
+        if len(parsed) == 0:
+            log.debug(f"Response has no data: >>>{text}<<<")
+            if not graceful:
+                raise NoDataError("Invalid response format!")
+            return []
+        return parsed
+
+    except Exception as err:
+        log.debug(f"Failed via pandas, trying native approach: {err}")
+
     parsed = []
     try:
         lines = text.splitlines()
