@@ -1,7 +1,7 @@
 """Common functions related to Stratocore's PPMS Utility Management API."""
 
-from datetime import datetime, timedelta
 import csv
+from datetime import datetime, timedelta
 from io import StringIO
 
 from loguru import logger as log
