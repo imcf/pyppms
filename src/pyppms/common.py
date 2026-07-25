@@ -155,6 +155,18 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
     if use_pandas:
         try:
             log.trace("Trying the pandas approach on data...")
+            # sanity checking first:
+            header = pd.read_csv(StringIO(lines[0]))
+            log.trace(f"Header columns: {len(header.columns)}")
+            body = pd.read_csv(StringIO(lines[1:]))
+            log.trace(f"Body columns: {len(body.columns)}")
+            if len(header.columns) != len(body.columns):
+                msg = "Parsing CSV failed, mismatch of header vs. data fields count"
+                log.warning(f"{msg} ({len(header.columns)} vs. {len(body.columns)})")
+                if not graceful:
+                    raise ValueError(msg)
+
+            # now do the real parsing:
             df = pd.read_csv(StringIO(text), skipinitialspace=True)
             # NOTE: using 'true_values' and 'false_values' for the read_csv()
             # call above doesn't seem to be working for unknown reasons, so we
