@@ -46,7 +46,7 @@ def test_ppmsbooking():
     assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being an int
-    booking = create_booking(system_id=42)
+    booking = create_booking(system_id="42")
     assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being something not int-like
