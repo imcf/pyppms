@@ -1,6 +1,7 @@
 """Common functions related to Stratocore's PPMS Utility Management API."""
 
 import csv
+import sys
 from datetime import datetime, timedelta
 from io import StringIO
 
@@ -226,3 +227,17 @@ def fmt_time(time):
     if time is None:
         return "===UNDEFINED==="
     return datetime.strftime(time, "%Y-%m-%d %H:%M")
+
+
+def set_loglevel(level: str) -> None:
+    """Set the logging level.
+
+    Parameters
+    ----------
+    level : str
+        The desired [logging level][loguru_levels].
+
+    [loguru_levels]: https://loguru.readthedocs.io/en/stable/api/logger.html
+    """
+    log.remove()  # remove the default handler
+    log.add(sys.stderr, level=level)
