@@ -144,12 +144,15 @@ def parse_multiline_response(text, graceful=True):
                 raise NoDataError("Invalid response format!")
             return []
 
+        log.trace(f"Raw header: {lines[0]}")
         header = lines[0].split(",")
         for i, entry in enumerate(header):
             header[i] = entry.strip()
+        log.trace(f"Number of header fields: {len(header)}")
 
         lines_max = lines_min = len(header)
         for line in lines[1:]:
+            log.trace(f"Raw line: {line}")
             data = line.split(",")
             process_response_values(data)
             lines_max = max(lines_max, len(data))
