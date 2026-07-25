@@ -156,6 +156,11 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
         try:
             log.trace("Trying the pandas approach on data...")
             df = pd.read_csv(StringIO(text), skipinitialspace=True)
+            # NOTE: using 'true_values' and 'false_values' for the read_csv()
+            # call above doesn't seem to be working for unknown reasons, so we
+            # have to map them explicitly here:
+            map_booleans = {"true": True, "false": False}
+            df = df.replace(map_booleans)
             # convert 'Nan' to empty strings:
             df = df.fillna("")
             parsed = df.to_dict("records")
