@@ -161,9 +161,9 @@ def test_runningsheet(
     d_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     d_end = d_start + timedelta(days=1)
 
-    print(fullname_mapping)
-    print(runningsheet_response)
-    print(systemname_mapping)
+    print(f"fullname_mapping: {fullname_mapping}")
+    print(f"runningsheet_response: {runningsheet_response}")
+    print(f"systemname_mapping: {systemname_mapping}")
     parsed = parse_multiline_response(runningsheet_response)
     for entry in parsed:
         booking = PpmsBooking.from_runningsheet(
