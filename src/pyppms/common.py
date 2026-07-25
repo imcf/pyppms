@@ -145,17 +145,19 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
+    lines = text.splitlines()
+    if len(lines) < 2:
+        log.debug(f"Response has less than TWO lines: >>>{text}<<<")
+        if not graceful:
+            raise NoDataError("Invalid response format!")
+        return []
+
     if use_pandas:
         try:
             log.trace("Trying the pandas approach on data...")
             df = pd.read_csv(StringIO(text))
             parsed = df.to_dict("records")
             log.trace(f"Parsed {len(parsed)} datasets using pandas.")
-            if len(parsed) == 0:
-                log.debug(f"Response has no data: >>>{text}<<<")
-                if not graceful:
-                    raise NoDataError("Invalid response format!")
-                return []
             return parsed
 
         except Exception as err:
@@ -163,13 +165,6 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
 
     parsed = []
     try:
-        lines = text.splitlines()
-        if len(lines) < 2:
-            log.debug(f"Response has less than TWO lines: >>>{text}<<<")
-            if not graceful:
-                raise NoDataError("Invalid response format!")
-            return []
-
         log.trace(f"Raw header: {lines[0]}")
         header = lines[0].split(",")
         for i, entry in enumerate(header):
