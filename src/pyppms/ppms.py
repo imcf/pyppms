@@ -20,6 +20,7 @@ from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
 from .system import PpmsSystem
 from .booking import PpmsBooking
+from .project import PpmsProject
 from .exceptions import NoDataError
 
 
@@ -49,6 +50,11 @@ class PpmsConnection:
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
         :py:meth:`get_user()` method.
+    projects
+        A dict with project IDs as keys, mapping to the related
+        :py:class:`pyppms.system.PpmsProject` object. Serves as a cache during the
+        object's lifetime (can be empty if no calls to the :py:meth:`get_projects()` have
+        been done yet).
     systems
         A dict with system IDs as keys, mapping to the related
         :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during the
@@ -101,6 +107,7 @@ class PpmsConnection:
         self.timeout = timeout
         self.users = {}
         self.fullname_mapping = {}
+        self.projects = {}
         self.systems = {}
         self.status = {
             "auth_state": "NOT_TRIED",
@@ -415,6 +422,29 @@ class PpmsConnection:
             except Exception as ex:  # pylint: disable-msg=broad-except
                 log.warning("Removing the cache at [{}] failed: {}", directory, ex)
 
+    def cache_update_projects(self):
+        """Update cached details for all projects from PPMS."""
+        log.trace("Updating list of projects...")
+        projects = {}
+        fails = 0
+        response = self.request("getprojects")
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            try:
+                project = PpmsProject(detail)
+            except ValueError as err:
+                log.error("Error processing `getprojects` response: {}", err)
+                fails += 1
+                continue
+
+            projects[project.id] = project
+
+        log.trace(
+            f"Updated {len(projects)} projects from PPMS ({fails} failed parsing)",
+        )
+
+        self.projects = projects
+
     def cache_update_systems(self):
         """Update cached details for all bookable systems from PPMS.
 
@@ -619,6 +649,30 @@ class PpmsConnection:
     def get_next_booking(self, system_id):
         """Call `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
+
+    def get_projects(self, force_refresh=False):
+        """Get a dict with all projects in PPMS.
+
+        Parameters
+        ----------
+        force_refresh : bool, optional
+            If `True` the list of projects will be refreshed even if the object's
+            attribute `self.projects` is non-empty, by default `False`. Please
+            note that this will NOT skip the on-disk cache in case that exists!
+
+        Returns
+        -------
+        dict(pyppms.system.PpmsProject)
+            A dict with `PpmsProject` objects parsed from the PUMAPI response
+            where the project ID (int) is used as the dict's key. If parsing a
+            project fails for any reason, the project is skipped entirely.
+        """
+        if self.projects and not force_refresh:
+            log.trace("Using cached details for {} projects", len(self.projects))
+        else:
+            self.cache_update_projects()
+
+        return self.projects
 
     def get_running_sheet(
         self, core_facility_ref, date, ignore_uncached_users=False, localisation=""
