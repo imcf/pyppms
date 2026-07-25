@@ -139,7 +139,7 @@ def parse_multiline_response(text, graceful=True):
     try:
         lines = text.splitlines()
         if len(lines) < 2:
-            log.debug("Response has less than TWO lines: >>>{}<<<", text)
+            log.debug(f"Response has less than TWO lines: >>>{text}<<<")
             if not graceful:
                 raise NoDataError("Invalid response format!")
             return []
@@ -159,16 +159,16 @@ def parse_multiline_response(text, graceful=True):
             lines_min = min(lines_min, len(data))
             if len(header) != len(data):
                 msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-                log.warning("{} ({} vs. {})", msg, len(header), len(data))
+                log.warning(f"{msg} ({len(header)} vs. {len(data)})")
                 if not graceful:
                     raise ValueError(msg)
 
                 minimum = min(len(header), len(data))
                 if minimum < len(header):
-                    log.warning("Discarding header-fields: {}", header[minimum:])
+                    log.warning(f"Discarding header-fields: {header[minimum:]}")
                     header = header[:minimum]
                 else:
-                    log.warning("Discarding data-fields: {}", data[minimum:])
+                    log.warning(f"Discarding data-fields: {data[minimum:]}")
                     data = data[:minimum]
 
             details = dict(zip(header, data))
