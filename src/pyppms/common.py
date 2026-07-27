@@ -28,8 +28,6 @@ def process_response_values(values):
     None
         Nothing is returned, the list's element are processed in-place.
     """
-    # tell pylint that there is no real gain using enumerate here:
-    # pylint: disable-msg=consider-using-enumerate
     for i in range(len(values)):
         values[i] = values[i].strip('"')
         if values[i] == "true":

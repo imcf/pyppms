@@ -1,7 +1,5 @@
 """Tests for the 'ppms.common' module."""
 
-# pylint: disable-msg=len-as-condition
-
 from datetime import datetime, timedelta
 
 import pytest

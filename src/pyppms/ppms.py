@@ -1,13 +1,5 @@
 """Core connection module for the PUMAPI communication."""
 
-# pylint: disable-msg=dangerous-default-value
-
-# NOTE: the "pyppms" package is simply a wrapper for the existing API, so we can't make
-#       any design decisions here - hence it is pointless to complain about the number
-#       of instance attributes, public methods or other stuff:
-# pylint: disable-msg=too-many-instance-attributes
-# pylint: disable-msg=too-many-public-methods
-
 import os
 import os.path
 import shutil
@@ -313,7 +305,6 @@ class PpmsConnection:
             the request parameters could be found in the cache.
         """
 
-        # pylint: disable-msg=too-few-public-methods
         class PseudoResponse:
             """Dummy object with attributes 'text' and 'status_code'."""
 

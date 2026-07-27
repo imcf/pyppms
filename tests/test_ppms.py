@@ -1,8 +1,5 @@
 """Tests for the 'ppms' module."""
 
-# pylint: disable-msg=fixme
-# pylint: disable-msg=protected-access
-
 import logging
 import os.path
 from datetime import datetime

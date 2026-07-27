@@ -2,9 +2,6 @@
 
 """Example code on how to use the 'pyppms' package."""
 
-# pylint: disable-msg=multiple-imports
-# pylint: disable-msg=wrong-import-order
-
 import datetime
 import pyppms, pyppmsconf
 
