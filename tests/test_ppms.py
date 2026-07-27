@@ -220,13 +220,20 @@ def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
         ppms_connection.get_user("invalidlogin")
 
 
-def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
-    """Test the get_users() method."""
+def test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=True):  # noqa: D417
+    """Test the get_users() method.
+
+    Parameters
+    ----------
+    use_cache : bool, optional
+        Explicitly request the connection object to use the **on-disk** cache
+        when populating the instance's `users` dict.
+    """
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
 
     # prevent cache_update_users() from ignoring the on-disk cache:
-    ppms_connection.__use_cache_testing__ = True
+    ppms_connection.__use_cache_testing__ = use_cache
 
     logd(
         "Requesting users without pre-seeding the connection (WARNING: very "
