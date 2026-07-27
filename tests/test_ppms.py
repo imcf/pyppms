@@ -265,6 +265,16 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=True):
 
 
 @pytest.mark.online
+def test_get_users__online(ppms_connection, ppms_user, ppms_user_admin):
+    """Run test_get_users() in *online* mode.
+
+    This is a plain wrapper to run the same tests without requesting the on-disk
+    cache to be used during the `get_user()` call.
+    """
+    test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=False)
+
+
+@pytest.mark.online
 def test_get_user__skip_cache(caplog, ppms_connection, ppms_user):
     """Test if the `skip_cache` parameter has the desired effect.
 
