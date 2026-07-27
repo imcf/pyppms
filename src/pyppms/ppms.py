@@ -112,6 +112,16 @@ class PpmsConnection:
         self.last_served_from_cache = False
         """True if the last request was served from the on-disk cache."""
 
+        self.__use_cache_testing__ = False
+        """Internal flag intended for running unit-tests only.
+
+        Can be set to True in order to modify the behavior of **on-disk** cache
+        related methods like `cache_update_users()` such that it reads user
+        details from disk.
+
+        **DO NOT USE IN PRODUCTION!**
+        """
+
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
         if api_key != "":
@@ -487,8 +497,12 @@ class PpmsConnection:
             user_ids = self.get_user_ids(active=active_only)
 
         log.trace("Updating details on {} users", len(user_ids))
+
+        # use on-disk cache if requested e.g. for unit-tests:
+        skip_cache = True if not self.__use_cache_testing__ else False
+
         for user_id in user_ids:
-            self.get_user(user_id, skip_cache=True)
+            self.get_user(user_id, skip_cache=skip_cache)
 
         log.debug("Collected details on {} users", len(self.users))
 
