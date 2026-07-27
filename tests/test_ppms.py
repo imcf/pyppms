@@ -225,6 +225,9 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
 
+    # prevent cache_update_users() from ignoring the on-disk cache:
+    ppms_connection.__use_cache_testing__ = True
+
     logd(
         "Requesting users without pre-seeding the connection (WARNING: very "
         "time-consuming when no cache is present!)"
