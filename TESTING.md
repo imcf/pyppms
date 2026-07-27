@@ -188,7 +188,7 @@ the `git diff` of a file while discarding all lines that were added to it (as th
 specific to your instance):
 
 ```bash
-filternew() {
+filter_new() {
     git diff --no-color "$1" | grep -v '^+' | tail -n +5
 }
 ```
@@ -198,11 +198,11 @@ users and admins). Run the command and compare the output that is expected to lo
 shown here:
 
 ```bash
-filternew "tests/cached_responses/stage_0/getusers/active--true.txt"
+filter_new "tests/cached_responses/stage_0/getusers/active--true.txt"
  pyppms
  pyppms-adm
 
-filternew "tests/cached_responses/stage_0/getadmins/response.txt"
+filter_new "tests/cached_responses/stage_0/getadmins/response.txt"
  pyppms-adm
 ```
 
@@ -224,28 +224,28 @@ poetry run pytest --online
 Then, check the remaining re-created cache files for their content:
 
 ```bash
-filternew "tests/cached_responses/stage_0/getusers/response.txt"
+filter_new "tests/cached_responses/stage_0/getusers/response.txt"
  pyppms
  pyppms-adm
  pyppms-deact
 
-filternew "tests/cached_responses/stage_0/getgroups/response.txt"
+filter_new "tests/cached_responses/stage_0/getgroups/response.txt"
  pyppms_group
 
-filternew "tests/cached_responses/stage_0/getsysrights/id--*"
+filter_new "tests/cached_responses/stage_0/getsysrights/id--*"
  A:pyppms
  A:pyppms-adm
  D:pyppms-deact
  S:pyppms-adm
 
-filternew "tests/cached_responses/stage_1/getsysrights/id--*"
+filter_new "tests/cached_responses/stage_1/getsysrights/id--*"
  D:pyppms
  A:pyppms-adm
  D:pyppms-deact
  S:pyppms-adm
 
 
-filternew "tests/cached_responses/stage_2/getsysrights/id--*"
+filter_new "tests/cached_responses/stage_2/getsysrights/id--*"
  D:pyppms
  A:pyppms-adm
  D:pyppms-deact
@@ -256,11 +256,11 @@ Do the same for the systems and user experience responses, taking into account t
 system ID will differ in your case, those lines will then show as missing in the diff:
 
 ```bash
-filternew "tests/cached_responses/stage_0/getsystems/response.txt"
+filter_new "tests/cached_responses/stage_0/getsystems/response.txt"
  Core facility ref,System id,Type,Name,Localisation,Active,Schedules,Stats,Bookable,Autonomy Required,Autonomy Required After Hours
  2,69,"Virtualized Workstation","Python Development System","VDI (Development)",True,True,True,True,True,False
 
-filternew "tests/cached_responses/stage_0/getuserexp/response.txt"
+filter_new "tests/cached_responses/stage_0/getuserexp/response.txt"
  login,id,booked_hours,used_hours,last_res,last_train
  "pyppms",69,0,0,n/a,n/a
  "pyppms-adm",69,0,0,n/a,n/a
@@ -272,7 +272,7 @@ the two additional lines for the remaining time and the session, so the result s
 look something like this:
 
 ```bash
-filternew "tests/cached_responses/stage_0/nextbooking/id--*"
+filter_new "tests/cached_responses/stage_0/nextbooking/id--*"
  pyppms
 -303520
 -31432
