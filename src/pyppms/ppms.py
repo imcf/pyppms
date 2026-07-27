@@ -36,25 +36,26 @@ class PpmsConnection:
         Indicates if the last request was served from the cache or on-line.
     users : dict
         A dict with usernames as keys, mapping to the related
-        :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the object's
-        lifetime (can be empty if no calls to :py:meth:`get_user()` have been done yet).
+        :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the
+        object's lifetime (can be empty if no calls to :py:meth:`get_user()`
+        have been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
         :py:meth:`get_user()` method.
     projects
         A dict with project IDs as keys, mapping to the related
-        :py:class:`pyppms.system.PpmsProject` object. Serves as a cache during the
-        object's lifetime (can be empty if no calls to the :py:meth:`get_projects()` have
-        been done yet).
+        :py:class:`pyppms.system.PpmsProject` object. Serves as a cache during
+        the object's lifetime (can be empty if no calls to the
+        :py:meth:`get_projects()` have been done yet).
     systems
         A dict with system IDs as keys, mapping to the related
-        :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during the
-        object's lifetime (can be empty if no calls to the :py:meth:`get_systems()` have
-        been done yet).
+        :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during
+        the object's lifetime (can be empty if no calls to the
+        :py:meth:`get_systems()` have been done yet).
     status : dict
         A dict with keys ``auth_state``, ``auth_response`` and
-        ``auth_httpstatus``
+        ``auth_httpstatus``.
     """
 
     def __init__(self, url, api_key, timeout=10, cache="", cache_users_only=False):
@@ -109,7 +110,7 @@ class PpmsConnection:
         self.cache_path = cache
         self.cache_users_only = cache_users_only
         self.last_served_from_cache = False
-        """Indicates if the last request was served from the cache or on-line."""
+        """True if the last request was served from the on-disk cache."""
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
@@ -191,9 +192,9 @@ class PpmsConnection:
             A dictionary with additional parameters to be submitted with the
             request.
         skip_cache : bool, optional
-            If set to True the request will NOT be served from the local cache,
-            independent whether a matching response file exists there, by
-            default False.
+            If set to True the request will NOT be served from the local
+            **on-disk** cache, independent whether a matching response file
+            exists there, by default False.
 
         Returns
         -------
@@ -466,9 +467,10 @@ class PpmsConnection:
     def cache_update_users(self, user_ids=[], active_only=True):
         """Update cached details for a list of users from PPMS.
 
-        Get the user details on a list of users (or all active ones) from PPMS and store
-        them in the object's `users` dict. As a side effect, this will also fill the
-        cache directory in case the object's `cache_path` attribute is set.
+        Get the user details on a list of users (or all active ones) from PPMS
+        and store them in the object's `users` dict. As a side effect, this will
+        also fill the cache directory in case the object's `cache_path`
+        attribute is set.
 
         WARNING - very slow, especially when the PPMS instance has many users!
 
@@ -1040,7 +1042,8 @@ class PpmsConnection:
         ----------
         force_refresh : bool, optional
             Re-request information from PPMS even if user details have been
-            cached locally before, by default False.
+            cached in the PpmsConnection *instance* before, by default False.
+            **IMPORTANT:** this is **unrelated** to the *on-disk* cache!
         active_only : bool, optional
             If set to `False` also "inactive" users will be fetched from PPMS,
             by default `True`.
