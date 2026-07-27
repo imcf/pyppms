@@ -594,7 +594,7 @@ def test_get_booking(ppms_connection, system_details_raw):
         ppms_connection.get_booking(sys_id, booking_type="invalid")
 
 
-def test_get_running_sheet(ppms_connection, system_details_raw):
+def test_get_running_sheet(ppms_connection, system_details_raw, ppms_user):
     """Test the `get_running_sheet` method.
 
     As it is currently impossible to create bookings through PUMAPI, we need to rely on
@@ -653,6 +653,9 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     day = datetime.strptime(date, r"%Y-%m-%d")
 
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
     logd("Testing runningsheet details for {}", date)
     for booking in ppms_connection.get_running_sheet("2", date=day):
         assert booking.system_id == int(system_details_raw["System id"])
@@ -664,6 +667,8 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     logd("Testing fullname that cannot be mapped to a user")
     switch_cache_mocks(ppms_connection, "runningsheet_single_unknown_fullname")
+    # force using the on-disk cache / mocks:
+    ppms_connection.__use_cache_testing__ = True
     assert len(ppms_connection.get_running_sheet("2", date=day)) == 2
 
 
