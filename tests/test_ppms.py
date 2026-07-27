@@ -591,12 +591,12 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     # use the start times to assemble a list of datetime tuples with start and end time
     # of the sessions on that day:
     sessions = []
-    for shour in sessions_start:
-        ehour = shour + 1
+    for hour_s in sessions_start:
+        hour_e = hour_s + 1
         sessions.append(
             [
-                datetime.strptime(f"{date}T{shour}", r"%Y-%m-%dT%H"),
-                datetime.strptime(f"{date}T{ehour}", r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{hour_s}", r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{hour_e}", r"%Y-%m-%dT%H"),
             ]
         )
     # hard-coding the list would look like this:
