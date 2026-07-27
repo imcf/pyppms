@@ -1054,7 +1054,7 @@ class PpmsConnection:
             A dict of PpmsUser objects with the username (login) as key.
         """
         if self.users and not force_refresh:
-            log.trace("Using cached details for {} users", len(self.users))
+            log.trace(f"Using instance-cache for details on {len(self.users)} users")
         else:
             self.cache_update_users(active_only=active_only)
 
