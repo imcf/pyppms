@@ -55,8 +55,11 @@ def switch_cache_post_change(conn, suffix):
 
     Parameters
     ----------
-    conn : PpmsConnection
+    conn : ppms.PpmsConnection
+        The PPMS connection object.
     suffix : str (or str-like)
+        The suffix used to distinguish the different stages, usually an index
+        number like `"1"` or similar.
     """
     new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{suffix}")
     log.debug("Switching response cache path to reflect a PPMS status change.")
@@ -72,7 +75,8 @@ def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
 
     Parameters
     ----------
-    conn : PpmsConnection
+    conn : ppms.PpmsConnection
+        The PPMS connection object.
     mocktype : str
         Used to distinguish various types of mocks, e.g. ``key_error`` for responses
         that will trigger a `KeyError` exception in *pyppms*.
@@ -86,7 +90,7 @@ def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
 
 
 def logd(msg, *args):
-    """Simple logging wrapper for log messages from test functions."""
+    """Log a DEBUG level message (simple shorthand / wrapper)."""
     log.debug("\n>>> " + msg, *args)
 
 
