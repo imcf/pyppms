@@ -30,7 +30,7 @@ EXPECTED = (
 
 
 def create_system(system_id=SYS_ID):
-    """Helper function to create a PpmsSystem object with default values.
+    """Create a PpmsSystem object with default values.
 
     Returns
     -------

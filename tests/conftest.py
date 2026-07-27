@@ -25,6 +25,7 @@ def caplog(caplog: LogCaptureFixture):
     Parameters
     ----------
     caplog : LogCaptureFixture
+        The built-in caplog logging fixture.
 
     Yields
     ------
@@ -142,13 +143,13 @@ def user_admin_details_raw():
 
 @pytest.fixture(scope="module")
 def user_details(user_details_raw):
-    """A dict with extended user details."""
+    """A dict with extended user details."""  # noqa: D401
     return extend_raw_details(user_details_raw)
 
 
 @pytest.fixture(scope="module")
 def user_admin_details(user_admin_details_raw):
-    """A dict with extended administrator user details."""
+    """A dict with extended administrator user details."""  # noqa: D401
     return extend_raw_details(user_admin_details_raw)
 
 
