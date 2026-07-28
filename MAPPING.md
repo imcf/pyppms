@@ -5,6 +5,9 @@ Assuming you have instantiated a connection object like:
 ```Python
 import pyppmsconf
 from pyppms import ppms
+from pyppms.common import set_loglevel
+
+set_loglevel("TRACE")
 
 conn = ppms.PpmsConnection(
         url=pyppmsconf.PYPPMS_URI,
