@@ -10,6 +10,7 @@ from loguru import logger as log
 
 from .common import dict_from_single_response, parse_multiline_response
 from .user import PpmsUser
+from .group import PpmsGroup
 from .system import PpmsSystem
 from .booking import PpmsBooking
 from .project import PpmsProject
@@ -582,18 +583,17 @@ class PpmsConnection:
         return self.get_booking(system_id, "get")
 
     def get_group(self, group_id):
-        """Fetch group details from PPMS and create a dict from them.
+        """Fetch group details from PPMS.
 
         Parameters
         ----------
         group_id : str
-            The group's identifier in PPMS, called 'unitlogin' there.
+            The group's identifier in PPMS, called `unitlogin` there.
 
         Returns
         -------
-        dict
-            A dict with the group details, keys being derived from the header
-            line of the PUMAPI response, values from the data line.
+        pyppms.group.PpmsGroup
+            A PpmsGroup instance with the group details.
         """
         response = self.request("getgroup", {"unitlogin": group_id})
         log.trace("Group details returned by PPMS (raw): {}", response.text)
@@ -603,10 +603,13 @@ class PpmsConnection:
             log.error(msg)
             raise KeyError(msg)
 
-        details = dict_from_single_response(response.text)
+        group = PpmsGroup(response.text)
+        return group
 
-        log.trace("Details of group {}: {}", group_id, details)
-        return details
+        # details = dict_from_single_response(response.text)
+
+        # log.trace("Details of group {}: {}", group_id, details)
+        # return details
 
     def get_group_users(self, unitlogin):
         """Get all members of a group in PPMS.

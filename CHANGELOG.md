@@ -8,6 +8,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### 🧨 Breaking Changes
 
+- **🎭 Changed return type**: `pyppms.ppms.PpmsConnection.get_group()` now
+  returns a `pyppms.group.PpmsGroup` object instead of a dict.
 - **🚚 Renamed methods**: The following methods have been renamed in order to make
   it explicit they are affecting the PyPPMS **cache** rather than the state of
   the corresponding objects in PPMS:
