@@ -642,7 +642,7 @@ class PpmsConnection:
         Returns
         -------
         list(str)
-            A list with the group identifiers in PPMS.
+            A list with the group identifiers (`unitlogin`) in PPMS.
         """
         response = self.request("getgroups")
 
