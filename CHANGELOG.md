@@ -20,6 +20,14 @@ objects in PPMS:
   to `pyppms.ppms.PpmsConnection.cache_flush` such that all methods dealing with
   the _cache state_ now start with the prefix `cache_`.
 
+### 🚀 Improved
+
+- `pyppms.ppms.PpmsUser` got extended by the following attributes (in brackets
+  the name of the respective field in the PUMAPI response, in case it differs):
+  - `phone`
+  - `billing_code` (PPMS field `bcode`)
+  - `affiliation`
+
 ## 3.3.0
 
 ### Added

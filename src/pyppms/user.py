@@ -14,11 +14,18 @@ class PpmsUser:
         The user's account / login name in PPMS.
     email : str
         The user's email address.
+    phone :str
+        The user's phone number.
+    billing_code : str
+        The user's billing code (`bcode`). Note that billing codes in PPMS exist
+        at three levels: project, user, group (with descending priority).
     fullname : str
         The full name ("``<LASTNAME> <GIVENNAME>``") of the user in PPMS, falling back
         to the ``username`` attribute if empty.
     ppms_group : str
         The user's PPMS group, may be empty ("").
+    affiliation : str
+        The user's affiliation (institute, ...).
     active : bool
         The ``active`` state of the user account in PPMS, by default True.
     """
@@ -35,15 +42,19 @@ class PpmsUser:
 
         self.username = str(details["login"])
         self.email = str(details["email"])
+        self.phone = str(details["phone"])
+        self.billing_code = str(details["bcode"])
+        self.affiliation = str(details["affiliation"])
         self.active = details["active"]
         self.ppms_group = details["unitlogin"]
         self._fullname = f"{details['lname']} {details['fname']}"
 
         log.trace(
-            "PpmsUser initialized: username=[{}], email=[{}], ppms_group=[{}], "
-            "fullname=[{}], active=[{}]",
+            "PpmsUser initialized: username=[{}], email=[{}], billing_code=[{}], "
+            "ppms_group=[{}], fullname=[{}], active=[{}]",
             self.username,
             self.email,
+            self.billing_code,
             self.ppms_group,
             self._fullname,
             self.active,
