@@ -22,11 +22,15 @@ objects in PPMS:
 
 ### 🚀 Improved
 
-- `pyppms.ppms.PpmsUser` got extended by the following attributes (in brackets
+- `pyppms.user.PpmsUser` got extended by the following attributes (in brackets
   the name of the respective field in the PUMAPI response, in case it differs):
   - `phone`
   - `billing_code` (PPMS field `bcode`)
   - `affiliation`
+
+### ✨ Added
+
+- `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
 
 ## 3.3.0
 
