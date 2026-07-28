@@ -100,3 +100,25 @@ class PpmsGroup:
 
     def __str__(self):  # noqa: D105 (undocumented-magic-method)
         return str(self.gid)
+
+    def __eq__(self, other) -> bool:  # noqa: D105 (undocumented-magic-method)
+        if not isinstance(other, PpmsGroup):
+            return False
+        if other is None:
+            return False
+
+        return (
+            self.gid == other.gid
+            and self.name == other.name
+            and self.head_name == other.head_name
+            and self.head_email == other.head_email
+            and self.billing_code == other.billing_code
+            and self.department == other.department
+            and self.institution == other.institution
+            and self.address == other.address
+            and self.affiliation == other.affiliation
+            and self.external == other.external
+            and self.active == other.active
+            and self.admin_name == other.admin_name
+            and self.admin_email == other.admin_email
+        )
