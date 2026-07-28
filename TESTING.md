@@ -96,8 +96,8 @@ SKIPPED [1] tests/test_ppms.py:108: need --online option to run
 
 To run those tests requiring access to a real PUMAPI instance in addition to the default
 ones, simply add the `--online` flag to the `pytest` command above. Obviously you will
-need to have valid settings for `PUMAPI_URL` and `PPMS_API_KEY` in the config file used
-for testing.
+need to have valid settings for `PYPPMS_URI` and `PYPPMS_API_KEY` in the config file
+used for testing.
 
 Please note that this will still run the majority of tests using the cached / mocked
 responses!
