@@ -196,11 +196,10 @@ def test_get_groups(ppms_connection):
 
 def test_get_group(ppms_connection, group_details):
     """Test fetching details of a specific group."""
-    print(f"Expected dict data (subset): {group_details}")
-    details = ppms_connection.get_group("pyppms_group")
-    print(f"Retrieved dict data: {details}")
-    for key in group_details.keys():
-        assert group_details[key] == details[key]
+    print(f"Expected group data: {group_details}")
+    fetched_details = ppms_connection.get_group("pyppms_group")
+    print(f"Retrieved group data: {fetched_details}")
+    assert group_details == fetched_details
 
     with pytest.raises(KeyError):
         ppms_connection.get_group("invalid-unitlogin")

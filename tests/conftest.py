@@ -7,9 +7,10 @@ import pytest
 from loguru import logger
 from _pytest.logging import LogCaptureFixture
 
-from ppms_values import values
+from ppms_values import values, api_response_getgroup
 
 from pyppms.user import PpmsUser
+from pyppms.group import PpmsGroup
 
 
 __PPMS_VALUES__ = values()
@@ -193,13 +194,14 @@ def ppms_user_admin(user_admin_details):
 
 @pytest.fixture(scope="module")
 def group_details():
-    """Provide a dict with default group details.
+    """Provide a PpmsGroup object with default group details.
 
     Returns
     -------
-    dict
+    PpmsGroup
     """
-    return __PPMS_VALUES__["group"]
+    response = api_response_getgroup(__PPMS_VALUES__["group"])
+    return PpmsGroup(response)
 
 
 ### system detail dicts ###
