@@ -13,10 +13,13 @@ This is a Python 3 package for talking to the *PUMAPI*.
 Fetch email addresses of all active users:
 
 ```Python
+from pyppmsconf import PYPPMS_URI, PYPPMS_API_KEY
 from pyppms import ppms
-from credentials_ppms import PPMS_URL, PPMS_API_KEY
+from pyppms.common import set_loglevel
 
-conn = ppms.PpmsConnection(PPMS_URL, PPMS_API_KEY)
+set_loglevel("TRACE")  # optional, default is "DEBUG"
+
+conn = ppms.PpmsConnection(PYPPMS_URI, PYPPMS_API_KEY)
 
 print("Querying PPMS for emails of active users, can take minutes...")
 emails = ppms.get_users_emails(active=True)
