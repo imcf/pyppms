@@ -81,16 +81,19 @@ def dict_from_single_response(text, graceful=True):
         data = lines[1]
         process_response_values(data)
         if len(header) != len(data):
+            # if running in "graceful" mode set log level to "TRACE":
+            log_msg = log.trace if graceful else log.warning
             msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-            log.warning("{} ({} vs. {})", msg, len(header), len(data))
+            log_msg("{} ({} vs. {})", msg, len(header), len(data))
             if not graceful:
                 raise ValueError(msg)
+            log.trace("Ignoring mismatch ('graceful' has been set to 'True').")
             minimum = min(len(header), len(data))
             if minimum < len(header):
-                log.warning("Discarding header-fields: {}", header[minimum:])
+                log.trace("Discarding header-fields: {}", header[minimum:])
                 header = header[:minimum]
             else:
-                log.warning("Discarding data-fields: {}", data[minimum:])
+                log.trace("Discarding data-fields: {}", data[minimum:])
                 data = data[:minimum]
 
     except Exception as err:
