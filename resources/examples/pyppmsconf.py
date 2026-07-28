@@ -1,10 +1,10 @@
 """Configuration settings to be imported by pyppms."""
 
 # the URL of the PUMAPI to talk to:
-PUMAPI_URL = "https://ppms.eu/pythonfacility/pumapi/"
+PYPPMS_URI = "https://ppms.eu/pythonfacility/pumapi/"
 
 # API key with appropriate permissions to run the desired commands in PPMS:
-PPMS_API_KEY = "abcdefghijklmnopqrstuvwxyzABCDEF"
+PYPPMS_API_KEY = "abcdefghijklmnopqrstuvwxyzABCDEF"
 
 # requests timeout in seconds (default=10)
 TIMEOUT = 10
