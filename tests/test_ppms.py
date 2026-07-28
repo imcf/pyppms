@@ -30,8 +30,8 @@ def ppms_connection(caplog):
     caplog.set_level(logging.DEBUG)
     cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
     conn = ppms.PpmsConnection(
-        url=pyppmsconf.PUMAPI_URL,
-        api_key=pyppmsconf.PPMS_API_KEY,
+        url=pyppmsconf.PYPPMS_URI,
+        api_key=pyppmsconf.PYPPMS_API_KEY,
         timeout=pyppmsconf.TIMEOUT,
         cache=cache_path,
     )
@@ -116,12 +116,14 @@ def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key=pyppmsconf.PPMS_API_KEY[:5])
+        ppms.PpmsConnection(
+            pyppmsconf.PYPPMS_URI, api_key=pyppmsconf.PYPPMS_API_KEY[:5]
+        )
 
     # wrong API key (trailing characters):
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL, pyppmsconf.PPMS_API_KEY + "appendixx"
+            pyppmsconf.PYPPMS_URI, pyppmsconf.PYPPMS_API_KEY + "appendixx"
         )
 
 
@@ -135,12 +137,12 @@ def test_ppmsconnection_fail(caplog):
 
     logd("Testing with no API key and no cache path")
     with pytest.raises(RuntimeError):
-        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key="", cache="")
+        ppms.PpmsConnection(pyppmsconf.PYPPMS_URI, api_key="", cache="")
 
     logd("Testing with a mocked auth response containing 'error'")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL,
+            pyppmsconf.PYPPMS_URI,
             api_key="dummykey",
             cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_response_contains_error"),
         )
@@ -148,7 +150,7 @@ def test_ppmsconnection_fail(caplog):
     logd("Testing with a mocked auth response having a non-standard response code")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL,
+            pyppmsconf.PYPPMS_URI,
             api_key="dummykey",
             cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_wrong_status_code"),
         )
