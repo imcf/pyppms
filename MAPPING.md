@@ -7,8 +7,8 @@ import pyppmsconf
 from pyppms import ppms
 
 conn = ppms.PpmsConnection(
-        url=pyppmsconf.PUMAPI_URL,
-        api_key=pyppmsconf.PPMS_API_KEY,
+        url=pyppmsconf.PYPPMS_URI,
+        api_key=pyppmsconf.PYPPMS_API_KEY,
         timeout=pyppmsconf.TIMEOUT,
 )
 ```
