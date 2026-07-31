@@ -201,6 +201,10 @@ def test_get_group(ppms_connection, group_details):
     print(f"Retrieved group data: {fetched_details}")
     assert group_details == fetched_details
 
+
+
+def test_get_group__invalid_login(ppms_connection):
+    """Test exception when requesting group details for a non-existing group."""
     with pytest.raises(KeyError):
         ppms_connection.get_group("invalid-unitlogin")
 
