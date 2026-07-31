@@ -606,11 +606,6 @@ class PpmsConnection:
         group = PpmsGroup(response.text)
         return group
 
-        # details = dict_from_single_response(response.text)
-
-        # log.trace("Details of group {}: {}", group_id, details)
-        # return details
-
     def get_group_users(self, unitlogin):
         """Get all members of a group in PPMS.
 
