@@ -194,13 +194,19 @@ def test_get_groups(ppms_connection):
     assert "pyppms_group" in groups
 
 
-def test_get_group(ppms_connection, group_details):
+def test_get_group(ppms_connection, group_details, caplog):
     """Test fetching details of a specific group."""
     print(f"Expected group data: {group_details}")
     fetched_details = ppms_connection.get_group("pyppms_group")
     print(f"Retrieved group data: {fetched_details}")
     assert group_details == fetched_details
+    assert "Fetching group details on-line or from disk cache." in caplog.text
+    assert "Serving group details from instance-cache" not in caplog.text
 
+    # now test the instance-cache by requesting the same group again:
+    caplog.clear()
+    ppms_connection.get_group("pyppms_group")
+    assert "Serving group details from instance-cache" in caplog.text
 
 
 def test_get_group__invalid_login(ppms_connection):
