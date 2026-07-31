@@ -227,12 +227,19 @@ def test_get_group__unitlogin_mismatch(ppms_connection, caplog):
     assert warning in caplog.text
 
 
-def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
+def test_get_user(ppms_connection, ppms_user, ppms_user_admin, caplog):
     """Test the get_user() method."""
     user = ppms_connection.get_user("pyppms")
     print(user.details())
     print(ppms_user.details())
     assert user.details() == ppms_user.details()
+    assert "Fetching user details on-line or from disk cache." in caplog.text
+    assert "Serving user details from instance-cache" not in caplog.text
+
+    # now test the instance-cache by requesting the same group again:
+    caplog.clear()
+    ppms_connection.get_user("pyppms")
+    assert "Serving user details from instance-cache" in caplog.text
 
     user = ppms_connection.get_user("pyppms-adm")
     print(user.details())
