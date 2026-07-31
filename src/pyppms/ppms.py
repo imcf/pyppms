@@ -903,8 +903,8 @@ class PpmsConnection:
             raise KeyError(msg)
 
         user = PpmsUser(response.text)
-        self.users[user.username] = user  # update / add to the cached user objs
-        self.fullname_mapping[user.fullname] = user.username
+        self.users[login_name] = user  # update / add to the cached user objs
+        self.fullname_mapping[user.fullname] = login_name
         return user
 
     def get_user_dict(self, login_name, skip_cache=False):
