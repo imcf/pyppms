@@ -609,6 +609,7 @@ class PpmsConnection:
             log.trace(f"Serving group details from instance-cache: {group_id}")
             return self.groups[group_id]
 
+        log.trace("Fetching group details on-line or from disk cache.")
         response = self.request("getgroup", {"unitlogin": group_id})
         log.trace("Group details returned by PPMS (raw): {}", response.text)
 
@@ -920,6 +921,7 @@ class PpmsConnection:
             log.trace(f"Serving user details from instance-cache: {login_name}")
             return self.users[login_name]
 
+        log.trace("Fetching user details on-line or from disk cache.")
         response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
 
         if not response.text:
