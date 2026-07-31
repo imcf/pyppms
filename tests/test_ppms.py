@@ -239,6 +239,9 @@ def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     print(ppms_user_admin.details())
     assert user.details() == ppms_user_admin.details()
 
+
+def test_get_user__invalid_login(ppms_connection):
+    """Test exception when requesting a non-existing user."""
     with pytest.raises(KeyError):
         ppms_connection.get_user("invalidlogin")
 
