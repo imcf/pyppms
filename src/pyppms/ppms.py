@@ -873,7 +873,7 @@ class PpmsConnection:
         log.trace("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
-    def get_user(self, login_name, skip_cache=False):
+    def get_user(self, login_name, skip_cache=False, force_refresh=False):
         """Fetch user details from PPMS and create a PpmsUser object from it.
 
         Parameters
@@ -881,7 +881,13 @@ class PpmsConnection:
         login_name : str
             The user's PPMS login name.
         skip_cache : bool, optional
-            Passed as-is to the :py:meth:`request()` method
+            Passed as-is to the :py:meth:`request()` method.
+        force_refresh : bool, optional
+            If `True` the user details will be refreshed even if the object's
+            users cache in `self.users` already contains a corresponding entry.
+            By default `False`, meaning the instance-cache will be used. Note:
+            this is unrelated to the **on-disk cache**, see the `skip_cache` for
+            that one.
 
         Returns
         -------
@@ -895,6 +901,10 @@ class PpmsConnection:
         KeyError
             Raised if the user doesn't exist in PPMS.
         """
+        if not force_refresh and login_name in self.users:
+            log.trace(f"Serving user details from instance-cache: {login_name}")
+            return self.users[login_name]
+
         response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
 
         if not response.text:
