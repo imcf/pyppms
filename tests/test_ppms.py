@@ -215,6 +215,18 @@ def test_get_group__invalid_login(ppms_connection):
         ppms_connection.get_group("invalid-unitlogin")
 
 
+def test_get_group__unitlogin_mismatch(ppms_connection, caplog):
+    """Test mismatch in returned unitlogin."""
+    switch_cache_mocks(ppms_connection, "get_group__unitlogin_not_matching")
+    fetched_details = ppms_connection.get_group("pyppms_group")
+    print(f"Retrieved group data: {fetched_details}")
+    warning = (
+        "Requested group ID (pyppms_group) doesn't match with "
+        "unitlogin in details returned by PPMS (response-has-wrong-unitlogin)!"
+    )
+    assert warning in caplog.text
+
+
 def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
     """Test the get_user() method."""
     user = ppms_connection.get_user("pyppms")
