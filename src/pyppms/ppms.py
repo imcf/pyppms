@@ -588,7 +588,7 @@ class PpmsConnection:
         """Call `get_booking()` with 'booking_type' set to 'get'."""
         return self.get_booking(system_id, "get")
 
-    def get_group(self, group_id, force_refresh=False):
+    def get_group(self, group_id, force_refresh=False) -> PpmsGroup:
         """Fetch group details from PPMS.
 
         Parameters
@@ -889,7 +889,7 @@ class PpmsConnection:
         log.trace("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
-    def get_user(self, login_name, skip_cache=False, force_refresh=False):
+    def get_user(self, login_name, skip_cache=False, force_refresh=False) -> PpmsUser:
         """Fetch user details from PPMS and create a PpmsUser object from it.
 
         Parameters
