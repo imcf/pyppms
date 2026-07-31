@@ -903,6 +903,11 @@ class PpmsConnection:
             raise KeyError(msg)
 
         user = PpmsUser(response.text)
+        if not user.username == login_name:
+            log.warning(
+                f"Requested login name ({login_name}) doesn't match with "
+                f"username in details returned by PPMS ({user.username})!"
+            )
         self.users[login_name] = user  # update / add to the cached user objs
         self.fullname_mapping[user.fullname] = login_name
         return user
