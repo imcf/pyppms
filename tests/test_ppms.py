@@ -253,6 +253,18 @@ def test_get_user__invalid_login(ppms_connection):
         ppms_connection.get_user("invalidlogin")
 
 
+def test_get_user__login_mismatch(ppms_connection, caplog):
+    """Test mismatch in returned username."""
+    switch_cache_mocks(ppms_connection, "get_user__login_mismatch")
+    user = ppms_connection.get_user("pyppms")
+    print(user.details())
+    warning = (
+        "Requested login name (pyppms) doesn't match with "
+        "username in details returned by PPMS (reported-username-not-matching)!"
+    )
+    assert warning in caplog.text
+
+
 def test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=True):  # noqa: D417
     """Test the get_users() method.
 
