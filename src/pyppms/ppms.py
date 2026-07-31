@@ -40,6 +40,11 @@ class PpmsConnection:
         :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the
         object's lifetime (can be empty if no calls to :py:meth:`get_user()`
         have been done yet).
+    groups : dict
+        A dict with group names as keys, mapping to the related
+        :py:class:`pyppms.user.PpmsGroup` object, serves as a cache during the
+        object's lifetime (can be empty if no calls to :py:meth:`get_group()`
+        have been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
@@ -100,6 +105,7 @@ class PpmsConnection:
         self.api_key = api_key
         self.timeout = timeout
         self.users = {}
+        self.groups = {}
         self.fullname_mapping = {}
         self.projects = {}
         self.systems = {}
@@ -582,19 +588,27 @@ class PpmsConnection:
         """Call `get_booking()` with 'booking_type' set to 'get'."""
         return self.get_booking(system_id, "get")
 
-    def get_group(self, group_id):
+    def get_group(self, group_id, force_refresh=False):
         """Fetch group details from PPMS.
 
         Parameters
         ----------
         group_id : str
             The group's identifier in PPMS, called `unitlogin` there.
+        force_refresh : bool, optional
+            If `True` the group details will be refreshed even if the object's
+            group cache in `self.groups` already contains a corresponding entry.
+            By default `False`, meaning the instance-cache will be used.
 
         Returns
         -------
         pyppms.group.PpmsGroup
             A PpmsGroup instance with the group details.
         """
+        if not force_refresh and group_id in self.groups:
+            log.trace(f"Serving group details from instance-cache: {group_id}")
+            return self.groups[group_id]
+
         response = self.request("getgroup", {"unitlogin": group_id})
         log.trace("Group details returned by PPMS (raw): {}", response.text)
 
@@ -604,6 +618,12 @@ class PpmsConnection:
             raise KeyError(msg)
 
         group = PpmsGroup(response.text)
+        if not group.gid == group_id:
+            log.warning(
+                f"Requested group ID ({group_id}) doesn't match with "
+                f"unitlogin in details returned by PPMS ({group.gid})!"
+            )
+        self.groups[group_id] = group  # update / add to the cached group objects
         return group
 
     def get_group_users(self, unitlogin):
