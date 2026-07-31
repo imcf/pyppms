@@ -217,7 +217,7 @@ def test_get_group__invalid_login(ppms_connection):
 
 def test_get_group__unitlogin_mismatch(ppms_connection, caplog):
     """Test mismatch in returned unitlogin."""
-    switch_cache_mocks(ppms_connection, "get_group__unitlogin_not_matching")
+    switch_cache_mocks(ppms_connection, "get_group__unitlogin_mismatch")
     fetched_details = ppms_connection.get_group("pyppms_group")
     print(f"Retrieved group data: {fetched_details}")
     warning = (
