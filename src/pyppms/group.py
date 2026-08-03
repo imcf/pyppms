@@ -2,6 +2,7 @@
 
 from loguru import logger as log
 
+from .billing import PpmsBillingInformation
 from .common import dict_from_single_response
 
 
@@ -18,9 +19,10 @@ class PpmsGroup:
         The name of the group's head / PI (`headname`).
     head_email : str
         The email address of the group's head / PI (`heademail`).
-    billing_code : str
-        The group's billing code (`unitbcode`). Note that billing codes in PPMS
-        exist at three levels: project, user, group (with descending priority).
+    billing_info : PpmsBillingInformation
+        The group's billing information (derived from field `unitbcode`). Note
+        that billing codes in PPMS exist at three levels: project, user, group
+        (in descending priority).
     department : str
         The group's department.
     institution : str
@@ -62,7 +64,7 @@ class PpmsGroup:
         self.name = str(details["unitname"])
         self.head_name = str(details["headname"])
         self.head_email = str(details["heademail"])
-        self.billing_code = str(details["unitbcode"])
+        self.billing_info = PpmsBillingInformation(str(details["unitbcode"]), "group")
         self.department = str(details["department"])
         self.institution = str(details["institution"])
         self.address = str(details["address"])
@@ -74,12 +76,12 @@ class PpmsGroup:
 
         log.trace(
             "PpmsGroup initialized: gid=[{}], name=[{}], head_name=[{}], "
-            "billing_code=[{}], department=[{}], institution=[{}] "
+            "billing_info=[{}], department=[{}], institution=[{}] "
             "external=[{}], active=[{}]",
             self.gid,
             self.name,
             self.head_name,
-            self.billing_code,
+            self.billing_info,
             self.department,
             self.institution,
             self.external,
@@ -112,7 +114,7 @@ class PpmsGroup:
             and self.name == other.name
             and self.head_name == other.head_name
             and self.head_email == other.head_email
-            and self.billing_code == other.billing_code
+            and self.billing_info == other.billing_info
             and self.department == other.department
             and self.institution == other.institution
             and self.address == other.address

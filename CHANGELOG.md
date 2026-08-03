@@ -31,6 +31,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### ✨ Added
 
+- `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
+  accounting information of PPMS users, groups (and potentially projects).
 - `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
 
 ## 3.3.0
