@@ -92,7 +92,7 @@ def extend_raw_details(raw_details):
         f"username: {details['login']}, "
         f"email: {details['email']}, "
         f"fullname: {details['fullname']}, "
-        f"ppms_group: {details['unitlogin']}, "
+        f"ppms_group_name: {details['unitlogin']}, "
         "active: True"
     )
 
