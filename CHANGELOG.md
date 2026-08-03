@@ -25,8 +25,10 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 - `pyppms.user.PpmsUser` got extended by the following attributes (in brackets
   the name of the respective field in the PUMAPI response, in case it differs):
+  - `billing_info` - a list of `pyppms.billing.PpmsBillingInformation` objects,
+    with details being derived from user field `bcode`, group field `unitbcode`
+    and future usage of project-related billing.
   - `phone`
-  - `billing_code` (PPMS field `bcode`)
   - `affiliation`
 
 ### ✨ Added
