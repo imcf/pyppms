@@ -51,14 +51,10 @@ class PpmsUser:
         self._fullname = f"{details['lname']} {details['fname']}"
 
         log.trace(
-            "PpmsUser initialized: username=[{}], email=[{}], billing_code=[{}], "
-            "ppms_group=[{}], fullname=[{}], active=[{}]",
-            self.username,
-            self.email,
-            self.billing_code,
-            self.ppms_group,
-            self._fullname,
-            self.active,
+            f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
+            f"billing_code=[{self.billing_code}], "
+            f"ppms_group_name=[{self.ppms_group_name}], fullname=[{self._fullname}], "
+            f"active=[{self.active}]"
         )
 
     @property
