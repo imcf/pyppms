@@ -93,7 +93,7 @@ jobs:
     - name: 🧪🎭 Run Tests
       run: |
         cp -v resources/examples/pyppmsconf.py tests/
-        poetry run pytest --color=yes --cov --cov-report=xml -vv
+        poetry run pytest --color=yes --cov=src --cov-report=xml -vv
 
     - name: 📤 Upload 📊 coverage reports to ☂ Codecov
       uses: codecov/codecov-action@v7
