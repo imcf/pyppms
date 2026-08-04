@@ -110,7 +110,7 @@ class PpmsBooking:
         ----------
         time_str : str
             The new starting time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
-        date : datetime.date, optional
+        date : datetime, optional
             The new starting day, by default ``None`` which will result in the
             current date to be used.
         """
@@ -132,7 +132,7 @@ class PpmsBooking:
         ----------
         time_str : str
             The new ending time in format ``%H:%M:%S`` (e.g. ``13:45:00``).
-        date : datetime.date, optional
+        date : datetime, optional
             The new ending day, by default ``None`` which will result in the
             current date to be used.
         """

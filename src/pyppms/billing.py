@@ -6,6 +6,7 @@ from .common import time_rel_to_abs, fmt_time
 
 
 VALID_TYPES = ["user", "group", "project"]
+"""Accepted types of billing codes."""
 
 
 class PpmsBillingInformation:

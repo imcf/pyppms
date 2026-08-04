@@ -18,7 +18,7 @@ class PpmsUser:
         The user's email address.
     phone :str
         The user's phone number.
-    billing_info : list(PpmsBillingInformation)
+    billing_info : list(pyppms.billing.PpmsBillingInformation)
         All billing information associated to the user. Note that billing codes
         in PPMS exist at three levels: project, user, group (in descending
         priority). In order to contain the group-related billing codes, the
@@ -29,7 +29,7 @@ class PpmsUser:
         falling back to the ``username`` attribute if empty.
     ppms_group_name : str
         The user's PPMS group derived from field `unitlogin`, may be empty ("").
-    ppms_group : PpmsGroup | None
+    ppms_group : pyppms.group.PpmsGroup | None
         The PpmsGroup object retrieved through `get_group(self.ppms_group_name)`
         or None in case no group name is present.
     affiliation : str

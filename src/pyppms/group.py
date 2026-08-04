@@ -19,7 +19,7 @@ class PpmsGroup:
         The name of the group's head / PI (`headname`).
     head_email : str
         The email address of the group's head / PI (`heademail`).
-    billing_info : PpmsBillingInformation
+    billing_info : pyppms.billing.PpmsBillingInformation
         The group's billing information (derived from field `unitbcode`). Note
         that billing codes in PPMS exist at three levels: project, user, group
         (in descending priority).
