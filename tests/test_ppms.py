@@ -838,3 +838,16 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     assert ppms_connection.last_served_from_cache is False
     # assert "No cache hit" in caplog.text  # requires an on-line request
     assert os.path.exists(new_user_cache)
+
+
+############ projects ############
+
+
+def test_get_projects(ppms_connection):
+    """Test get_projects."""
+    projects = ppms_connection.get_projects()
+
+    assert projects[7].billing_code == "ZBD8486"
+    assert projects[7].name == "ZBD lab"
+    assert "billing_code=[ZBD8486]" in projects[7].details()
+    assert str(projects[7]) == "PpmsProject [7] 'ZBD lab'"
