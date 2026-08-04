@@ -60,10 +60,14 @@ class PpmsUser:
             log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
             self.ppms_group = conn.get_group(self.ppms_group_name)
             if self.ppms_group:
-                self.billing_info.append(self.ppms_group.billing_info)
+                group_billing = self.ppms_group.billing_info
+                group_billing.description = f"Group: {self.ppms_group_name}"
+                self.billing_info.append(group_billing)
 
         if str(details["bcode"]):
-            billing_info = PpmsBillingInformation(str(details["bcode"]), "user")
+            billing_info = PpmsBillingInformation(
+                str(details["bcode"]), "user", "Personal billing code"
+            )
             self.billing_info.append(billing_info)
 
         self.username: str = str(details["login"])
