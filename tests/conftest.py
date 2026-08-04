@@ -3,15 +3,12 @@
 # pylint: disable-msg=fixme
 
 import pytest
-
-from loguru import logger
 from _pytest.logging import LogCaptureFixture
+from loguru import logger
+from ppms_values import api_response_getgroup, values
 
-from ppms_values import values, api_response_getgroup
-
-from pyppms.user import PpmsUser
 from pyppms.group import PpmsGroup
-
+from pyppms.user import PpmsUser
 
 __PPMS_VALUES__ = values()
 

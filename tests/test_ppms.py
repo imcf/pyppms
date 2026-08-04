@@ -3,14 +3,13 @@
 import logging
 import os.path
 from datetime import datetime
-from shutil import rmtree, copytree
+from shutil import copytree, rmtree
 
-import pyppmsconf
 import pytest
 import requests.exceptions
-
 from loguru import logger as log
 
+import pyppmsconf
 from pyppms import ppms
 from pyppms.common import set_loglevel
 
