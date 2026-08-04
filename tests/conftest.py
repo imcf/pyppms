@@ -2,12 +2,16 @@
 
 # pylint: disable-msg=fixme
 
+import os.path
+
 import pytest
 from _pytest.logging import LogCaptureFixture
 from loguru import logger
 from ppms_values import api_response_getgroup, values
 
+import pyppmsconf
 from pyppms.group import PpmsGroup
+from pyppms.ppms import PpmsConnection
 from pyppms.user import PpmsUser
 
 __PPMS_VALUES__ = values()
@@ -115,6 +119,30 @@ def extend_raw_details(raw_details):
 #
 
 
+#
+# region: PpmsConnection object #####################
+
+
+@pytest.fixture
+def ppms_connection(caplog):
+    """Establish a connection to a PPMS / PUMAPI instance."""
+    print(
+        "NOTE: some tests require either a *CACHED* response to be present or "
+        "valid settings in `pyppmsconf.py` to talk to a real PUMAPI instance."
+    )
+    # caplog.set_level(logging.DEBUG)  # DON'T! This masks loguru's trace-level!
+    cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
+    conn = PpmsConnection(
+        url=pyppmsconf.PYPPMS_URI,
+        api_key=pyppmsconf.PYPPMS_API_KEY,
+        timeout=pyppmsconf.TIMEOUT,
+        cache=cache_path,
+    )
+    return conn
+
+
+# endregion: PpmsConnection object #####################
+#
 
 
 #
