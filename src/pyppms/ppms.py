@@ -929,7 +929,7 @@ class PpmsConnection:
             log.debug(msg)
             raise KeyError(msg)
 
-        user = PpmsUser(response.text)
+        user = PpmsUser(response.text, self)
         if not user.username == login_name:
             log.warning(
                 f"Requested login name ({login_name}) doesn't match with "

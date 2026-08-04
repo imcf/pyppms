@@ -4,6 +4,7 @@ from loguru import logger as log
 
 from .billing import PpmsBillingInformation
 from .common import dict_from_single_response
+from .group import PpmsGroup
 
 
 class PpmsUser:
@@ -20,31 +21,46 @@ class PpmsUser:
     billing_info : list(PpmsBillingInformation)
         All billing information associated to the user. Note that billing codes
         in PPMS exist at three levels: project, user, group (in descending
-        priority).
+        priority). In order to contain the group-related billing codes, the
+        object's constructor requires the PPMS connection object to be passed
+        (see the constructor documentation for more info).
     fullname : str
-        The full name ("``<LASTNAME> <GIVENNAME>``") of the user in PPMS, falling back
-        to the ``username`` attribute if empty.
+        The full name ("``<LASTNAME> <GIVENNAME>``") of the user in PPMS,
+        falling back to the ``username`` attribute if empty.
     ppms_group_name : str
-        The user's PPMS group, may be empty ("").
+        The user's PPMS group derived from field `unitlogin`, may be empty ("").
+    ppms_group : PpmsGroup | None
+        The PpmsGroup object retrieved through `get_group(self.ppms_group_name)`
+        or None in case no group name is present.
     affiliation : str
         The user's affiliation (institute, ...).
     active : bool
         The ``active`` state of the user account in PPMS, by default True.
     """
 
-    def __init__(self, response_text):
+    def __init__(self, response_text, conn=None):
         """Initialize the user object.
 
         Parameters
         ----------
         response_text : str
             The text returned by a PUMAPI `getuser` call.
+        conn : ppms.PpmsConnection or None, optional
+            The PPMS connection object. If given, it will be used to fetch
+            the user's group billing code. If omitted (default), only the user
+            billing information will be available from the object.
         """
         details = dict_from_single_response(response_text, graceful=True)
 
         self.billing_info = []
+        self.ppms_group: PpmsGroup | None = None
 
         self.ppms_group_name = str(details["unitlogin"])
+        if self.ppms_group_name and conn:
+            log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
+            self.ppms_group = conn.get_group(self.ppms_group_name)
+            if self.ppms_group:
+                self.billing_info.append(self.ppms_group.billing_info)
 
         if str(details["bcode"]):
             billing_info = PpmsBillingInformation(str(details["bcode"]), "user")

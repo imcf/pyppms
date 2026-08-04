@@ -8,6 +8,11 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### 🧨 Breaking Changes
 
+- **🎭 Changed attribute type**: `pyppms.user.PpmsUser.ppms_group` has been
+  changed to be of type `pyppms.group.PpmsGroup` or `None`. In order to be
+  filled automatically, the connection object needs to be passed to the
+  constructor. The previously available name of the group (derived from
+  `unitlogin`) is now provided via `pyppms.user.PpmsUser.ppms_group_name`.
 - **🎭 Changed return type**: `pyppms.ppms.PpmsConnection.get_group()` now
   returns a `pyppms.group.PpmsGroup` object instead of a dict.
 - **🚚 Renamed methods**: The following methods have been renamed in order to make
@@ -33,9 +38,15 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### ✨ Added
 
-- `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
+- **🏦 New class for billing / accounting information**
+  `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
   accounting information of PPMS users, groups (and potentially projects).
-- `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
+- **🧑🏼‍🤝‍🧑🏻 New class for group information**
+  `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
+- **👷‍♂️ New optional constructor argument**: `pyppms.user.PpmsUser` has been
+  modified to accept an additional argument `conn` that is used to automatically
+  fetch group details (including billing information) during object creation.
+  NOTE: The connection object is **NOT** stored with the user object!
 
 ## 3.3.0
 
