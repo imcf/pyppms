@@ -101,7 +101,7 @@ def extend_raw_details(raw_details):
         "email,phone,bcode,affiliation,"
         "unitlogin,mustchpwd,mustchbcode,active\r\n"
         f'"{details["login"]}","{details["lname"]}","{details["fname"]}",'
-        f'"{details["email"]}","{details["phone"]}","","",'
+        f'"{details["email"]}","{details["phone"]}","{details["bcode"]}","",'
         f'"{details["unitlogin"]}",false,false,true\r\n'
     )
 
