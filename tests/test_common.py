@@ -104,11 +104,17 @@ def test_parse_multiline_response():
     with pytest.raises(ValueError):
         common.parse_multiline_response(invalid_data, graceful=False)
 
-    # testing leading / trailing whitespace in header fields:
+
+def test_parse_multiline_response_header_whitespace():
+    """Test leading / trailing whitespace in header fields."""
     text = 'foo , bar\n"some","thing"'
     expected = {"foo": "some", "bar": "thing"}
     parsed = common.parse_multiline_response(text)
     assert parsed[0].keys() == expected.keys()
+    parsed_values = [x for x in parsed[0].values()]
+    expected_values = [x for x in expected.values()]
+    assert parsed_values == expected_values
+
     text = 'foo,bar\n"some","thing"'
     parsed = common.parse_multiline_response(text)
     assert parsed[0].keys() == expected.keys()

@@ -176,6 +176,8 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
             df = df.replace(map_booleans)
             # convert 'Nan' to empty strings:
             df = df.fillna("")
+            # finally strip all whitespace:
+            df.columns = df.columns.str.strip()  # column names
             parsed = df.to_dict("records")
             log.trace(f"Parsed {len(parsed)} datasets using pandas.")
             return parsed
