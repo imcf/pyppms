@@ -54,6 +54,15 @@ def test_ppmsbooking():
         create_booking(system_id="eleven")
 
 
+def test_booking_desc():
+    """Test the PpmsBooking.desc property."""
+    booking = create_booking()
+
+    print(booking)
+    expected = f"{USERNAME}@{SYS_ID} [{START} -- {END}]"
+    assert booking.desc == expected
+
+
 def test_starttime_fromstr__time():
     """Test changing the starting time of a booking."""
     booking = create_booking()
