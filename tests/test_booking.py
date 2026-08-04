@@ -161,6 +161,10 @@ def test_booking_from_request():
         PpmsBooking(23, "next", SYS_ID)
 
 
+# FIXME! Create a test for bookings ending at midnight!
+# cf. PpmsBooking.endtime_fromstr()
+
+
 def test_runningsheet(
     runningsheet_response,
     user_details_raw,
