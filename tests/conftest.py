@@ -13,7 +13,8 @@ from pyppms.user import PpmsUser
 __PPMS_VALUES__ = values()
 
 
-### pytest setup ###
+#
+# region: pytest setup #####################
 
 
 @pytest.fixture
@@ -61,7 +62,12 @@ def pytest_collection_modifyitems(config, items):
             item.add_marker(skip_online)
 
 
-### common helper functions to be used in fixtures below ###
+# endregion: pytest setup #####################
+#
+
+
+#
+# region: common helper functions #####################
 
 
 def extend_raw_details(raw_details):
@@ -105,7 +111,14 @@ def extend_raw_details(raw_details):
     return details
 
 
-### raw user dicts ###
+# endregion: common helper functions #####################
+#
+
+
+
+
+#
+# region: raw user dicts #####################
 
 
 @pytest.fixture(scope="module")
@@ -136,7 +149,13 @@ def user_admin_details_raw():
     return __PPMS_VALUES__["user_admin"]
 
 
-### extended user dicts (with keys 'fullname', 'api_response', 'expected') ###
+# endregion: raw user dicts #####################
+#
+
+
+#
+# region: extended user dicts #####################
+# with keys 'fullname', 'api_response', 'expected'
 
 
 @pytest.fixture(scope="module")
@@ -151,7 +170,12 @@ def user_admin_details(user_admin_details_raw):
     return extend_raw_details(user_admin_details_raw)
 
 
-### PpmsUser objects ###
+# endregion: extended user dicts #####################
+#
+
+
+#
+# region: PpmsUser objects #####################
 
 
 @pytest.fixture(scope="module")
@@ -186,7 +210,12 @@ def ppms_user_admin(user_admin_details):
     return PpmsUser(user_admin_details["api_response"])
 
 
-### group details ###
+# region: PpmsUser objects #####################
+#
+
+
+#
+# region: group details #####################
 
 
 @pytest.fixture(scope="module")
@@ -201,7 +230,12 @@ def group_details():
     return PpmsGroup(response)
 
 
-### system detail dicts ###
+# endregion: group details #####################
+#
+
+
+#
+# region: system detail dicts #####################
 
 
 @pytest.fixture(scope="module")
@@ -219,7 +253,12 @@ def system_details_raw():
     return __PPMS_VALUES__["system"]
 
 
-### mapping dicts for user fullname, system name, ... ###
+# endregion: system detail dicts #####################
+#
+
+
+#
+# region: mapping dicts for user fullname, system name, ... #################
 
 
 @pytest.fixture(scope="module")
@@ -239,7 +278,12 @@ def systemname_mapping(system_details_raw):
     return mapping
 
 
-### booking / runningsheet details ###
+# endregion: mapping dicts for user fullname, system name, ... #################
+#
+
+
+#
+# region: booking / runningsheet details #########################
 
 
 @pytest.fixture(scope="module")
@@ -267,3 +311,7 @@ def runningsheet_response():
         '"Python PumAPI","",""\n'
     )
     return txt
+
+
+# endregion: booking / runningsheet details #########################
+#
