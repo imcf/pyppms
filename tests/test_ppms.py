@@ -342,7 +342,7 @@ def test_get_user_experience(ppms_connection):
     sys_ids = []
     for system in systems:
         sys_ids.append(system["id"])
-    assert str(__SYS_ID__) in sys_ids
+    assert __SYS_ID__ in sys_ids
 
     # check if a system is having a specific user with permission to access it:
     users = ppms_connection.get_user_experience(system_id=__SYS_ID__)
