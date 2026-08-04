@@ -52,10 +52,10 @@ class PpmsUser:
         """
         details = dict_from_single_response(response_text, graceful=True)
 
-        self.billing_info = []
+        self.billing_info: list = []
         self.ppms_group: PpmsGroup | None = None
 
-        self.ppms_group_name = str(details["unitlogin"])
+        self.ppms_group_name: str = str(details["unitlogin"])
         if self.ppms_group_name and conn:
             log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
             self.ppms_group = conn.get_group(self.ppms_group_name)
@@ -66,12 +66,12 @@ class PpmsUser:
             billing_info = PpmsBillingInformation(str(details["bcode"]), "user")
             self.billing_info.append(billing_info)
 
-        self.username = str(details["login"])
-        self.email = str(details["email"])
-        self.phone = str(details["phone"])
-        self.affiliation = str(details["affiliation"])
+        self.username: str = str(details["login"])
+        self.email: str = str(details["email"])
+        self.phone: str = str(details["phone"])
+        self.affiliation: str = str(details["affiliation"])
         self.active = details["active"]
-        self._fullname = f"{details['lname']} {details['fname']}"
+        self._fullname: str = f"{details['lname']} {details['fname']}"
 
         log.trace(
             f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
@@ -85,7 +85,7 @@ class PpmsUser:
             log.trace(f"PpmsUser [{self.username}] billing information:{infos}")
 
     @property
-    def fullname(self):
+    def fullname(self) -> str:
         """The user's full name, falling back to the username if empty.
 
         Returns
@@ -99,7 +99,7 @@ class PpmsUser:
 
         return self._fullname
 
-    def details(self):
+    def details(self) -> str:
         """Generate a string with details on the user object."""
         return (
             f"username: {self.username}, "
@@ -109,5 +109,5 @@ class PpmsUser:
             f"active: {self.active}"
         )
 
-    def __str__(self):  # noqa: D105 (undocumented-magic-method)
+    def __str__(self) -> str:  # noqa: D105 (undocumented-magic-method)
         return str(self.username)
