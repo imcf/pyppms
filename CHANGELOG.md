@@ -9,6 +9,11 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 ### 🧨 Breaking Changes
 
 - **🐍Python**: the minimum required version has been raised to **3.11**.
+- **🐼 Pandas**: `pyppms.common.parse_multiline_response` now done using the
+  [pandas] library by default for parsing the CSV. This may have an impact on
+  the data type of some fields, as for example strings representing integers
+  will automatically be converted to type `int`. The old approach will be used
+  in case parsing fails or if the parameter `use_pandas` is set to `False`.
 - **🎭 Changed attribute type**: `pyppms.user.PpmsUser.ppms_group` has been
   changed to be of type `pyppms.group.PpmsGroup` or `None`. In order to be
   filled automatically, the connection object needs to be passed to the
@@ -200,3 +205,5 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   - `pyppms.user.PpmsUser.from_response()`
   - `pyppms.system.PpmsSystem.from_parsed_response()`
   - `pyppms.booking.PpmsBooking.from_booking_request()`
+
+[pandas]: https://pandas.pydata.org/
