@@ -60,19 +60,21 @@ class PpmsGroup:
             The text returned by a PUMAPI `getgroup` call.
         """
         details = dict_from_single_response(response_text, graceful=True)
-        self.gid = str(details["unitlogin"])
-        self.name = str(details["unitname"])
-        self.head_name = str(details["headname"])
-        self.head_email = str(details["heademail"])
-        self.billing_info = PpmsBillingInformation(str(details["unitbcode"]), "group")
-        self.department = str(details["department"])
-        self.institution = str(details["institution"])
-        self.address = str(details["address"])
-        self.affiliation = str(details["affiliation"])
-        self.external = True if details["ext"] == "true" else False
-        self.active = True if details["active"] == "true" else False
-        self.admin_name = str(details["admname"])
-        self.admin_email = str(details["admemail"])
+        self.gid: str = str(details["unitlogin"])
+        self.name: str = str(details["unitname"])
+        self.head_name: str = str(details["headname"])
+        self.head_email: str = str(details["heademail"])
+        self.billing_info: PpmsBillingInformation = PpmsBillingInformation(
+            str(details["unitbcode"]), "group"
+        )
+        self.department: str = str(details["department"])
+        self.institution: str = str(details["institution"])
+        self.address: str = str(details["address"])
+        self.affiliation: str = str(details["affiliation"])
+        self.external: bool = True if details["ext"] == "true" else False
+        self.active: bool = True if details["active"] == "true" else False
+        self.admin_name: str = str(details["admname"])
+        self.admin_email: str = str(details["admemail"])
 
         log.trace(
             "PpmsGroup initialized: gid=[{}], name=[{}], head_name=[{}], "
@@ -88,7 +90,7 @@ class PpmsGroup:
             self.active,
         )
 
-    def details(self):
+    def details(self) -> str:
         """Generate a string with details on the group object."""
         return (
             f"gid: {self.gid}, "
@@ -100,7 +102,7 @@ class PpmsGroup:
             f"active: {self.active}"
         )
 
-    def __str__(self):  # noqa: D105 (undocumented-magic-method)
+    def __str__(self) -> str:  # noqa: D105 (undocumented-magic-method)
         return str(self.gid)
 
     def __eq__(self, other) -> bool:  # noqa: D105 (undocumented-magic-method)

@@ -32,12 +32,12 @@ class PpmsBillingInformation:
             raise ValueError("Empty billing codes are not allowed!")
         if not billing_type in VALID_TYPES:
             raise ValueError(f"Billing type has to be one of {VALID_TYPES}!")
-        self.billing_code = billing_code
-        self.billing_type = billing_type
-        self.description = description
+        self.billing_code: str = billing_code
+        self.billing_type: str = billing_type
+        self.description: str = description
         log.trace(str(self))
 
-    def __str__(self):  # noqa: D105 (undocumented-magic-method)
+    def __str__(self) -> str:  # noqa: D105 (undocumented-magic-method)
         msg = (
             f"PpmsBillingInformation(billing_code=[{self.billing_code}], "
             f"billing_type=[{self.billing_type}]"

@@ -54,11 +54,11 @@ class PpmsBooking:
                 endtime = starttime
                 starttime = datetime.now().replace(second=0, microsecond=0)
 
-            self.username = lines[0]
-            self.system_id = int(system_id)
-            self.starttime = starttime
-            self.endtime = endtime
-            self.session = lines[2]
+            self.username: str = lines[0]
+            self.system_id: int = int(system_id)
+            self.starttime: datetime = starttime
+            self.endtime: datetime | None = endtime
+            self.session: str = lines[2]
         except Exception as err:
             log.error("Parsing booking response failed ({}), text was:\n{}", err, text)
             raise
@@ -103,7 +103,7 @@ class PpmsBooking:
         log.trace(f"Created booking from runningsheet: {booking}")
         return booking
 
-    def starttime_fromstr(self, time_str, date=None):
+    def starttime_fromstr(self, time_str: str, date: datetime | None = None) -> None:
         """Change the starting time and / or day of a booking.
 
         Parameters
@@ -125,7 +125,7 @@ class PpmsBooking:
         self.starttime = start
         log.trace("New starttime: {}", self)
 
-    def endtime_fromstr(self, time_str, date=None):
+    def endtime_fromstr(self, time_str: str, date: datetime | None = None) -> None:
         """Change the ending time and / or day of a booking.
 
         Parameters
@@ -150,7 +150,7 @@ class PpmsBooking:
         self.endtime = end
         log.trace("New endtime: {}", self)
 
-    def __str__(self):  # noqa: D105 (undocumented-magic-method)
+    def __str__(self) -> str:  # noqa: D105 (undocumented-magic-method)
         msg = (
             f"PpmsBooking(username=[{self.username}], "
             f"system_id=[{self.system_id}], "
@@ -164,7 +164,7 @@ class PpmsBooking:
         return msg
 
     @property
-    def desc(self):
+    def desc(self) -> str:
         """Format a "short" description of the object.
 
         Returns

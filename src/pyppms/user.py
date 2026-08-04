@@ -52,7 +52,7 @@ class PpmsUser:
         """
         details = dict_from_single_response(response_text, graceful=True)
 
-        self.billing_info: list = []
+        self.billing_info: list[PpmsBillingInformation] = []
         self.ppms_group: PpmsGroup | None = None
 
         self.ppms_group_name: str = str(details["unitlogin"])
@@ -70,7 +70,9 @@ class PpmsUser:
         self.email: str = str(details["email"])
         self.phone: str = str(details["phone"])
         self.affiliation: str = str(details["affiliation"])
-        self.active = details["active"]
+        self.active: bool = bool(details["active"])
+        log.warning(details)
+        log.success(self.active)
         self._fullname: str = f"{details['lname']} {details['fname']}"
 
         log.trace(

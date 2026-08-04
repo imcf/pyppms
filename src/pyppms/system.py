@@ -48,21 +48,23 @@ class PpmsSystem:
             A dict with the parsed response from a `getsystems` request.
         """
         try:
-            self.system_id = int(details["System id"])
+            self.system_id: int = int(details["System id"])
         except ValueError as err:
             log.error("Unable to parse system ID: {} - {}", details["System id"], err)
             raise
 
-        self.name = details["Name"]
-        self.localisation = details["Localisation"]
-        self.system_type = details["Type"]
-        self.core_facility_ref = details["Core facility ref"]
-        self.schedules = details["Schedules"]
-        self.active = details["Active"]
-        self.stats = details["Stats"]
-        self.bookable = details["Bookable"]
-        self.autonomy_required = details["Autonomy Required"]
-        self.autonomy_required_after_hours = details["Autonomy Required After Hours"]
+        self.name: str = details["Name"]
+        self.localisation: str = details["Localisation"]
+        self.system_type: str = details["Type"]
+        self.core_facility_ref: str = details["Core facility ref"]
+        self.schedules: bool = bool(details["Schedules"])
+        self.active: bool = bool(details["Active"])
+        self.stats: bool = bool(details["Stats"])
+        self.bookable: bool = bool(details["Bookable"])
+        self.autonomy_required: bool = bool(details["Autonomy Required"])
+        self.autonomy_required_after_hours: bool = bool(
+            details["Autonomy Required After Hours"]
+        )
         log.trace(
             "PpmsSystem(system_id={}, name=[{}], localisation=[{}], system_type=[{}])",
             self.system_id,
