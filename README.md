@@ -1,5 +1,8 @@
 # PyPPMS
 
+[![Pytest-Poetry 🧪🎭](https://github.com/imcf/pyppms/actions/workflows/pytest-poetry.yml/badge.svg)](https://github.com/imcf/pyppms/actions/workflows/pytest-poetry.yml)
+[![codecov](https://codecov.io/github/imcf/pyppms/branch/devel/graph/badge.svg?token=JTDK74OT79)](https://codecov.io/github/imcf/pyppms)
+
 ## PUMAPI - Python Interface
 
 [Stratocore][3]'s *PPMS* booking system offers an API (the so-called *PUMAPI*, short for
