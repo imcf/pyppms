@@ -181,7 +181,7 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
             return parsed
 
         except Exception as err:
-            log.debug(f"Failed via pandas, trying native approach: {err}")
+            log.debug(f"Trying native approach as pandas failed: {err}")
 
     parsed = []
     try:
