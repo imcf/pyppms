@@ -1,7 +1,5 @@
 """Module representing billing information in PPMS."""
 
-from typing import Literal
-
 from loguru import logger as log
 
 from .common import time_rel_to_abs, fmt_time
