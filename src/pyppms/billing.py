@@ -51,8 +51,6 @@ class PpmsBillingInformation:
     def __eq__(self, other) -> bool:  # noqa: D105 (undocumented-magic-method)
         if not isinstance(other, PpmsBillingInformation):
             return False
-        if other is None:
-            return False
 
         return (
             self.billing_code == other.billing_code
