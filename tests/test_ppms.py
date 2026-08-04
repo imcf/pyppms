@@ -137,6 +137,20 @@ def test_get_group(ppms_connection, group_details, caplog):
     assert "Fetching group details on-line or from disk cache." in caplog.text
     assert "Serving group details from instance-cache" not in caplog.text
 
+    expected_rendered = (
+        "gid: pyppms_group, "
+        "name: Python Core Facility, "
+        "head_name: PythonGroup Supervisor, "
+        "department: Scientific Software Support, "
+        "institution: Famous Research Foundation, "
+        "external: False, "
+        "active: False"
+    )
+    assert fetched_details.details() == expected_rendered
+
+    assert fetched_details.__eq__("a random string") is False
+    assert fetched_details.__eq__(None) is False
+
     # now test the instance-cache by requesting the same group again:
     caplog.clear()
     ppms_connection.get_group("pyppms_group")
