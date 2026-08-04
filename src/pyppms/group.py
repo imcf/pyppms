@@ -108,8 +108,6 @@ class PpmsGroup:
     def __eq__(self, other) -> bool:  # noqa: D105 (undocumented-magic-method)
         if not isinstance(other, PpmsGroup):
             return False
-        if other is None:
-            return False
 
         return (
             self.gid == other.gid
