@@ -8,6 +8,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### 🧨 Breaking Changes
 
+- **🐍Python**: the minimum required version has been raised to **3.11**.
 - **🎭 Changed attribute type**: `pyppms.user.PpmsUser.ppms_group` has been
   changed to be of type `pyppms.group.PpmsGroup` or `None`. In order to be
   filled automatically, the connection object needs to be passed to the
