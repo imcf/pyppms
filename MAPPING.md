@@ -51,7 +51,7 @@ conn = ppms.PpmsConnection(
 | getpriceslist         |                                          |
 | getprojectgroups      |                                          |
 | getprojectmember      |                                          |
-| getprojects           |                                          |
+| getprojects           | `conn.get_projects()`                    |
 | getprojectusers       |                                          |
 | getrunningsheet       | `conn.get_running_sheet()`               |
 | getservices           |                                          |
@@ -60,7 +60,7 @@ conn = ppms.PpmsConnection(
 | getsystems            | `conn.get_systems()`                     |
 | getuser               | `conn.get_user()`                        |
 | getuserexp            | `conn.get_user_experience()`             |
-| getuserprojects       |                                          |
+| getuserprojects       | `conn.get_user_projects()`               |
 | getuserrights         |                                          |
 | getusers              | `conn.get_user_ids()`                    |
 | getvalidbcodes        |                                          |
