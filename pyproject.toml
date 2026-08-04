@@ -1,30 +1,34 @@
-[tool.poetry]
-description = "A Python package to communicate with Stratocore's PUMAPI."
+[project]
 name = "pyppms"
+description = "A Python package to communicate with Stratocore's PUMAPI."
+readme = "README.md"
+authors = [
+  { name = "Niko Ehrenfeuchter", email = "nikolaus.ehrenfeuchter@unibas.ch" },
+  { name = "Laurent Guerard", email = "laurent.guerard@unibas.ch" },
+]
 version = "0.0.0"
+requires-python = ">=3.9,<4"
 
 license = "GPLv3"
+keywords = ["ppms", "pumapi", "booking-system", "reservation-system"]
 
-authors = [
-  "Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>",
-  "Laurent Guerard <laurent.guerard@unibas.ch>",
+dependencies = [
+  "requests (>=2.31.0,<3)",
+  "loguru (>=0.7.0,<1)",
+  "pandas (>2,<3)",
 ]
 
-readme = "README.md"
 
+[tool.poetry]
+name = "pyppms"
+version = "0.0.0"
 documentation = "https://imcf.one/apidocs/pyppms/pyppms.html"
 homepage = "https://pypi.org/project/pyppms/"
-keywords = ["ppms", "pumapi", "booking-system", "reservation-system"]
 repository = "https://github.com/imcf/pyppms"
 
-[tool.poetry.dependencies]
-python = "^3.9"
-requests = "^2.31.0"
-loguru = "^0.7.0"
-pandas = "<3"
 
 [tool.poetry.group.dev.dependencies]
-pdoc = "^14.0.0"
+pdoc = "14.0.0"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 pyyaml = "^6.0.3"
