@@ -27,3 +27,10 @@ def test_user_billing_info(user_details, ppms_connection):
 
     assert user.billing_info[1].billing_code == "pyppms_user_billing_code"
     assert user.billing_info[1].billing_type == "user"
+
+
+def test_user_fullname(user_details, ppms_user):
+    """Test the PpmsUser fullname property."""
+    assert ppms_user.fullname == f"{user_details['lname']} {user_details['fname']}"
+    ppms_user._fullname = ""
+    assert ppms_user.fullname == user_details["login"]
