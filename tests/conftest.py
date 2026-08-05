@@ -188,7 +188,29 @@ def user_admin_details_raw():
 
 @pytest.fixture(scope="module")
 def user_details(user_details_raw):
-    """A dict with extended user details."""  # noqa: D401
+    """A dict with extended user details.
+
+    Parameters
+    ----------
+    user_details_raw : dict
+        Raw user details provided via user_details_raw.
+
+    Returns
+    -------
+    dict
+        A dict with the following keys:
+            - `login`
+            - `lname`
+            - `fname`
+            - `email`
+            - `phone`
+            - `bcode`
+            - `affiliation`
+            - `unitlogin`
+            - `mustchpwd`
+            - `mustchbcode`
+            - `active`
+    """  # noqa: D401
     return extend_raw_details(user_details_raw)
 
 
