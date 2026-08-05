@@ -865,3 +865,18 @@ def test_get_projects(ppms_connection):
     assert projects[7].name == "ZBD lab"
     assert "billing_code=[ZBD8486]" in projects[7].details()
     assert str(projects[7]) == "PpmsProject [7] 'ZBD lab'"
+
+
+def test_get_user_projects(ppms_connection, user_details):
+    """Test get_projects with a user having one project."""
+    projects = ppms_connection.get_user_projects(user_details["login"])
+    print(projects)
+    assert len(projects) == 1
+
+
+def test_get_user_projects_empty(ppms_connection, user_details):
+    """Test get_projects with a user having no projects."""
+    switch_cache_post_change(ppms_connection, 1)
+    projects = ppms_connection.get_user_projects(user_details["login"])
+    print(projects)
+    assert len(projects) == 0
