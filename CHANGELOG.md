@@ -9,8 +9,9 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 ### 🧨 Breaking Changes
 
 - **🐍Python**: the minimum required version has been raised to **3.11**.
-- **🐼 Pandas**: `pyppms.common.parse_multiline_response` now done using the
-  [pandas] library by default for parsing the CSV. This may have an impact on
+- **🐼 Pandas**: `pyppms.common.parse_multiline_response` now uses the new
+  `pyppms.common.parse_pandas_csv` by default, which (obviously) uses the
+  [pandas][pandas] library for parsing the CSV. This may have an impact on
   the data type of some fields, as for example strings representing integers
   will automatically be converted to type `int`. The old approach will be used
   in case parsing fails or if the parameter `use_pandas` is set to `False`.
@@ -53,6 +54,9 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   modified to accept an additional argument `conn` that is used to automatically
   fetch group details (including billing information) during object creation.
   NOTE: The connection object is **NOT** stored with the user object!
+- **🐼 Pandas for parsing CSV**: the function `pyppms.common.parse_pandas_csv`
+  has been added to provide the option of using the [pandas][pandas] library for
+  parsing CSV.
 
 ## 3.3.0
 

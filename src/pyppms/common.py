@@ -105,6 +105,60 @@ def dict_from_single_response(text, graceful=True):
     return parsed
 
 
+def parse_pandas_csv(text, graceful=True) -> pd.DataFrame:
+    """Parse a PUMAPI response using pandas.read_csv().
+
+    Parameters
+    ----------
+    text : str
+        The PUMAPI response with two or more lines, where the first line
+        contains the header field names and the subsequent lines contain data.
+    graceful : bool, optional
+        Whether to continue in case the response text is inconsistent, i.e.
+        having different number of fields in the header line and the data lines,
+        by default True. In graceful mode, any inconsistency detected in the
+        data will be logged as a warning, in non-graceful mode they will raise
+        an Exception.
+
+    Returns
+    -------
+    pd.DataFrame
+        The parsed data as a pandas dataframe.
+
+    Raises
+    ------
+    ValueError
+        Raised when the response text is inconsistent and the `graceful`
+        parameter has been set to false.
+    """
+    log.trace("Trying to parse data using pandas...")
+    lines = text.splitlines()
+    # sanity checking first:
+    header = pd.read_csv(StringIO(lines[0]))
+    log.trace(f"Header columns: {len(header.columns)}")
+    body = pd.read_csv(StringIO("\n".join(lines[1:])))
+    log.trace(f"Body columns: {len(body.columns)}")
+    if len(header.columns) != len(body.columns):
+        msg = "Parsing CSV failed, mismatch of header vs. data fields count"
+        log.warning(f"{msg} ({len(header.columns)} vs. {len(body.columns)})")
+        if not graceful:
+            raise ValueError(msg)
+
+    # now do the real parsing:
+    df = pd.read_csv(StringIO(text), skipinitialspace=True)
+    # NOTE: using 'true_values' and 'false_values' for the read_csv()
+    # call above doesn't seem to be working for unknown reasons, so we
+    # have to map them explicitly here:
+    map_booleans = {"true": True, "false": False}
+    df = df.replace(map_booleans)
+    # convert 'Nan' to empty strings:
+    df = df.fillna("")
+    # finally strip whitespace from column names (including *leading*!):
+    df.columns = df.columns.str.strip()
+
+    return df
+
+
 def parse_multiline_response(text, graceful=True, use_pandas=True):
     """Parse a multi-line CSV response from PUMAPI.
 
@@ -155,29 +209,7 @@ def parse_multiline_response(text, graceful=True, use_pandas=True):
 
     if use_pandas:
         try:
-            log.trace("Trying the pandas approach on data...")
-            # sanity checking first:
-            header = pd.read_csv(StringIO(lines[0]))
-            log.trace(f"Header columns: {len(header.columns)}")
-            body = pd.read_csv(StringIO("\n".join(lines[1:])))
-            log.trace(f"Body columns: {len(body.columns)}")
-            if len(header.columns) != len(body.columns):
-                msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-                log.warning(f"{msg} ({len(header.columns)} vs. {len(body.columns)})")
-                if not graceful:
-                    raise ValueError(msg)
-
-            # now do the real parsing:
-            df = pd.read_csv(StringIO(text), skipinitialspace=True)
-            # NOTE: using 'true_values' and 'false_values' for the read_csv()
-            # call above doesn't seem to be working for unknown reasons, so we
-            # have to map them explicitly here:
-            map_booleans = {"true": True, "false": False}
-            df = df.replace(map_booleans)
-            # convert 'Nan' to empty strings:
-            df = df.fillna("")
-            # finally strip all whitespace:
-            df.columns = df.columns.str.strip()  # column names
+            df = parse_pandas_csv(text, graceful)
             parsed = df.to_dict("records")
             log.trace(f"Parsed {len(parsed)} datasets using pandas.")
             return parsed
