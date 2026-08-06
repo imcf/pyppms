@@ -1067,7 +1067,9 @@ class PpmsConnection:
         login_name : str
             The user's PPMS login name.
         skip_cache : bool, optional
-            Passed as-is to the :py:meth:`request()` method
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
 
         Returns
         -------
