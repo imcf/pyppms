@@ -103,6 +103,26 @@ def test_endtime_fromstr__time():
     assert str(booking) == EXPECTED % (START, newend)
 
 
+def test_endtime_fromstr__time_midnight(caplog):
+    """Test changing the ending time of a booking to midnight."""
+    booking = create_booking()
+
+    newtime = "23:45"
+    booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
+
+    newend = f"{DAY} {newtime}"
+    assert str(booking) == EXPECTED % (START, newend)
+    assert "Booking end is midnight" not in caplog.text
+
+    newtime = "00:00"
+    booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
+
+    new_day = (datetime.now() + timedelta(days=1)).strftime(FMT_DATE)
+    newend = f"{new_day} {newtime}"
+    assert str(booking) == EXPECTED % (START, newend)
+    assert "Booking end is midnight" in caplog.text
+
+
 def test_endtime_fromstr__date():
     """Test changing the ending date of a booking."""
     booking = create_booking()
