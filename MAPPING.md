@@ -52,7 +52,7 @@ conn = ppms.PpmsConnection(
 | getprojectgroups      |                                          |
 | getprojectmember      |                                          |
 | getprojects           | `conn.get_projects()`                    |
-| getprojectusers       |                                          |
+| getprojectusers       | `conn.get_project_users()`               |
 | getrunningsheet       | `conn.get_running_sheet()`               |
 | getservices           |                                          |
 | getsessionnote        |                                          |

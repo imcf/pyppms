@@ -1086,6 +1086,34 @@ class PpmsConnection:
         log.trace(ids)
         return ids
 
+
+    def get_project_users(self, project_id, skip_cache=False):
+        """Fetch users being members of a given project from PPMS.
+
+        Parameters
+        ----------
+        project_id : str
+            The PPMS project ID.
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+
+        Returns
+        -------
+        list(str)
+            The list of project IDs associated to the user, empty if the user
+            doesn't have any projects in PPMS.
+        """
+        response = self.request(
+            "getprojectusers", {"projectid": project_id}, skip_cache=skip_cache
+        )
+
+        ids = response.text.splitlines()
+        log.debug(f"Project [{project_id}] has {len(ids)} users in PPMS")
+        log.trace(ids)
+        return ids
+
     def get_users(self, force_refresh=False, active_only=True):
         """Get user objects for all (or cached) PPMS users.
 
