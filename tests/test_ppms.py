@@ -880,3 +880,13 @@ def test_get_user_projects_empty(ppms_connection, user_details):
     projects = ppms_connection.get_user_projects(user_details["login"])
     print(projects)
     assert len(projects) == 0
+
+
+def test_get_project_users(ppms_connection, user_details):
+    """Test get_project_users()."""
+    users = ppms_connection.get_project_users(project_id="6")
+    assert len(users) == 1
+
+    users = ppms_connection.get_project_users(project_id="7")
+    assert len(users) == 2
+    assert users == ["pyppms", "pyppms-adm"]
