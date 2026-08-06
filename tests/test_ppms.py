@@ -695,6 +695,20 @@ def test_get_running_sheet_fail(ppms_connection):
     assert ppms_connection.get_running_sheet("2", date=day) == []
 
 
+def test_get_running_sheet_empty(ppms_connection, caplog):
+    """Test case where the returned runningsheet is empty."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    switch_cache_mocks(
+        ppms_connection,
+        "runningsheet_empty",
+        "using mock with an empty response",
+    )
+    ppms_connection.get_running_sheet("2", date=day)
+    assert "Runningsheet for the given day was empty" in caplog.text
+
+
 ############ cache ############
 
 
