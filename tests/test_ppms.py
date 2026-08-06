@@ -766,6 +766,14 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
     assert not os.path.exists(fresh_cache_path)
 
 
+def test_flush_cache_no_cache(ppms_connection, caplog):
+    """Call cache_flush() with no cache path being set."""
+
+    ppms_connection.cache_path = ""
+    ppms_connection.cache_flush()
+    assert "No cache path configured, not flushing!" in caplog.text
+
+
 def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
     """Test flushing the on-disk PyPPMS cache while keeping the user details.
 
