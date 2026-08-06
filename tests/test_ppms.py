@@ -866,7 +866,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
 ############ projects ############
 
 
-def test_get_projects(ppms_connection):
+def test_get_projects(ppms_connection, caplog):
     """Test get_projects."""
     projects = ppms_connection.get_projects()
 
@@ -874,6 +874,11 @@ def test_get_projects(ppms_connection):
     assert projects[7].name == "Project Seven"
     assert "billing_code=[proj.bcode.7]" in projects[7].details()
     assert str(projects[7]) == "PpmsProject [7] 'Project Seven'"
+    assert "Using cached details for" not in caplog.text
+
+    # test the cache-existing code path:
+    ppms_connection.get_projects()
+    assert "Using cached details for" in caplog.text
 
 
 def test_get_user_projects(ppms_connection, user_details):
