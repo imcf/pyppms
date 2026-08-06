@@ -665,6 +665,15 @@ def test_get_running_sheet(ppms_connection, system_details_raw, ppms_user):
     assert len(ppms_connection.get_running_sheet("2", date=day)) == 2
 
 
+def test_get_running_sheet_uncached_user(ppms_connection, caplog):
+    """Test a runningsheet where the user is not cached."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    ppms_connection.get_running_sheet("2", date=day, ignore_uncached_users=True)
+    assert "Ignoring booking for uncached / unknown user" in caplog.text
+
+
 def test_get_running_sheet_fail(ppms_connection):
     """Test cases where no runningsheet can be assembled from the responses."""
     date = "2028-12-24"
