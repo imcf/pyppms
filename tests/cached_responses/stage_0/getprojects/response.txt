@@ -4,5 +4,5 @@ Core facility ref.,Project name,Phase,Active,Bcode,Project ref.,Affiliation,Proj
 2,"My First Project",15,False,"",3,"","Default","pyppms_group","I am going to make the good images to get the good result.|Project account number is 9873489748"
 2,"Amazing Research Project",15,False,"",4,"","Default","another_group","Image _all_ the fishes!"
 2,"Intro Sessions",0,True,"",5,"","Default","pyppms_group","PyPPMS Users Training (Intro Session)"
-2,"MBN lab",0,True,"MBN9315",6,"","Default","another_group","Confocal imaging for MBN's laboratory."
-2,"ZBD lab",0,True,"ZBD8486",7,"","Default","pyppms_group","Confocal imaging for ZBD's laboratory."
+2,"Project Six",0,True,"proj.bcode.6",6,"","Default","another_group","Imaging for Project SIX."
+2,"Project Seven",0,True,"proj.bcode.7",7,"","Default","pyppms_group","Project SEVEN's imaging ."

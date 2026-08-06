@@ -37,7 +37,7 @@ user_admin:
   mustchbcode: false
   mustchpwd: false
   affiliation: ''
-  bcode: ''
+  bcode: pyppms_adm_user_billing_code
   active: true
 
 user_standard:

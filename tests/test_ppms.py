@@ -861,10 +861,10 @@ def test_get_projects(ppms_connection):
     """Test get_projects."""
     projects = ppms_connection.get_projects()
 
-    assert projects[7].billing_code == "ZBD8486"
-    assert projects[7].name == "ZBD lab"
-    assert "billing_code=[ZBD8486]" in projects[7].details()
-    assert str(projects[7]) == "PpmsProject [7] 'ZBD lab'"
+    assert projects[7].billing_code == "proj.bcode.7"
+    assert projects[7].name == "Project Seven"
+    assert "billing_code=[proj.bcode.7]" in projects[7].details()
+    assert str(projects[7]) == "PpmsProject [7] 'Project Seven'"
 
 
 def test_get_user_projects(ppms_connection, user_details):
