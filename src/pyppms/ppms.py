@@ -442,7 +442,7 @@ class PpmsConnection:
         for detail in details:
             try:
                 project = PpmsProject(detail)
-            except ValueError as err:
+            except Exception as err:
                 log.error("Error processing `getprojects` response: {}", err)
                 fails += 1
                 continue
