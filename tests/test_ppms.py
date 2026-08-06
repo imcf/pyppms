@@ -709,6 +709,18 @@ def test_get_running_sheet_empty(ppms_connection, caplog):
     assert "Runningsheet for the given day was empty" in caplog.text
 
 
+def test_get_running_sheet_no_localisation_match(ppms_connection, caplog, ppms_user):
+    """Test case where the localisation criteria renders the matching systems empty."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
+    ppms_connection.get_running_sheet("2", date=day, localisation="rainbow")
+    assert "Given criteria return zero systems" in caplog.text
+
+
 ############ cache ############
 
 
