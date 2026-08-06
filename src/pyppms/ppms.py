@@ -8,7 +8,11 @@ from io import open
 import requests
 from loguru import logger as log
 
-from .common import dict_from_single_response, parse_multiline_response
+from .common import (
+    dict_from_single_response,
+    parse_multiline_response,
+    parse_pandas_csv,
+)
 from .user import PpmsUser
 from .group import PpmsGroup
 from .system import PpmsSystem
@@ -1086,6 +1090,78 @@ class PpmsConnection:
         log.trace(ids)
         return ids
 
+    def get_billing_codes(self, skip_cache=False):
+        """Get all billing codes from PPMS.
+
+        Parameters
+        ----------
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+
+        Returns
+        -------
+        dict
+            A nested dict with top-level keys `users`, `groups` and `projects`.
+            Each of them containing a dict with the unique identifier of of the
+            respective type (user, group, project) as the key another dict as
+            the content, having keys `billing_code`, `subsidy`, `charges`.
+
+        Examples
+        --------
+        To identify the billing code of the project with ID '7', the following
+        can be used:
+
+        >>> get_billing_codes()["projects"][7]
+        ... {
+        ...     "billing_code": "ABC123",
+        ...     "subsidy": "",
+        ...     "charges": 257.55,
+        ... }
+
+        For user `pyppms`:
+
+        >>> get_billing_codes()["users"]["pyppms"]
+        ... {
+        ...     "billing_code": "FOO007",
+        ...     "subsidy": "",
+        ...     "charges": 123.45,
+        ... }
+        """
+        response = self.request("getbcodes", skip_cache=skip_cache)
+        df = parse_pandas_csv(response.text)
+        df = df.rename(
+            columns={
+                "User": "user",
+                "Group": "group",
+                "Project": "project",
+                "Bcode": "billing_code",
+                "Subsidy": "subsidy",
+                "Charges": "charges",
+            }
+        )
+        user_codes = (
+            df[~df["user"].isin([""])]
+            .set_index("user")
+            .drop(["group", "project"], axis=1)
+        )
+        group_codes = (
+            df[~df["group"].isin([""])]
+            .set_index("group")
+            .drop(["user", "project"], axis=1)
+        )
+        project_codes = (
+            df[~df["project"].isin([""])]
+            .set_index("project")
+            .drop(["user", "group"], axis=1)
+        )
+
+        return {
+            "users": user_codes.to_dict("index"),
+            "groups": group_codes.to_dict("index"),
+            "projects": project_codes.to_dict("index"),
+        }
 
     def get_project_users(self, project_id, skip_cache=False):
         """Fetch users being members of a given project from PPMS.

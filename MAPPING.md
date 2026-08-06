@@ -31,7 +31,7 @@ conn = ppms.PpmsConnection(
 | delvalidbcode         |                                          |
 | getadmins             | `conn.get_admins()`                      |
 | getaffiliationsummary |                                          |
-| getbcodes             |                                          |
+| getbcodes             | `conn.get_billing_codes()`               |
 | getbooking            |                                          |
 | getgroup              | `conn.get_group()`                       |
 | getgroupprojects      |                                          |

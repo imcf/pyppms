@@ -2,8 +2,8 @@
 
 import pytest
 
-from pyppms.common import set_loglevel
 from pyppms.billing import PpmsBillingInformation
+from pyppms.common import set_loglevel
 
 set_loglevel("TRACE")
 
@@ -31,3 +31,20 @@ def test_billing_info_equality():
     info = PpmsBillingInformation("007", "user")
     assert info.__eq__("a random string") is False
     assert info.__eq__(None) is False
+
+
+def test_get_billing_codes(ppms_connection):
+    """Test get_billing_codes()."""
+    codes = ppms_connection.get_billing_codes()
+
+    assert codes["projects"][7] == {
+        "billing_code": "proj.bcode.7",
+        "subsidy": "",
+        "charges": 2550.55,
+    }
+
+    assert codes["users"]["pyppms"] == {
+        "billing_code": "pyppms_user_billing_code",
+        "subsidy": "",
+        "charges": 36363.1111,
+    }
