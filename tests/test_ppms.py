@@ -665,6 +665,20 @@ def test_get_running_sheet(ppms_connection, system_details_raw, ppms_user):
     assert len(ppms_connection.get_running_sheet("2", date=day)) == 2
 
 
+def test_get_running_sheet_no_system_matching(ppms_connection, caplog, ppms_user):
+    """Test a runningsheet where the user is not cached."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    switch_cache_mocks(ppms_connection, "runningsheet_no_system_matching")
+
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
+    ppms_connection.get_running_sheet("2", date=day)
+    assert "No systems matching criteria" in caplog.text
+
+
 def test_get_running_sheet_uncached_user(ppms_connection, caplog):
     """Test a runningsheet where the user is not cached."""
     date = "2028-12-24"
