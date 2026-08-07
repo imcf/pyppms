@@ -35,13 +35,17 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 ### 🚀 Improved
 
-- `pyppms.user.PpmsUser` got extended by the following attributes (in brackets
+- **🧑‍🤝‍🧑 User class**
+  `pyppms.user.PpmsUser` got extended by the following attributes (in brackets
   the name of the respective field in the PUMAPI response, in case it differs):
   - `billing_info` - a list of `pyppms.billing.PpmsBillingInformation` objects,
     with details being derived from user field `bcode`, group field `unitbcode`
     and future usage of project-related billing.
   - `phone`
   - `affiliation`
+- **🧪 Tests Coverage 📊**
+  Several tests have been added, test coverage is now available on
+  [codecov.io](https://codecov.io/github/imcf/pyppms).
 
 ### ✨ Added
 
