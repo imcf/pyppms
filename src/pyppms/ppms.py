@@ -536,6 +536,91 @@ class PpmsConnection:
         log.trace("{} admins in the PPMS database: {}", len(admins), ", ".join(admins))
         return users
 
+    def get_billing_codes(self, skip_cache=False, force_refresh=False):
+        """Get all billing codes from PPMS.
+
+        Parameters
+        ----------
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+        force_refresh : bool, optional
+            If `True` the user details will be refreshed even if the object's
+            users cache in `self.billing_codes` already contains a corresponding
+            entry. By default `False`, meaning the instance-cache will be used.
+            Note: this is unrelated to the **on-disk cache**, see the
+            `skip_cache` for that one.
+
+        Returns
+        -------
+        dict
+            A nested dict with top-level keys `users`, `groups` and `projects`.
+            Each of them containing a dict with the unique identifier of of the
+            respective type (user, group, project) as the key another dict as
+            the content, having keys `billing_code`, `subsidy`, `charges`.
+
+        Examples
+        --------
+        To identify the billing code of the project with ID '7', the following
+        can be used:
+
+        >>> get_billing_codes()["projects"][7]
+        ... {
+        ...     "billing_code": "ABC123",
+        ...     "subsidy": "",
+        ...     "charges": 257.55,
+        ... }
+
+        For user `pyppms`:
+
+        >>> get_billing_codes()["users"]["pyppms"]
+        ... {
+        ...     "billing_code": "FOO007",
+        ...     "subsidy": "",
+        ...     "charges": 123.45,
+        ... }
+        """
+        if not force_refresh and self.billing_codes:
+            log.trace("Serving billing codes from instance-cache.")
+            return self.billing_codes
+
+        response = self.request("getbcodes", skip_cache=skip_cache)
+        df = parse_pandas_csv(response.text)
+        df = df.rename(
+            columns={
+                "User": "user",
+                "Group": "group",
+                "Project": "project",
+                "Bcode": "billing_code",
+                "Subsidy": "subsidy",
+                "Charges": "charges",
+            }
+        )
+        user_codes = (
+            df[~df["user"].isin([""])]
+            .set_index("user")
+            .drop(["group", "project"], axis=1)
+        )
+        group_codes = (
+            df[~df["group"].isin([""])]
+            .set_index("group")
+            .drop(["user", "project"], axis=1)
+        )
+        project_codes = (
+            df[~df["project"].isin([""])]
+            .set_index("project")
+            .drop(["user", "group"], axis=1)
+        )
+
+        self.billing_codes = {
+            "users": user_codes.to_dict("index"),
+            "groups": group_codes.to_dict("index"),
+            "projects": project_codes.to_dict("index"),
+        }
+
+        return self.billing_codes
+
     def get_booking(self, system_id, booking_type="get"):
         """Get the current or next booking of a system.
 
@@ -677,6 +762,33 @@ class PpmsConnection:
     def get_next_booking(self, system_id):
         """Call `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
+
+    def get_project_users(self, project_id, skip_cache=False):
+        """Fetch users being members of a given project from PPMS.
+
+        Parameters
+        ----------
+        project_id : str
+            The PPMS project ID.
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+
+        Returns
+        -------
+        list(str)
+            The list of project IDs associated to the user, empty if the user
+            doesn't have any projects in PPMS.
+        """
+        response = self.request(
+            "getprojectusers", {"projectid": project_id}, skip_cache=skip_cache
+        )
+
+        ids = response.text.splitlines()
+        log.debug(f"Project [{project_id}] has {len(ids)} users in PPMS")
+        log.trace(ids)
+        return ids
 
     def get_projects(self, force_refresh=False):
         """Get a dict with all projects in PPMS.
@@ -1088,118 +1200,6 @@ class PpmsConnection:
 
         ids = response.text.splitlines()
         log.debug(f"User [{login_name}] has {len(ids)} projects in PPMS")
-        log.trace(ids)
-        return ids
-
-    def get_billing_codes(self, skip_cache=False, force_refresh=False):
-        """Get all billing codes from PPMS.
-
-        Parameters
-        ----------
-        skip_cache : bool, optional
-            If set to True the request will NOT be served from the local on-disk
-            cache, independent whether a matching response file exists there, by
-            default False. Passed as-is to the :py:meth:`request()` method.
-        force_refresh : bool, optional
-            If `True` the user details will be refreshed even if the object's
-            users cache in `self.billing_codes` already contains a corresponding
-            entry. By default `False`, meaning the instance-cache will be used.
-            Note: this is unrelated to the **on-disk cache**, see the
-            `skip_cache` for that one.
-
-        Returns
-        -------
-        dict
-            A nested dict with top-level keys `users`, `groups` and `projects`.
-            Each of them containing a dict with the unique identifier of of the
-            respective type (user, group, project) as the key another dict as
-            the content, having keys `billing_code`, `subsidy`, `charges`.
-
-        Examples
-        --------
-        To identify the billing code of the project with ID '7', the following
-        can be used:
-
-        >>> get_billing_codes()["projects"][7]
-        ... {
-        ...     "billing_code": "ABC123",
-        ...     "subsidy": "",
-        ...     "charges": 257.55,
-        ... }
-
-        For user `pyppms`:
-
-        >>> get_billing_codes()["users"]["pyppms"]
-        ... {
-        ...     "billing_code": "FOO007",
-        ...     "subsidy": "",
-        ...     "charges": 123.45,
-        ... }
-        """
-        if not force_refresh and self.billing_codes:
-            log.trace("Serving billing codes from instance-cache.")
-            return self.billing_codes
-
-        response = self.request("getbcodes", skip_cache=skip_cache)
-        df = parse_pandas_csv(response.text)
-        df = df.rename(
-            columns={
-                "User": "user",
-                "Group": "group",
-                "Project": "project",
-                "Bcode": "billing_code",
-                "Subsidy": "subsidy",
-                "Charges": "charges",
-            }
-        )
-        user_codes = (
-            df[~df["user"].isin([""])]
-            .set_index("user")
-            .drop(["group", "project"], axis=1)
-        )
-        group_codes = (
-            df[~df["group"].isin([""])]
-            .set_index("group")
-            .drop(["user", "project"], axis=1)
-        )
-        project_codes = (
-            df[~df["project"].isin([""])]
-            .set_index("project")
-            .drop(["user", "group"], axis=1)
-        )
-
-        self.billing_codes = {
-            "users": user_codes.to_dict("index"),
-            "groups": group_codes.to_dict("index"),
-            "projects": project_codes.to_dict("index"),
-        }
-
-        return self.billing_codes
-
-    def get_project_users(self, project_id, skip_cache=False):
-        """Fetch users being members of a given project from PPMS.
-
-        Parameters
-        ----------
-        project_id : str
-            The PPMS project ID.
-        skip_cache : bool, optional
-            If set to True the request will NOT be served from the local on-disk
-            cache, independent whether a matching response file exists there, by
-            default False. Passed as-is to the :py:meth:`request()` method.
-
-        Returns
-        -------
-        list(str)
-            The list of project IDs associated to the user, empty if the user
-            doesn't have any projects in PPMS.
-        """
-        response = self.request(
-            "getprojectusers", {"projectid": project_id}, skip_cache=skip_cache
-        )
-
-        ids = response.text.splitlines()
-        log.debug(f"Project [{project_id}] has {len(ids)} users in PPMS")
         log.trace(ids)
         return ids
 
