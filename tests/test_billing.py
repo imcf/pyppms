@@ -48,3 +48,16 @@ def test_get_billing_codes(ppms_connection):
         "subsidy": "",
         "charges": 36363.1111,
     }
+
+
+def test_get_billing_codes_caching(ppms_connection, caplog):
+    """Test billing_codes caching and the `force_refresh` parameter."""
+    ppms_connection.get_billing_codes()
+    assert "Serving billing codes from instance-cache." not in caplog.text
+
+    ppms_connection.get_billing_codes()
+    assert "Serving billing codes from instance-cache." in caplog.text
+
+    caplog.clear()
+    ppms_connection.get_billing_codes(force_refresh=True)
+    assert "Serving billing codes from instance-cache." not in caplog.text

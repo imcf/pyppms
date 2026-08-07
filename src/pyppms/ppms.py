@@ -112,6 +112,7 @@ class PpmsConnection:
         self.groups = {}
         self.fullname_mapping = {}
         self.projects = {}
+        self.billing_codes = {}
         self.systems = {}
         self.status = {
             "auth_state": "NOT_TRIED",
@@ -1090,7 +1091,7 @@ class PpmsConnection:
         log.trace(ids)
         return ids
 
-    def get_billing_codes(self, skip_cache=False):
+    def get_billing_codes(self, skip_cache=False, force_refresh=False):
         """Get all billing codes from PPMS.
 
         Parameters
@@ -1099,6 +1100,12 @@ class PpmsConnection:
             If set to True the request will NOT be served from the local on-disk
             cache, independent whether a matching response file exists there, by
             default False. Passed as-is to the :py:meth:`request()` method.
+        force_refresh : bool, optional
+            If `True` the user details will be refreshed even if the object's
+            users cache in `self.billing_codes` already contains a corresponding
+            entry. By default `False`, meaning the instance-cache will be used.
+            Note: this is unrelated to the **on-disk cache**, see the
+            `skip_cache` for that one.
 
         Returns
         -------
@@ -1129,6 +1136,10 @@ class PpmsConnection:
         ...     "charges": 123.45,
         ... }
         """
+        if not force_refresh and self.billing_codes:
+            log.trace("Serving billing codes from instance-cache.")
+            return self.billing_codes
+
         response = self.request("getbcodes", skip_cache=skip_cache)
         df = parse_pandas_csv(response.text)
         df = df.rename(
@@ -1157,11 +1168,13 @@ class PpmsConnection:
             .drop(["user", "group"], axis=1)
         )
 
-        return {
+        self.billing_codes = {
             "users": user_codes.to_dict("index"),
             "groups": group_codes.to_dict("index"),
             "projects": project_codes.to_dict("index"),
         }
+
+        return self.billing_codes
 
     def get_project_users(self, project_id, skip_cache=False):
         """Fetch users being members of a given project from PPMS.
