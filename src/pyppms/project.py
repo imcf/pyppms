@@ -54,7 +54,7 @@ class PpmsProject:
             A dict with the parsed response from a `getprojects` request.
         """
 
-        self.id = details["Project ref."]
+        self.id = int(details["Project ref."])
         self.name = details["Project name"]
         self.core_facility_ref = details["Core facility ref."]
         self.phase = details["Phase"]

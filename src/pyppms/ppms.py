@@ -1171,7 +1171,7 @@ class PpmsConnection:
         log.trace(", ".join(users))
         return users
 
-    def get_user_projects(self, login_name, skip_cache=False):
+    def get_user_projects(self, login_name, skip_cache=False) -> list[int]:
         """Fetch user projects from PPMS.
 
         Parameters
@@ -1185,7 +1185,7 @@ class PpmsConnection:
 
         Returns
         -------
-        list(str)
+        list(int)
             The list of project IDs associated to the user, empty if the user
             doesn't have any projects in PPMS.
         """
@@ -1193,7 +1193,7 @@ class PpmsConnection:
             "getuserprojects", {"login": login_name}, skip_cache=skip_cache
         )
 
-        ids = response.text.splitlines()
+        ids = [int(x) for x in response.text.splitlines()]
         log.debug(f"User [{login_name}] has {len(ids)} projects in PPMS")
         log.trace(ids)
         return ids
