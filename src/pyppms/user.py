@@ -52,6 +52,13 @@ class PpmsUser:
         """
         details = dict_from_single_response(response_text, graceful=True)
 
+        self.username: str = str(details["login"])
+        self.email: str = str(details["email"])
+        self.phone: str = str(details["phone"])
+        self.affiliation: str = str(details["affiliation"])
+        self.active: bool = bool(details["active"])
+        self._fullname: str = f"{details['lname']} {details['fname']}"
+
         self.billing_info: list[PpmsBillingInformation] = []
         self.ppms_group: PpmsGroup | None = None
 
@@ -70,12 +77,6 @@ class PpmsUser:
             )
             self.billing_info.append(billing_info)
 
-        self.username: str = str(details["login"])
-        self.email: str = str(details["email"])
-        self.phone: str = str(details["phone"])
-        self.affiliation: str = str(details["affiliation"])
-        self.active: bool = bool(details["active"])
-        self._fullname: str = f"{details['lname']} {details['fname']}"
 
         log.trace(
             f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
