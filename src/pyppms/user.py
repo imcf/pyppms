@@ -61,15 +61,7 @@ class PpmsUser:
 
         self.billing_info: list[PpmsBillingInformation] = []
         self.ppms_group: PpmsGroup | None = None
-
         self.ppms_group_name: str = str(details["unitlogin"])
-        if self.ppms_group_name and conn:
-            log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
-            self.ppms_group = conn.get_group(self.ppms_group_name)
-            if self.ppms_group:
-                group_billing = self.ppms_group.billing_info
-                group_billing.description = f"Group: {self.ppms_group_name}"
-                self.billing_info.append(group_billing)
 
         if str(details["bcode"]):
             billing_info = PpmsBillingInformation(
@@ -77,6 +69,8 @@ class PpmsUser:
             )
             self.billing_info.append(billing_info)
 
+        if conn:
+            self._fill_group_details(conn)
 
         log.trace(
             f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
@@ -88,6 +82,15 @@ class PpmsUser:
             for info in self.billing_info:
                 infos += f"\n- {str(info)}"
             log.trace(f"PpmsUser [{self.username}] billing information:{infos}")
+
+    def _fill_group_details(self, conn):
+        """Fetch group details and store them in the object attributes."""
+        log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
+        self.ppms_group = conn.get_group(self.ppms_group_name)
+        if self.ppms_group:
+            group_billing = self.ppms_group.billing_info
+            group_billing.description = f"Group: {self.ppms_group_name}"
+            self.billing_info.append(group_billing)
 
     @property
     def fullname(self) -> str:
