@@ -66,14 +66,7 @@ class PpmsUser:
 
         self.projects: dict = {}
 
-        if str(details["bcode"]):
-            log.trace(f"Adding user-specific billing info for [{self.username}]...")
-            billing_info = PpmsBillingInformation(
-                str(details["bcode"]), "user", "Personal billing code"
-            )
-            self.billing_info.append(billing_info)
-        else:
-            log.trace(f"No user-specific billing info for [{self.username}].")
+        self._fill_user_billing(str(details["bcode"]))
 
         if conn:
             self._fill_group_details(conn)
@@ -89,6 +82,16 @@ class PpmsUser:
             for info in self.billing_info:
                 infos += f"\n- {str(info)}"
             log.trace(f"PpmsUser [{self.username}] billing information:{infos}")
+
+    def _fill_user_billing(self, bcode):
+        """Process user specific billing code and store it in the object attributes."""
+        if not bcode:
+            log.trace(f"No user-specific billing info for [{self.username}].")
+            return
+
+        log.trace(f"Adding user-specific billing info for [{self.username}]...")
+        billing_info = PpmsBillingInformation(bcode, "user", "Personal billing code")
+        self.billing_info.append(billing_info)
 
     def _fill_group_details(self, conn):
         """Fetch group details and store them in the object attributes."""
