@@ -139,7 +139,15 @@ class PpmsUser:
         return self._fullname
 
     def details(self) -> str:
-        """Generate a string with details on the user object."""
+        """Generate a string with details on the user object.
+
+        Example:
+        --------
+        (Output wrapped into multiple lines to improve readability.)
+        >>> user.details()
+        ... username: pyppms, email: pyppms@python-facility.example,
+        ... fullname: Python PumAPI, ppms_group_name: pyppms_group, active: True
+        """
         return (
             f"username: {self.username}, "
             f"email: {self.email}, "
