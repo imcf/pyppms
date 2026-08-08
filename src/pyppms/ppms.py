@@ -42,17 +42,17 @@ class PpmsConnection:
     users : dict
         A dict with usernames as keys, mapping to the related
         :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the
-        object's lifetime (can be empty if no calls to :py:meth:`get_user()`
+        object's lifetime (can be empty if no calls to :py:meth:`get_user`
         have been done yet).
     groups : dict
         A dict with group names as keys, mapping to the related
         :py:class:`pyppms.group.PpmsGroup` object, serves as a cache during the
-        object's lifetime (can be empty if no calls to :py:meth:`get_group()`
-        have been done yet).
+        object's lifetime (can be empty if no calls to :py:meth:`get_group` have
+        been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
-        :py:meth:`get_user()` method.
+        :py:meth:`get_user` method.
     projects
         A dict with project IDs as keys, mapping to the related
         :py:class:`pyppms.project.PpmsProject` object. Will be populated
@@ -62,8 +62,8 @@ class PpmsConnection:
     systems
         A dict with system IDs as keys, mapping to the related
         :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during
-        the object's lifetime (can be empty if no calls to the
-        :py:meth:`get_systems()` have been done yet).
+        the object's lifetime (can be empty if no calls to
+        :py:meth:`get_systems` have been done yet).
     status : dict
         A dict with keys ``auth_state``, ``auth_response`` and
         ``auth_httpstatus``.
