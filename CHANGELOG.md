@@ -53,9 +53,11 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 - **🏦 New class for billing / accounting information**
   `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
-  accounting information of PPMS users, groups (and potentially projects).
+  accounting information of PPMS users, groups and projects.
 - **🧑🏼‍🤝‍🧑🏻 New class for group information**
   `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
+- **🗂️ New class for project information**
+  `pyppms.project.PpmsProject` has been added to reflect PPMS projects.
 - **👷‍♂️ New optional constructor argument**: `pyppms.user.PpmsUser` has been
   modified to accept an additional argument `conn` that is used to automatically
   fetch group details (including billing information) during object creation.
