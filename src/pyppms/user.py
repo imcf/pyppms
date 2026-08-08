@@ -64,10 +64,13 @@ class PpmsUser:
         self.ppms_group_name: str = str(details["unitlogin"])
 
         if str(details["bcode"]):
+            log.trace(f"Adding user-specific billing info for [{self.username}]...")
             billing_info = PpmsBillingInformation(
                 str(details["bcode"]), "user", "Personal billing code"
             )
             self.billing_info.append(billing_info)
+        else:
+            log.trace(f"No user-specific billing info for [{self.username}].")
 
         if conn:
             self._fill_group_details(conn)
