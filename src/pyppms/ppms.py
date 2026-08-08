@@ -55,9 +55,10 @@ class PpmsConnection:
         :py:meth:`get_user()` method.
     projects
         A dict with project IDs as keys, mapping to the related
-        :py:class:`pyppms.system.PpmsProject` object. Serves as a cache during
-        the object's lifetime (can be empty if no calls to the
-        :py:meth:`get_projects()` have been done yet).
+        :py:class:`pyppms.system.PpmsProject` object. Will be populated
+        automatically by querying PUMAPI if empty (i.e. upon the first access),
+        or in case it has been re-set to an empty dict in order to enforce a new
+        request / update).
     systems
         A dict with system IDs as keys, mapping to the related
         :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during
