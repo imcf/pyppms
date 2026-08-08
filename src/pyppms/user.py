@@ -75,8 +75,6 @@ class PpmsUser:
         self.phone: str = str(details["phone"])
         self.affiliation: str = str(details["affiliation"])
         self.active: bool = bool(details["active"])
-        log.warning(details)
-        log.success(self.active)
         self._fullname: str = f"{details['lname']} {details['fname']}"
 
         log.trace(
