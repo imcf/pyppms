@@ -46,7 +46,7 @@ class PpmsConnection:
         have been done yet).
     groups : dict
         A dict with group names as keys, mapping to the related
-        :py:class:`pyppms.user.PpmsGroup` object, serves as a cache during the
+        :py:class:`pyppms.group.PpmsGroup` object, serves as a cache during the
         object's lifetime (can be empty if no calls to :py:meth:`get_group()`
         have been done yet).
     fullname_mapping : dict
@@ -55,7 +55,7 @@ class PpmsConnection:
         :py:meth:`get_user()` method.
     projects
         A dict with project IDs as keys, mapping to the related
-        :py:class:`pyppms.system.PpmsProject` object. Will be populated
+        :py:class:`pyppms.project.PpmsProject` object. Will be populated
         automatically by querying PUMAPI if empty (i.e. upon the first access),
         or in case it has been re-set to an empty dict in order to enforce a new
         request / update).
