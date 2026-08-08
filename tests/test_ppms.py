@@ -930,10 +930,10 @@ def test_projects(ppms_connection, caplog):
 
 
 def test_get_user_projects(ppms_connection, user_details):
-    """Test get_projects with a user having one project."""
+    """Test get_projects with a user having two projects."""
     projects = ppms_connection.get_user_projects(user_details["login"])
     print(projects)
-    assert len(projects) == 1
+    assert len(projects) == 2
 
 
 def test_get_user_projects_empty(ppms_connection, user_details):

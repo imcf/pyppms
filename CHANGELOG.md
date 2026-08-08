@@ -41,6 +41,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   - `billing_info` - a list of `pyppms.billing.PpmsBillingInformation` objects,
     with details being derived from user field `bcode`, group field `unitbcode`
     and future usage of project-related billing.
+  - `projects` - a dict with `pyppms.project.PpmsProject` objects, using their
+    respective project ID as the key.
   - `phone`
   - `affiliation`
 - **🧪 Tests Coverage 📊**

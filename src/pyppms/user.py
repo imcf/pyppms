@@ -5,6 +5,7 @@ from loguru import logger as log
 from .billing import PpmsBillingInformation
 from .common import dict_from_single_response
 from .group import PpmsGroup
+from .project import PpmsProject
 
 
 class PpmsUser:
@@ -63,6 +64,8 @@ class PpmsUser:
         self.ppms_group: PpmsGroup | None = None
         self.ppms_group_name: str = str(details["unitlogin"])
 
+        self.projects: dict = {}
+
         if str(details["bcode"]):
             log.trace(f"Adding user-specific billing info for [{self.username}]...")
             billing_info = PpmsBillingInformation(
@@ -74,6 +77,7 @@ class PpmsUser:
 
         if conn:
             self._fill_group_details(conn)
+            self._fill_projects(conn)
 
         log.trace(
             f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
@@ -94,6 +98,27 @@ class PpmsUser:
             group_billing = self.ppms_group.billing_info
             group_billing.description = f"Group: {self.ppms_group_name}"
             self.billing_info.append(group_billing)
+
+    def _fill_projects(self, conn):
+        """Fetch user projects and related billing information."""
+        log.trace(f"Fetching project info for [{self.username}]...")
+        project_ids = conn.get_user_projects(login_name=self.username)
+        for project_id in project_ids:
+            try:
+                project: PpmsProject = conn.projects[project_id]
+                self.projects[project_id] = project
+            except Exception as e:
+                log.warning(f"Processing project {project_id} failed: {e}")
+
+        log.trace(f"Processing project billing codes for [{self.username}]...")
+        for project in self.projects.values():
+            try:
+                billing_info = PpmsBillingInformation(
+                    project.billing_code, "project", f"[{project.id}] {project.name}"
+                )
+                self.billing_info.append(billing_info)
+            except Exception as e:
+                log.warning(f"Error in billing info for project [{project.id}]: {e}")
 
     @property
     def fullname(self) -> str:
