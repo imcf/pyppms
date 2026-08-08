@@ -111,7 +111,7 @@ class PpmsConnection:
         self.users = {}
         self.groups = {}
         self.fullname_mapping = {}
-        self.projects = {}
+        self._projects = {}
         self.billing_codes = {}
         self.systems = {}
         self.status = {
@@ -142,6 +142,25 @@ class PpmsConnection:
             raise RuntimeError(
                 "Neither API key nor cache path given, at least one is required!"
             )
+
+    @property
+    def projects(self) -> dict[int, PpmsProject]:
+        """PPMS Project Information.
+
+        A dict with project IDs (int) as keys, mapping to the related
+        :py:class:`pyppms.system.PpmsProject` object. Will be populated by
+        querying PUMAPI if empty (i.e. upon the first access or in case it has
+        been re-set to an empty dict in order to enforce a new request).
+
+        Returns
+        -------
+        dict(PpmsProject)
+        """
+        if self._projects:
+            log.trace("Using cached details for {} projects", len(self._projects))
+        else:
+            self.cache_update_projects()
+        return self._projects
 
     def __authenticate(self):
         """Try to authenticate to PPMS using the `auth` request.
@@ -454,7 +473,7 @@ class PpmsConnection:
             f"Updated {len(projects)} projects from PPMS ({fails} failed parsing)",
         )
 
-        self.projects = projects
+        self._projects = projects
 
     def cache_update_systems(self):
         """Update cached details for all bookable systems from PPMS.
@@ -789,30 +808,6 @@ class PpmsConnection:
         log.debug(f"Project [{project_id}] has {len(ids)} users in PPMS")
         log.trace(ids)
         return ids
-
-    def get_projects(self, force_refresh=False):
-        """Get a dict with all projects in PPMS.
-
-        Parameters
-        ----------
-        force_refresh : bool, optional
-            If `True` the list of projects will be refreshed even if the object's
-            attribute `self.projects` is non-empty, by default `False`. Please
-            note that this will NOT skip the on-disk cache in case that exists!
-
-        Returns
-        -------
-        dict(pyppms.system.PpmsProject)
-            A dict with `PpmsProject` objects parsed from the PUMAPI response
-            where the project ID (int) is used as the dict's key. If parsing a
-            project fails for any reason, the project is skipped entirely.
-        """
-        if self.projects and not force_refresh:
-            log.trace("Using cached details for {} projects", len(self.projects))
-        else:
-            self.cache_update_projects()
-
-        return self.projects
 
     def get_running_sheet(
         self, core_facility_ref, date, ignore_uncached_users=False, localisation=""

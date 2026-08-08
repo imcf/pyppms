@@ -914,9 +914,9 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
 ############ projects ############
 
 
-def test_get_projects(ppms_connection, caplog):
-    """Test get_projects."""
-    projects = ppms_connection.get_projects()
+def test_projects(ppms_connection, caplog):
+    """Test projects property."""
+    projects = ppms_connection.projects
 
     assert projects[7].billing_code == "proj.bcode.7"
     assert projects[7].name == "Project Seven"
@@ -925,7 +925,7 @@ def test_get_projects(ppms_connection, caplog):
     assert "Using cached details for" not in caplog.text
 
     # test the cache-existing code path:
-    ppms_connection.get_projects()
+    ppms_connection.projects
     assert "Using cached details for" in caplog.text
 
 
@@ -954,8 +954,8 @@ def test_get_project_users(ppms_connection, user_details):
     assert users == ["pyppms", "pyppms-adm"]
 
 
-def test_get_projects_failing(ppms_connection, caplog):
-    """Test get_projects with an invalid response."""
+def test_projects_failing(ppms_connection, caplog):
+    """Test projects property with an invalid response."""
     switch_cache_mocks(ppms_connection, "projects_invalid")
-    ppms_connection.get_projects()
+    _ = ppms_connection.projects
     assert "Error processing `getprojects` response" in caplog.text
