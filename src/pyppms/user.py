@@ -5,6 +5,7 @@ from loguru import logger as log
 from .billing import PpmsBillingInformation
 from .common import dict_from_single_response
 from .group import PpmsGroup
+from .project import PpmsProject
 
 
 class PpmsUser:
@@ -52,32 +53,24 @@ class PpmsUser:
         """
         details = dict_from_single_response(response_text, graceful=True)
 
-        self.billing_info: list[PpmsBillingInformation] = []
-        self.ppms_group: PpmsGroup | None = None
-
-        self.ppms_group_name: str = str(details["unitlogin"])
-        if self.ppms_group_name and conn:
-            log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
-            self.ppms_group = conn.get_group(self.ppms_group_name)
-            if self.ppms_group:
-                group_billing = self.ppms_group.billing_info
-                group_billing.description = f"Group: {self.ppms_group_name}"
-                self.billing_info.append(group_billing)
-
-        if str(details["bcode"]):
-            billing_info = PpmsBillingInformation(
-                str(details["bcode"]), "user", "Personal billing code"
-            )
-            self.billing_info.append(billing_info)
-
         self.username: str = str(details["login"])
         self.email: str = str(details["email"])
         self.phone: str = str(details["phone"])
         self.affiliation: str = str(details["affiliation"])
         self.active: bool = bool(details["active"])
-        log.warning(details)
-        log.success(self.active)
         self._fullname: str = f"{details['lname']} {details['fname']}"
+
+        self.billing_info: list[PpmsBillingInformation] = []
+        self.ppms_group: PpmsGroup | None = None
+        self.ppms_group_name: str = str(details["unitlogin"])
+
+        self.projects: dict = {}
+
+        self._fill_user_billing(str(details["bcode"]))
+
+        if conn:
+            self._fill_group_details(conn)
+            self._fill_projects(conn)
 
         log.trace(
             f"PpmsUser initialized: username=[{self.username}], email=[{self.email}], "
@@ -89,6 +82,46 @@ class PpmsUser:
             for info in self.billing_info:
                 infos += f"\n- {str(info)}"
             log.trace(f"PpmsUser [{self.username}] billing information:{infos}")
+
+    def _fill_user_billing(self, bcode):
+        """Process user specific billing code and store it in the object attributes."""
+        if not bcode:
+            log.trace(f"No user-specific billing info for [{self.username}].")
+            return
+
+        log.trace(f"Adding user-specific billing info for [{self.username}]...")
+        billing_info = PpmsBillingInformation(bcode, "user", "Personal billing code")
+        self.billing_info.append(billing_info)
+
+    def _fill_group_details(self, conn):
+        """Fetch group details and store them in the object attributes."""
+        log.trace(f"Fetching group details for [{self.ppms_group_name}]...")
+        self.ppms_group = conn.get_group(self.ppms_group_name)
+        if self.ppms_group:
+            group_billing = self.ppms_group.billing_info
+            group_billing.description = f"Group: {self.ppms_group_name}"
+            self.billing_info.append(group_billing)
+
+    def _fill_projects(self, conn):
+        """Fetch user projects and related billing information."""
+        log.trace(f"Fetching project info for [{self.username}]...")
+        project_ids = conn.get_user_projects(login_name=self.username)
+        for project_id in project_ids:
+            try:
+                project: PpmsProject = conn.projects[project_id]
+                self.projects[project_id] = project
+            except Exception as e:
+                log.warning(f"Processing project {project_id} failed: {e}")
+
+        log.trace(f"Processing project billing codes for [{self.username}]...")
+        for project in self.projects.values():
+            try:
+                billing_info = PpmsBillingInformation(
+                    project.billing_code, "project", f"[{project.id}] {project.name}"
+                )
+                self.billing_info.append(billing_info)
+            except Exception as e:
+                log.warning(f"Error in billing info for project [{project.id}]: {e}")
 
     @property
     def fullname(self) -> str:

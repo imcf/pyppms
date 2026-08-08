@@ -29,7 +29,7 @@ class PpmsBillingInformation:
         description: str = "",
     ):
         if not billing_code:
-            raise ValueError("Empty billing codes are not allowed!")
+            raise ValueError("Empty billing codes are currently not supported!")
         if not billing_type in VALID_TYPES:
             raise ValueError(f"Billing type has to be one of {VALID_TYPES}!")
         self.billing_code: str = billing_code

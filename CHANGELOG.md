@@ -41,6 +41,8 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   - `billing_info` - a list of `pyppms.billing.PpmsBillingInformation` objects,
     with details being derived from user field `bcode`, group field `unitbcode`
     and future usage of project-related billing.
+  - `projects` - a dict with `pyppms.project.PpmsProject` objects, using their
+    respective project ID as the key.
   - `phone`
   - `affiliation`
 - **🧪 Tests Coverage 📊**
@@ -51,9 +53,11 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 - **🏦 New class for billing / accounting information**
   `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
-  accounting information of PPMS users, groups (and potentially projects).
+  accounting information of PPMS users, groups and projects.
 - **🧑🏼‍🤝‍🧑🏻 New class for group information**
   `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
+- **🗂️ New class for project information**
+  `pyppms.project.PpmsProject` has been added to reflect PPMS projects.
 - **👷‍♂️ New optional constructor argument**: `pyppms.user.PpmsUser` has been
   modified to accept an additional argument `conn` that is used to automatically
   fetch group details (including billing information) during object creation.

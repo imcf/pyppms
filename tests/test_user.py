@@ -3,6 +3,8 @@
 from pyppms.common import set_loglevel
 from pyppms.user import PpmsUser
 
+from helpers import switch_cache_mocks
+
 set_loglevel("TRACE")
 
 
@@ -20,13 +22,17 @@ def test_user_details(user_details, ppms_user):
 def test_user_billing_info(user_details, ppms_connection):
     """Test the PpmsUser billing information."""
     user = PpmsUser(user_details["api_response"], conn=ppms_connection)
-    assert len(user.billing_info) == 2
+    assert len(user.billing_info) == 3
 
-    assert user.billing_info[0].billing_code == "pyppms_group_billing_code"
-    assert user.billing_info[0].billing_type == "group"
+    assert user.billing_info[0].billing_code == "pyppms_user_billing_code"
+    assert user.billing_info[0].billing_type == "user"
 
-    assert user.billing_info[1].billing_code == "pyppms_user_billing_code"
-    assert user.billing_info[1].billing_type == "user"
+    assert user.billing_info[1].billing_code == "pyppms_group_billing_code"
+    assert user.billing_info[1].billing_type == "group"
+
+    assert user.billing_info[2].billing_code == "proj.bcode.6"
+    assert user.billing_info[2].billing_type == "project"
+    assert user.billing_info[2].description == "[6] Project Six"
 
 
 def test_user_fullname(user_details, ppms_user):
@@ -34,3 +40,14 @@ def test_user_fullname(user_details, ppms_user):
     assert ppms_user.fullname == f"{user_details['lname']} {user_details['fname']}"
     ppms_user._fullname = ""
     assert ppms_user.fullname == user_details["login"]
+
+
+def test_user_project_fails(user_details, ppms_connection, caplog):
+    """Test user instantiation when one of its projects fails."""
+    switch_cache_mocks(
+        ppms_connection, "project_missing", "non-existing user project referenced"
+    )
+    # trigger the "getuserprojects" request
+    ppms_connection.get_user_projects(user_details["login"])
+    PpmsUser(user_details["api_response"], conn=ppms_connection)
+    assert "Processing project 42 failed" in caplog.text
