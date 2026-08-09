@@ -1,0 +1,152 @@
+name: 🚚🌍 Publish Release
+
+on:
+
+  release:
+    types:
+    - published # A release, pre-release, or draft of a release was published.
+
+  workflow_dispatch:
+
+
+permissions:
+  contents: read
+
+jobs:
+
+  build-python-package:
+    name: 🎭👷 Build 🐍 Python package 📦
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v6
+      name: 📥 Checkout repo
+
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+
+    - name: 🗃 Cache Poetry install
+      uses: actions/cache@v5
+      with:
+        path: ~/.local
+        key: poetry-2.4.1
+
+    # The key configuration value here is `virtualenvs-in-project: true`: this
+    # creates the venv as a `.venv` in your testing directory, which allows
+    # the next step to easily cache it.
+    - name: 🔩🔧 Install 🎭 Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 2.4.1
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    # Cache dependencies (i.e. all the stuff in your `pyproject.toml`).
+    - name: 🗃 Cache 🧾 Dependencies
+      id: cache-deps
+      uses: actions/cache@v5
+      with:
+        path: .venv
+        key: pydeps-${{ hashFiles('**/poetry.lock') }}
+
+    # Install dependencies. `--no-root` means "install all dependencies but
+    # not the project itself", which is what you want to avoid caching _your_
+    # code. The `if` statement ensures this only runs on a cache miss.
+    - name: 🎭 Install 🧾 Dependencies
+      run: poetry install --no-interaction --no-root
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+
+    - name: 🎭 Install 🛖 project
+      run: poetry install --no-interaction
+
+    - name: 🎭👷 Build 🧱 project
+      run: poetry build
+
+    - name: 📤 Upload build artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-dists
+        path: dist/
+
+  pypi-publish:
+    name: 🚚 Publish 📦 on 🎪 PyPI
+
+    runs-on: ubuntu-latest
+
+    needs:
+    - build-python-package
+
+    permissions:
+      id-token: write
+
+    environment:
+      name: release
+
+    steps:
+    - name: 📥 Retrieve release 📦 distributions
+      uses: actions/download-artifact@v8
+      with:
+        name: release-dists
+        path: dist/
+
+    - name: 🥁 Publish release distributions to 🎪 PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: dist/
+
+  dispatch-foreign-workflows:
+    name: Dispatch foreign workflows 🚀🌖
+
+    runs-on: ubuntu-latest
+
+    needs:
+    - pypi-publish
+
+    strategy:
+      matrix:
+        repo: [ 'imcf/imcf.github.io' ]
+
+    steps:
+    - name: 🏹 Fire event on `${{ matrix.repo }}`
+      run: |
+        curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.DISPATCH_DEPLOY_PAGES }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{ matrix.repo }}/dispatches \
+          -d '{"event_type":"dispatch-event"}'
+
+  upload-release-assets:
+    name: 🚚🌍 Upload release assets 📦
+
+    runs-on: ubuntu-latest
+
+    needs:
+    - build-python-package
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: 📥 Retrieve artifacts 📦
+      uses: actions/download-artifact@v8
+      with:
+        path: artifacts/
+
+    - name: 📑🕵🏼 List artifacts 📦
+      run: ls -R artifacts/
+
+    - name: 🔀 Merge artifacts 📦
+      run: |
+        mkdir -p merged-artifacts
+        find artifacts -type f -exec mv {} merged-artifacts \;
+        ls -R merged-artifacts
+
+    - name: 🚚🌍 Attach artifacts 📦 to GH release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: merged-artifacts/*
