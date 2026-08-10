@@ -104,7 +104,7 @@ class PpmsUser:
         if self.ppms_group:
             group_billing = self.ppms_group.billing_info
             group_billing.description = (
-                f"[{self.ppms_group.gid}] {self.ppms_group.name}"
+                f"[{self.ppms_group.gid}]: {self.ppms_group.name}"
             )
             self.billing_info.append(group_billing)
 
@@ -125,7 +125,7 @@ class PpmsUser:
                 billing_info = PpmsBillingInformation(
                     billing_code=project.billing_code,
                     billing_type="project",
-                    description=f"[{project.id}] {project.name}",
+                    description=f"[{project.id}]: {project.name}",
                 )
                 self.billing_info.append(billing_info)
             except Exception as e:

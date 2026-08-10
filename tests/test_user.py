@@ -32,7 +32,7 @@ def test_user_billing_info(user_details, ppms_connection, group_details):
 
     assert user.billing_info[2].billing_code == "proj.bcode.6"
     assert user.billing_info[2].billing_type == "project"
-    assert user.billing_info[2].description == "[6] Project Six"
+    assert user.billing_info[2].description == "[6]: Project Six"
 
 
 def test_user_fullname(user_details, ppms_user):
