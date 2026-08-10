@@ -90,7 +90,11 @@ class PpmsUser:
             return
 
         log.trace(f"Adding user-specific billing info for [{self.username}]...")
-        billing_info = PpmsBillingInformation(bcode, "user", "Personal billing code")
+        billing_info = PpmsBillingInformation(
+            billing_code=bcode,
+            billing_type="user",
+            description="Personal billing code",
+        )
         self.billing_info.append(billing_info)
 
     def _fill_group_details(self, conn):
@@ -117,7 +121,9 @@ class PpmsUser:
         for project in self.projects.values():
             try:
                 billing_info = PpmsBillingInformation(
-                    project.billing_code, "project", f"[{project.id}] {project.name}"
+                    billing_code=project.billing_code,
+                    billing_type="project",
+                    description=f"[{project.id}] {project.name}",
                 )
                 self.billing_info.append(billing_info)
             except Exception as e:
