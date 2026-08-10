@@ -26,9 +26,11 @@ def test_user_billing_info(user_details, ppms_connection, group_details):
 
     assert user.billing_info[0].billing_code == user_details["bcode"]
     assert user.billing_info[0].billing_type == "user"
+    assert user.billing_info[0].description == "Personal billing code"
 
     assert user.billing_info[1].billing_code == group_details.billing_info.billing_code
     assert user.billing_info[1].billing_type == group_details.billing_info.billing_type
+    assert user.billing_info[1].description == "[pyppms_group]: Python Core Facility"
 
     assert user.billing_info[2].billing_code == "proj.bcode.6"
     assert user.billing_info[2].billing_type == "project"
