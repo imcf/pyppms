@@ -19,16 +19,16 @@ def test_user_details(user_details, ppms_user):
     assert ppms_user.details() == user_details["expected"]
 
 
-def test_user_billing_info(user_details, ppms_connection):
+def test_user_billing_info(user_details, ppms_connection, group_details):
     """Test the PpmsUser billing information."""
     user = PpmsUser(user_details["api_response"], conn=ppms_connection)
     assert len(user.billing_info) == 3
 
-    assert user.billing_info[0].billing_code == "pyppms_user_billing_code"
+    assert user.billing_info[0].billing_code == user_details["bcode"]
     assert user.billing_info[0].billing_type == "user"
 
-    assert user.billing_info[1].billing_code == "pyppms_group_billing_code"
-    assert user.billing_info[1].billing_type == "group"
+    assert user.billing_info[1].billing_code == group_details.billing_info.billing_code
+    assert user.billing_info[1].billing_type == group_details.billing_info.billing_type
 
     assert user.billing_info[2].billing_code == "proj.bcode.6"
     assert user.billing_info[2].billing_type == "project"
