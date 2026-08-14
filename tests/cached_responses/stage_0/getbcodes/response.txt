@@ -1,0 +1,6 @@
+Bcode, User, Group, Project, Subsidy, Charges
+"pyppms_group_billing_code",,"pyppms_group",,,3434.7531
+"pyppms_user_billing_code","pyppms",,,,36363.1111
+"pyppms_adm_user_billing_code","pyppms-adm",,,,5.6789
+"proj.bcode.6",,,6,,12.3456
+"proj.bcode.7",,,7,,2550.5500

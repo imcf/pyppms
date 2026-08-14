@@ -1,0 +1,8 @@
+Core facility ref.,Project name,Phase,Active,Bcode,Project ref.,Affiliation,Project Type,Project Group,Descr
+2,"Test Project",15,False,"",1,"","Default","",""
+2,"PyPPMS Visiting Scientist",15,False,"ABC123",2,"","Default","pyppms_group","Hello,| |I am writing to ask whether it is possible. | |Best regards,| |Me"
+2,"My First Project",15,False,"",3,"","Default","pyppms_group","I am going to make the good images to get the good result.|Project account number is 9873489748"
+2,"Amazing Research Project",15,False,"",4,"","Default","another_group","Image _all_ the fishes!"
+2,"Intro Sessions",0,True,"",5,"","Default","pyppms_group","PyPPMS Users Training (Intro Session)"
+2,"Project Six",0,True,"proj.bcode.6",6,"","Default","another_group","Imaging for Project SIX."
+2,"Project Seven",0,True,"proj.bcode.7",7,"","Default","pyppms_group","Project SEVEN's imaging ."

@@ -1,5 +1,8 @@
 # PyPPMS
 
+[![Pytest-Poetry 🧪🎭](https://github.com/imcf/pyppms/actions/workflows/pytest-poetry.yml/badge.svg)](https://github.com/imcf/pyppms/actions/workflows/pytest-poetry.yml)
+[![codecov](https://codecov.io/github/imcf/pyppms/branch/devel/graph/badge.svg?token=JTDK74OT79)](https://codecov.io/github/imcf/pyppms)
+
 ## PUMAPI - Python Interface
 
 [Stratocore][3]'s *PPMS* booking system offers an API (the so-called *PUMAPI*, short for
@@ -13,10 +16,13 @@ This is a Python 3 package for talking to the *PUMAPI*.
 Fetch email addresses of all active users:
 
 ```Python
+from pyppmsconf import PYPPMS_URI, PYPPMS_API_KEY
 from pyppms import ppms
-from credentials_ppms import PPMS_URL, PPMS_API_KEY
+from pyppms.common import set_loglevel
 
-conn = ppms.PpmsConnection(PPMS_URL, PPMS_API_KEY)
+set_loglevel("TRACE")  # optional, default is "DEBUG"
+
+conn = ppms.PpmsConnection(PYPPMS_URI, PYPPMS_API_KEY)
 
 print("Querying PPMS for emails of active users, can take minutes...")
 emails = ppms.get_users_emails(active=True)

@@ -1,0 +1,8 @@
+Core facility ref.,Project name,Phase,Active,Bcode,Project ref.,Affiliation,Project Type,Project Group,Descr
+2,"Test project",15,False,"",1,"","Default","",""
+2,"Kotini visiting scientist",15,False,"BZ2106",2,"","Default","markus.affolter","Dear Wolf,| |I am writing to ask whether it is possible to lift temporarily the time restrictions for my Zeiss800 booking. I would need extra booking time for the period between the 19th Feb and 2nd March, because I am going to work with a visiting PhD student during that time. Thank you very much in advance. | |Best regards,| |Maria"
+2,"my first project",15,False,"",3,"","Default","IMCF","i am going to make the good images of the well prepared samples to get the good result.|snf account number is 9873489748"
+2,"Amazing research project",15,False,"",4,"","Default","IMCF","image _all_ the fishes!"
+2,"IMCF-IntroSession",0,True,"",5,"","Default","IMCF","IMCF users training (Intro session)"
+2,"Jan Gründemann lab",0,True,"NBM1593",6,"","Default","jan.grundemann","Confocal imaging for Jan Gründemann's laboratory."
+2,"Peter Scheiffele lab",0,True,"DBZ8684",7,"","Default","jan.grundemann","Confocal imaging for Peter Scheiffele's laboratory."

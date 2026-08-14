@@ -1,35 +1,39 @@
-[tool.poetry]
-description = "A Python package to communicate with Stratocore's PUMAPI."
+[project]
 name = "pyppms"
+description = "A Python package to communicate with Stratocore's PUMAPI."
+readme = "README.md"
+authors = [
+  { name = "Niko Ehrenfeuchter", email = "nikolaus.ehrenfeuchter@unibas.ch" },
+  { name = "Laurent Guerard", email = "laurent.guerard@unibas.ch" },
+]
 version = "0.0.0"
+requires-python = ">=3.11,<4"
 
 license = "GPLv3"
+keywords = ["ppms", "pumapi", "booking-system", "reservation-system"]
 
-authors = [
-  "Niko Ehrenfeuchter <nikolaus.ehrenfeuchter@unibas.ch>",
-  "Laurent Guerard <laurent.guerard@unibas.ch>",
+dependencies = [
+  "requests (>=2.34.2,<3.0.0)",
+  "loguru (>=0.7.3,<0.8.0)",
+  "pandas (>=3.0.5,<4.0.0)",
 ]
 
-readme = "README.md"
 
+[tool.poetry]
+name = "pyppms"
+version = "0.0.0"
 documentation = "https://imcf.one/apidocs/pyppms/pyppms.html"
 homepage = "https://pypi.org/project/pyppms/"
-keywords = ["ppms", "pumapi", "booking-system", "reservation-system"]
 repository = "https://github.com/imcf/pyppms"
 
-[tool.poetry.dependencies]
-python = "^3.9"
-requests = "^2.31.0"
-loguru = "^0.7.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
-pdoc = "^14.0.0"
-pylint = "^2.17.4"
-pylint-pytest = "^1.1.2"
-pytest = "^7.3.2"
-pytest-cov = "^4.1.0"
-pyyaml = "^6.0"
+pdoc = "^16.0.0"
+pytest = "^9.1.1"
+pytest-cov = "^7.1.0"
+pyyaml = "^6.0.3"
+ruff = "^0.16.1"
+ipython = "^9.16.1"
 
 [build-system]
 build-backend = "poetry_dynamic_versioning.backend"
@@ -43,3 +47,26 @@ addopts = "-rs -vv --cov=pyppms --cov-report html --maxfail=1"
 markers = [
   "online: enables tests requiring connection to a real PUMAPI (as opposed to a local cache)",
 ]
+
+[tool.ruff.lint]
+# exclude = [
+#   "tests/foo/*"
+# ]
+
+select = [
+  "D",
+  "D212", # summary lines must be on the first physical line of the docstring
+  "D401", # imperative mood for all docstrings
+  "D415", # summary line has to end in a punctuation mark
+  "D417", # require documentation for _all_ function parameters
+]
+
+ignore = [
+  "D202", # no blank lines allowed after function docstring
+  ## D211 conflicts with ruff's formatting as of 2025-04-14, so don't use it:
+  # "D211",  # no blank lines allowed before class docstring
+]
+
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

@@ -5,10 +5,13 @@ Assuming you have instantiated a connection object like:
 ```Python
 import pyppmsconf
 from pyppms import ppms
+from pyppms.common import set_loglevel
+
+set_loglevel("TRACE")
 
 conn = ppms.PpmsConnection(
-        url=pyppmsconf.PUMAPI_URL,
-        api_key=pyppmsconf.PPMS_API_KEY,
+        url=pyppmsconf.PYPPMS_URI,
+        api_key=pyppmsconf.PYPPMS_API_KEY,
         timeout=pyppmsconf.TIMEOUT,
 )
 ```
@@ -28,7 +31,7 @@ conn = ppms.PpmsConnection(
 | delvalidbcode         |                                          |
 | getadmins             | `conn.get_admins()`                      |
 | getaffiliationsummary |                                          |
-| getbcodes             |                                          |
+| getbcodes             | `conn.get_billing_codes()`               |
 | getbooking            |                                          |
 | getgroup              | `conn.get_group()`                       |
 | getgroupprojects      |                                          |
@@ -48,8 +51,8 @@ conn = ppms.PpmsConnection(
 | getpriceslist         |                                          |
 | getprojectgroups      |                                          |
 | getprojectmember      |                                          |
-| getprojects           |                                          |
-| getprojectusers       |                                          |
+| getprojects           | `conn.get_projects()`                    |
+| getprojectusers       | `conn.get_project_users()`               |
 | getrunningsheet       | `conn.get_running_sheet()`               |
 | getservices           |                                          |
 | getsessionnote        |                                          |
@@ -57,7 +60,7 @@ conn = ppms.PpmsConnection(
 | getsystems            | `conn.get_systems()`                     |
 | getuser               | `conn.get_user()`                        |
 | getuserexp            | `conn.get_user_experience()`             |
-| getuserprojects       |                                          |
+| getuserprojects       | `conn.get_user_projects()`               |
 | getuserrights         |                                          |
 | getusers              | `conn.get_user_ids()`                    |
 | getvalidbcodes        |                                          |

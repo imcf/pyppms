@@ -1,10 +1,11 @@
 """Common functions related to Stratocore's PPMS Utility Management API."""
 
-# pylint: disable-msg=fixme
-
-from datetime import datetime, timedelta
 import csv
+import sys
+from datetime import datetime, timedelta
 from io import StringIO
+
+import pandas as pd
 
 from loguru import logger as log
 
@@ -27,8 +28,6 @@ def process_response_values(values):
     None
         Nothing is returned, the list's element are processed in-place.
     """
-    # tell pylint that there is no real gain using enumerate here:
-    # pylint: disable-msg=consider-using-enumerate
     for i in range(len(values)):
         values[i] = values[i].strip('"')
         if values[i] == "true":
@@ -82,16 +81,19 @@ def dict_from_single_response(text, graceful=True):
         data = lines[1]
         process_response_values(data)
         if len(header) != len(data):
+            # if running in "graceful" mode set log level to "TRACE":
+            log_msg = log.trace if graceful else log.warning
             msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-            log.warning("{} ({} vs. {})", msg, len(header), len(data))
+            log_msg("{} ({} vs. {})", msg, len(header), len(data))
             if not graceful:
                 raise ValueError(msg)
+            log.trace("Ignoring mismatch ('graceful' has been set to 'True').")
             minimum = min(len(header), len(data))
             if minimum < len(header):
-                log.warning("Discarding header-fields: {}", header[minimum:])
+                log.trace("Discarding header-fields: {}", header[minimum:])
                 header = header[:minimum]
             else:
-                log.warning("Discarding data-fields: {}", data[minimum:])
+                log.trace("Discarding data-fields: {}", data[minimum:])
                 data = data[:minimum]
 
     except Exception as err:
@@ -103,8 +105,8 @@ def dict_from_single_response(text, graceful=True):
     return parsed
 
 
-def parse_multiline_response(text, graceful=True):
-    """Parse a multi-line CSV response from PUMAPI.
+def parse_pandas_csv(text, graceful=True) -> pd.DataFrame:
+    """Parse a PUMAPI response using pandas.read_csv().
 
     Parameters
     ----------
@@ -117,6 +119,68 @@ def parse_multiline_response(text, graceful=True):
         by default True. In graceful mode, any inconsistency detected in the
         data will be logged as a warning, in non-graceful mode they will raise
         an Exception.
+
+    Returns
+    -------
+    pd.DataFrame
+        The parsed data as a pandas dataframe.
+
+    Raises
+    ------
+    ValueError
+        Raised when the response text is inconsistent and the `graceful`
+        parameter has been set to false.
+    """
+    log.trace("Trying to parse data using pandas...")
+    lines = text.splitlines()
+    # sanity checking first:
+    header = pd.read_csv(StringIO(lines[0]))
+    log.trace(f"Header columns: {len(header.columns)}")
+    body = pd.read_csv(StringIO("\n".join(lines[1:])))
+    log.trace(f"Body columns: {len(body.columns)}")
+    if len(header.columns) != len(body.columns):
+        msg = "Parsing CSV failed, mismatch of header vs. data fields count"
+        log.warning(f"{msg} ({len(header.columns)} vs. {len(body.columns)})")
+        if not graceful:
+            raise ValueError(msg)
+
+    # now do the real parsing:
+    df = pd.read_csv(StringIO(text), skipinitialspace=True)
+    # NOTE: using 'true_values' and 'false_values' for the read_csv()
+    # call above doesn't seem to be working for unknown reasons, so we
+    # have to map them explicitly here:
+    map_booleans = {"true": True, "false": False}
+    df = df.replace(map_booleans)
+    # convert 'Nan' to empty strings:
+    df = df.fillna("")
+    # finally strip whitespace from column names (including *leading*!):
+    df.columns = df.columns.str.strip()
+
+    return df
+
+
+def parse_multiline_response(text, graceful=True, use_pandas=True):
+    """Parse a multi-line CSV response from PUMAPI.
+
+    In the first attempt, pandas will be used for parsing the CSV as it provides
+    superior handling of all kinds of ill-formatted CSV (which is quite common
+    with PUMAPI). Only in case that fails, a "legacy" / native approach will be
+    used for parsing.
+
+    Parameters
+    ----------
+    text : str
+        The PUMAPI response with two or more lines, where the first line
+        contains the header field names and the subsequent lines contain data.
+    graceful : bool, optional
+        Whether to continue in case the response text is inconsistent, i.e.
+        having different number of fields in the header line and the data lines,
+        by default True. In graceful mode, any inconsistency detected in the
+        data will be logged as a warning, in non-graceful mode they will raise
+        an Exception.
+    use_pandas : bool, optional
+        May be used to skip the pandas-approach for parsing the response,
+        default is True.
 
     Returns
     -------
@@ -136,37 +200,50 @@ def parse_multiline_response(text, graceful=True):
         parameter has been set to false, or if parsing fails for any other
         unforeseen reason.
     """
+    lines = text.splitlines()
+    if len(lines) < 2:
+        log.debug(f"Response has less than TWO lines: >>>{text}<<<")
+        if not graceful:
+            raise NoDataError("Invalid response format!")
+        return []
+
+    if use_pandas:
+        try:
+            df = parse_pandas_csv(text, graceful)
+            parsed = df.to_dict("records")
+            log.trace(f"Parsed {len(parsed)} datasets using pandas.")
+            return parsed
+
+        except Exception as err:
+            log.debug(f"Trying native approach as pandas failed: {err}")
+
     parsed = []
     try:
-        lines = text.splitlines()
-        if len(lines) < 2:
-            log.debug("Response has less than TWO lines: >>>{}<<<", text)
-            if not graceful:
-                raise NoDataError("Invalid response format!")
-            return []
-
+        log.trace(f"Raw header: {lines[0]}")
         header = lines[0].split(",")
         for i, entry in enumerate(header):
             header[i] = entry.strip()
+        log.trace(f"Number of header fields: {len(header)}")
 
         lines_max = lines_min = len(header)
         for line in lines[1:]:
+            log.trace(f"Raw line: {line}")
             data = line.split(",")
             process_response_values(data)
             lines_max = max(lines_max, len(data))
             lines_min = min(lines_min, len(data))
             if len(header) != len(data):
                 msg = "Parsing CSV failed, mismatch of header vs. data fields count"
-                log.warning("{} ({} vs. {})", msg, len(header), len(data))
+                log.warning(f"{msg} ({len(header)} vs. {len(data)})")
                 if not graceful:
                     raise ValueError(msg)
 
                 minimum = min(len(header), len(data))
                 if minimum < len(header):
-                    log.warning("Discarding header-fields: {}", header[minimum:])
+                    log.warning(f"Discarding header-fields: {header[minimum:]}")
                     header = header[:minimum]
                 else:
-                    log.warning("Discarding data-fields: {}", data[minimum:])
+                    log.warning(f"Discarding data-fields: {data[minimum:]}")
                     data = data[:minimum]
 
             details = dict(zip(header, data))
@@ -218,6 +295,7 @@ def fmt_time(time):
     Parameters
     ----------
     time : datetime.datetime or None
+        The datetime object to be formatted.
 
     Returns
     -------
@@ -227,3 +305,17 @@ def fmt_time(time):
     if time is None:
         return "===UNDEFINED==="
     return datetime.strftime(time, "%Y-%m-%d %H:%M")
+
+
+def set_loglevel(level: str) -> None:
+    """Set the logging level.
+
+    Parameters
+    ----------
+    level : str
+        The desired [logging level][loguru_levels].
+
+    [loguru_levels]: https://loguru.readthedocs.io/en/stable/api/logger.html
+    """
+    log.remove()  # remove the default handler
+    log.add(sys.stderr, level=level)

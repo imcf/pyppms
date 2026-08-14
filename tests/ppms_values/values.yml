@@ -1,12 +1,18 @@
 group:
-  headname: PythonGroup Supervisor
-  unitname: Python Core Facility
-  heademail: group-leader@python-facility.example
   unitlogin: pyppms_group
-  unitbcode: pyppms_group
+  unitname: Python Core Facility
+  headname: PythonGroup Supervisor
+  heademail: group-leader@python-facility.example
+  unitbcode: pyppms_group_billing_code
   department: Scientific Software Support
   institution: Famous Research Foundation
+  address: Curie-Bvd 1, 55555 Science City
+  affiliation:
+  ext: false
   active: true
+  admname: PythonGroup Admin
+  admemail: admin@python-facility.example
+  creationdate: 2022/04/05
 
 system:
   Name: Python Development System
@@ -31,7 +37,7 @@ user_admin:
   mustchbcode: false
   mustchpwd: false
   affiliation: ''
-  bcode: ''
+  bcode: pyppms_adm_user_billing_code
   active: true
 
 user_standard:
@@ -44,7 +50,7 @@ user_standard:
   mustchbcode: false
   mustchpwd: false
   affiliation: ''
-  bcode: ''
+  bcode: pyppms_user_billing_code
   active: true
 
 user_inactive:

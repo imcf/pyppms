@@ -4,17 +4,17 @@ from datetime import datetime, timedelta
 import pytest
 
 from pyppms.booking import PpmsBooking
-from pyppms.common import time_rel_to_abs, parse_multiline_response
+from pyppms.common import time_rel_to_abs, parse_multiline_response, set_loglevel
+
+set_loglevel("TRACE")
 
 
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M"
 FMT = f"{FMT_DATE} {FMT_TIME}"
 DAY = datetime.now().strftime(FMT_DATE)
-TIME_START = datetime.now().strftime(FMT_TIME)
-TIME_END = (datetime.now() + timedelta(minutes=45)).strftime(FMT_TIME)
-START = f"{DAY} {TIME_START}"
-END = f"{DAY} {TIME_END}"
+START = datetime.now().strftime(FMT)
+END = (datetime.now() + timedelta(minutes=45)).strftime(FMT)
 
 USERNAME = "ppmsuser"
 SYS_ID = "42"
@@ -28,7 +28,7 @@ def create_booking(
     system_id=SYS_ID,
     session_id=SESSION_ID,
 ):
-    """Helper function to create a PpmsBooking object with default values.
+    """Create a PpmsBooking object with default values.
 
     Returns
     -------
@@ -46,12 +46,21 @@ def test_ppmsbooking():
     assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being an int
-    booking = create_booking(system_id=42)
+    booking = create_booking(system_id="42")
     assert str(booking) == EXPECTED % (START, END)
 
     # run constructor with 'system_id' being something not int-like
     with pytest.raises(ValueError):
         create_booking(system_id="eleven")
+
+
+def test_booking_desc():
+    """Test the PpmsBooking.desc property."""
+    booking = create_booking()
+
+    print(booking)
+    expected = f"{USERNAME}@{SYS_ID} [{START} -- {END}]"
+    assert booking.desc == expected
 
 
 def test_starttime_fromstr__time():
@@ -92,6 +101,26 @@ def test_endtime_fromstr__time():
 
     newend = f"{DAY} {newtime}"
     assert str(booking) == EXPECTED % (START, newend)
+
+
+def test_endtime_fromstr__time_midnight(caplog):
+    """Test changing the ending time of a booking to midnight."""
+    booking = create_booking()
+
+    newtime = "23:45"
+    booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
+
+    newend = f"{DAY} {newtime}"
+    assert str(booking) == EXPECTED % (START, newend)
+    assert "Booking end is midnight" not in caplog.text
+
+    newtime = "00:00"
+    booking.endtime_fromstr(newtime, date=datetime.strptime(START, FMT))
+
+    new_day = (datetime.now() + timedelta(days=1)).strftime(FMT_DATE)
+    newend = f"{new_day} {newtime}"
+    assert str(booking) == EXPECTED % (START, newend)
+    assert "Booking end is midnight" in caplog.text
 
 
 def test_endtime_fromstr__date():
@@ -163,9 +192,9 @@ def test_runningsheet(
     d_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     d_end = d_start + timedelta(days=1)
 
-    print(fullname_mapping)
-    print(runningsheet_response)
-    print(systemname_mapping)
+    print(f"fullname_mapping: {fullname_mapping}")
+    print(f"runningsheet_response: {runningsheet_response}")
+    print(f"systemname_mapping: {systemname_mapping}")
     parsed = parse_multiline_response(runningsheet_response)
     for entry in parsed:
         booking = PpmsBooking.from_runningsheet(

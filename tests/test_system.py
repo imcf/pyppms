@@ -3,7 +3,9 @@
 import pytest
 
 from pyppms.system import PpmsSystem
+from pyppms.common import set_loglevel
 
+set_loglevel("TRACE")
 
 FMT_DATE = r"%Y-%m-%d"
 FMT_TIME = r"%H:%M:%S"
@@ -28,7 +30,7 @@ EXPECTED = (
 
 
 def create_system(system_id=SYS_ID):
-    """Helper function to create a PpmsSystem object with default values.
+    """Create a PpmsSystem object with default values.
 
     Returns
     -------

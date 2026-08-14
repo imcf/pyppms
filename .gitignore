@@ -1,5 +1,4 @@
 .idea/
-.vscode/
 
 # testing
 .pytest_cache/
@@ -13,13 +12,14 @@ src/pyppms.egg-info/
 /dist/
 
 # configuration file(s)
-pyppmsconf.py
+pyppmsconf*.py
 
 # documentation (auto-generated via pdoc)
 docs/
 
 # stuff labeled as do-not-commit (e.g. as we don't have the permission):
 *-DO-NOT-COMMIT
+/no-commit/
 
 # a virtualenv symlink
 .virtualenv

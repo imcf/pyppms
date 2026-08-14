@@ -1,89 +1,27 @@
 """Tests for the 'ppms' module."""
 
-# pylint: disable-msg=fixme
-# pylint: disable-msg=protected-access
-
 import logging
 import os.path
 from datetime import datetime
-from shutil import rmtree, copytree
+from shutil import copytree, rmtree
 
-import pyppmsconf
 import pytest
 import requests.exceptions
-
+from helpers import switch_cache_mocks, switch_cache_post_change
 from loguru import logger as log
 
+import pyppmsconf
 from pyppms import ppms
+from pyppms.common import set_loglevel
 
 # TODO: system ID is hard-coded here, so this will fail on any other instance!
 __SYS_ID__ = 69
 
-
-@pytest.fixture
-def ppms_connection(caplog):
-    """Establish a connection to a PPMS / PUMAPI instance."""
-    print(
-        "NOTE: some tests require either a *CACHED* response to be present or "
-        "valid settings in `pyppmsconf.py` to talk to a real PUMAPI instance."
-    )
-    caplog.set_level(logging.DEBUG)
-    cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_0")
-    conn = ppms.PpmsConnection(
-        url=pyppmsconf.PUMAPI_URL,
-        api_key=pyppmsconf.PPMS_API_KEY,
-        timeout=pyppmsconf.TIMEOUT,
-        cache=cache_path,
-    )
-    return conn
-
-
-### common helper functions ###
-
-
-def switch_cache_post_change(conn, suffix):
-    """Update the connection's cache path to reflect changes to responses.
-
-    This helper function switches the path used for caching the connection's
-    responses to a different (post-update) location, which is required when
-    running the same request (again) will result in a different response e.g.
-    after updating PUMAPI's state (for example when adjusting booking
-    permissions or similar).
-
-    Parameters
-    ----------
-    conn : PpmsConnection
-    suffix : str (or str-like)
-    """
-    new_path = os.path.join(pyppmsconf.CACHE_PATH, f"stage_{suffix}")
-    log.debug("Switching response cache path to reflect a PPMS status change.")
-    log.debug(f"New cache path: [{new_path}]")
-    conn.cache_path = new_path
-
-
-def switch_cache_mocks(conn, mocktype, message="<NOT SPECIFIED>"):
-    """Update the connection's cache path to use mocked responses.
-
-    Use mocked responses during tests to simulate various invalid replies from PUMAPI
-    that will cause downstream errors during parsing etc.
-
-    Parameters
-    ----------
-    conn : PpmsConnection
-    mocktype : str
-        Used to distinguish various types of mocks, e.g. ``key_error`` for responses
-        that will trigger a `KeyError` exception in *pyppms*.
-    message : str, optional
-        An explanatory message that will be logged with switching the cache path.
-    """
-    new_path = os.path.join(pyppmsconf.MOCKS_PATH, mocktype)
-    log.debug(f"Switching response cache path for reason:\n>>> {message} <<<")
-    log.debug(f"New cache path: [{new_path}]")
-    conn.cache_path = new_path
+set_loglevel("TRACE")
 
 
 def logd(msg, *args):
-    """Simple logging wrapper for log messages from test functions."""
+    """Log a DEBUG level message (simple shorthand / wrapper)."""
     log.debug("\n>>> " + msg, *args)
 
 
@@ -112,12 +50,14 @@ def test_ppmsconnection_fail_online():
     """Test how establishing connections to an online PUMAPI could fail."""
     # incomplete (short) API key:
     with pytest.raises(requests.exceptions.ConnectionError):
-        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key=pyppmsconf.PPMS_API_KEY[:5])
+        ppms.PpmsConnection(
+            pyppmsconf.PYPPMS_URI, api_key=pyppmsconf.PYPPMS_API_KEY[:5]
+        )
 
     # wrong API key (trailing characters):
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL, pyppmsconf.PPMS_API_KEY + "appendixx"
+            pyppmsconf.PYPPMS_URI, pyppmsconf.PYPPMS_API_KEY + "appendixx"
         )
 
 
@@ -131,12 +71,12 @@ def test_ppmsconnection_fail(caplog):
 
     logd("Testing with no API key and no cache path")
     with pytest.raises(RuntimeError):
-        ppms.PpmsConnection(pyppmsconf.PUMAPI_URL, api_key="", cache="")
+        ppms.PpmsConnection(pyppmsconf.PYPPMS_URI, api_key="", cache="")
 
     logd("Testing with a mocked auth response containing 'error'")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL,
+            pyppmsconf.PYPPMS_URI,
             api_key="dummykey",
             cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_response_contains_error"),
         )
@@ -144,7 +84,7 @@ def test_ppmsconnection_fail(caplog):
     logd("Testing with a mocked auth response having a non-standard response code")
     with pytest.raises(requests.exceptions.ConnectionError):
         ppms.PpmsConnection(
-            pyppmsconf.PUMAPI_URL,
+            pyppmsconf.PYPPMS_URI,
             api_key="dummykey",
             cache=os.path.join(pyppmsconf.MOCKS_PATH, "auth_wrong_status_code"),
         )
@@ -188,38 +128,105 @@ def test_get_groups(ppms_connection):
     assert "pyppms_group" in groups
 
 
-def test_get_group(ppms_connection, group_details):
+def test_get_group(ppms_connection, group_details, caplog):
     """Test fetching details of a specific group."""
-    print(f"Expected dict data (subset): {group_details}")
-    details = ppms_connection.get_group("pyppms_group")
-    print(f"Retrieved dict data: {details}")
-    for key in group_details.keys():
-        assert group_details[key] == details[key]
+    print(f"Expected group data: {group_details}")
+    fetched_details = ppms_connection.get_group("pyppms_group")
+    print(f"Retrieved group data: {fetched_details}")
+    assert group_details == fetched_details
+    assert "Fetching group details on-line or from disk cache." in caplog.text
+    assert "Serving group details from instance-cache" not in caplog.text
 
+    expected_rendered = (
+        "gid: pyppms_group, "
+        "name: Python Core Facility, "
+        "head_name: PythonGroup Supervisor, "
+        "department: Scientific Software Support, "
+        "institution: Famous Research Foundation, "
+        "external: False, "
+        "active: False"
+    )
+    assert fetched_details.details() == expected_rendered
+
+    assert fetched_details.__eq__("a random string") is False
+    assert fetched_details.__eq__(None) is False
+
+    # now test the instance-cache by requesting the same group again:
+    caplog.clear()
+    ppms_connection.get_group("pyppms_group")
+    assert "Serving group details from instance-cache" in caplog.text
+
+
+def test_get_group__invalid_login(ppms_connection):
+    """Test exception when requesting group details for a non-existing group."""
     with pytest.raises(KeyError):
         ppms_connection.get_group("invalid-unitlogin")
 
 
-def test_get_user(ppms_connection, ppms_user, ppms_user_admin):
+def test_get_group__unitlogin_mismatch(ppms_connection, caplog):
+    """Test mismatch in returned unitlogin."""
+    switch_cache_mocks(ppms_connection, "get_group__unitlogin_mismatch")
+    fetched_details = ppms_connection.get_group("pyppms_group")
+    print(f"Retrieved group data: {fetched_details}")
+    warning = (
+        "Requested group ID (pyppms_group) doesn't match with "
+        "unitlogin in details returned by PPMS (response-has-wrong-unitlogin)!"
+    )
+    assert warning in caplog.text
+
+
+def test_get_user(ppms_connection, ppms_user, ppms_user_admin, caplog):
     """Test the get_user() method."""
     user = ppms_connection.get_user("pyppms")
     print(user.details())
     print(ppms_user.details())
     assert user.details() == ppms_user.details()
+    assert "Fetching user details on-line or from disk cache." in caplog.text
+    assert "Serving user details from instance-cache" not in caplog.text
+
+    # now test the instance-cache by requesting the same group again:
+    caplog.clear()
+    ppms_connection.get_user("pyppms")
+    assert "Serving user details from instance-cache" in caplog.text
 
     user = ppms_connection.get_user("pyppms-adm")
     print(user.details())
     print(ppms_user_admin.details())
     assert user.details() == ppms_user_admin.details()
 
+
+def test_get_user__invalid_login(ppms_connection):
+    """Test exception when requesting a non-existing user."""
     with pytest.raises(KeyError):
         ppms_connection.get_user("invalidlogin")
 
 
-def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
-    """Test the get_users() method."""
+def test_get_user__login_mismatch(ppms_connection, caplog):
+    """Test mismatch in returned username."""
+    switch_cache_mocks(ppms_connection, "get_user__login_mismatch")
+    user = ppms_connection.get_user("pyppms")
+    print(user.details())
+    warning = (
+        "Requested login name (pyppms) doesn't match with "
+        "username in details returned by PPMS (reported-username-not-matching)!"
+    )
+    assert warning in caplog.text
+
+
+def test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=True):  # noqa: D417
+    """Test the get_users() method.
+
+    Parameters
+    ----------
+    use_cache : bool, optional
+        Explicitly request the connection object to use the **on-disk** cache
+        when populating the instance's `users` dict.
+    """
     testusers = [ppms_user, ppms_user_admin]
     testusers_logins = [x.username for x in testusers]
+
+    # prevent cache_update_users() from ignoring the on-disk cache:
+    ppms_connection.__use_cache_testing__ = use_cache
 
     logd(
         "Requesting users without pre-seeding the connection (WARNING: very "
@@ -228,7 +235,7 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
     ppms_connection.get_users()
 
     logd("Adding users to the connection to avoid the requesting step")
-    ppms_connection.update_users(user_ids=testusers_logins)
+    ppms_connection.cache_update_users(user_ids=testusers_logins)
 
     logd("Asking the connection for the (pre-seeded / cached) users:")
     users = ppms_connection.get_users()
@@ -248,6 +255,16 @@ def test_get_users(ppms_connection, ppms_user, ppms_user_admin):
         # check if the fullname_mapping has been updated correctly:
         assert fullname in ppms_connection.fullname_mapping
         assert ppms_connection.fullname_mapping[fullname] == testuser.username
+
+
+@pytest.mark.online
+def test_get_users__online(ppms_connection, ppms_user, ppms_user_admin):
+    """Run test_get_users() in *online* mode.
+
+    This is a plain wrapper to run the same tests without requesting the on-disk
+    cache to be used during the `get_user()` call.
+    """
+    test_get_users(ppms_connection, ppms_user, ppms_user_admin, use_cache=False)
 
 
 @pytest.mark.online
@@ -339,7 +356,7 @@ def test_get_user_experience(ppms_connection):
     sys_ids = []
     for system in systems:
         sys_ids.append(system["id"])
-    assert str(__SYS_ID__) in sys_ids
+    assert __SYS_ID__ in sys_ids
 
     # check if a system is having a specific user with permission to access it:
     users = ppms_connection.get_user_experience(system_id=__SYS_ID__)
@@ -405,13 +422,18 @@ def test_get_systems(ppms_connection, system_details_raw):
     assert len(systems) > 0
 
 
-def test_update_systems(ppms_connection, caplog):
-    """Test the get_systems() method."""
+def test_cache_update_systems(ppms_connection, caplog):
+    """Test the cache_update_systems() method.
+
+    This is done indirectly by switching to an empty cache and then calling the
+    `get_systems()` method which will trigger the `cache_update_systems()`
+    method if the PpmsConnection object has no systems stored.
+    """
     caplog.set_level(logging.DEBUG)
-    switch_cache_mocks(ppms_connection, "update_systems__broken_id")
+    switch_cache_mocks(ppms_connection, "cache_update_systems__uncached_id")
     assert len(ppms_connection.systems) == 0
     ppms_connection.get_systems()
-    # results should contain exaclty one system:
+    # results should contain exactly one system:
     assert len(ppms_connection.systems) == 1
 
 
@@ -527,7 +549,7 @@ def test_get_booking(ppms_connection, system_details_raw):
     ------
     RuntimeError
         Raised in case no booking in PPMS could be found so one can be created
-        manaully (the API doesn't provide a way to do this).
+        manually (the API doesn't provide a way to do this).
     """
     # test with a non-existing system ID:
     sys_id = 0
@@ -565,7 +587,7 @@ def test_get_booking(ppms_connection, system_details_raw):
         ppms_connection.get_booking(sys_id, booking_type="invalid")
 
 
-def test_get_running_sheet(ppms_connection, system_details_raw):
+def test_get_running_sheet(ppms_connection, system_details_raw, ppms_user):
     """Test the `get_running_sheet` method.
 
     As it is currently impossible to create bookings through PUMAPI, we need to rely on
@@ -583,12 +605,12 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
     # use the start times to assemble a list of datetime tuples with start and end time
     # of the sessions on that day:
     sessions = []
-    for shour in sessions_start:
-        ehour = shour + 1
+    for hour_s in sessions_start:
+        hour_e = hour_s + 1
         sessions.append(
             [
-                datetime.strptime(f"{date}T{shour}", r"%Y-%m-%dT%H"),
-                datetime.strptime(f"{date}T{ehour}", r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{hour_s}", r"%Y-%m-%dT%H"),
+                datetime.strptime(f"{date}T{hour_e}", r"%Y-%m-%dT%H"),
             ]
         )
     # hard-coding the list would look like this:
@@ -624,6 +646,9 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     day = datetime.strptime(date, r"%Y-%m-%d")
 
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
     logd("Testing runningsheet details for {}", date)
     for booking in ppms_connection.get_running_sheet("2", date=day):
         assert booking.system_id == int(system_details_raw["System id"])
@@ -635,7 +660,32 @@ def test_get_running_sheet(ppms_connection, system_details_raw):
 
     logd("Testing fullname that cannot be mapped to a user")
     switch_cache_mocks(ppms_connection, "runningsheet_single_unknown_fullname")
+    # force using the on-disk cache / mocks:
+    ppms_connection.__use_cache_testing__ = True
     assert len(ppms_connection.get_running_sheet("2", date=day)) == 2
+
+
+def test_get_running_sheet_no_system_matching(ppms_connection, caplog, ppms_user):
+    """Test a runningsheet where the user is not cached."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    switch_cache_mocks(ppms_connection, "runningsheet_no_system_matching")
+
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
+    ppms_connection.get_running_sheet("2", date=day)
+    assert "No systems matching criteria" in caplog.text
+
+
+def test_get_running_sheet_uncached_user(ppms_connection, caplog):
+    """Test a runningsheet where the user is not cached."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    ppms_connection.get_running_sheet("2", date=day, ignore_uncached_users=True)
+    assert "Ignoring booking for uncached / unknown user" in caplog.text
 
 
 def test_get_running_sheet_fail(ppms_connection):
@@ -659,6 +709,32 @@ def test_get_running_sheet_fail(ppms_connection):
     assert ppms_connection.get_running_sheet("2", date=day) == []
 
 
+def test_get_running_sheet_empty(ppms_connection, caplog):
+    """Test case where the returned runningsheet is empty."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    switch_cache_mocks(
+        ppms_connection,
+        "runningsheet_empty",
+        "using mock with an empty response",
+    )
+    ppms_connection.get_running_sheet("2", date=day)
+    assert "Runningsheet for the given day was empty" in caplog.text
+
+
+def test_get_running_sheet_no_localisation_match(ppms_connection, caplog, ppms_user):
+    """Test case where the localisation criteria renders the matching systems empty."""
+    date = "2028-12-24"
+    day = datetime.strptime(date, r"%Y-%m-%d")
+
+    # pre-populate the connection object with the 'ppms_user' from the on-disk cache:
+    ppms_connection.get_user(ppms_user.username)
+
+    ppms_connection.get_running_sheet("2", date=day, localisation="rainbow")
+    assert "Given criteria return zero systems" in caplog.text
+
+
 ############ cache ############
 
 
@@ -669,7 +745,7 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
     - Copy over one of the cache directories provided with the tests.
     - Make sure the test-directory *does* contain a cache now.
     - Update the connection object's `cache_path` to point to the test location.
-    - Trigger the `flush_cache()` method.
+    - Trigger the `cache_flush()` method.
     - Verify the cache has been removed from the test-directory.
     """
     orig_cache_path = os.path.join(pyppmsconf.CACHE_PATH, "stage_1")
@@ -685,9 +761,17 @@ def test_flush_cache(ppms_connection, caplog, tmp_path):
 
     ppms_connection.cache_path = fresh_cache_path
     log.info(f"Updated connection cache path: {fresh_cache_path}")
-    ppms_connection.flush_cache()
+    ppms_connection.cache_flush()
     log.info(f"Flushed connection cache path: {fresh_cache_path}")
     assert not os.path.exists(fresh_cache_path)
+
+
+def test_flush_cache_no_cache(ppms_connection, caplog):
+    """Call cache_flush() with no cache path being set."""
+
+    ppms_connection.cache_path = ""
+    ppms_connection.cache_flush()
+    assert "No cache path configured, not flushing!" in caplog.text
 
 
 def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
@@ -699,7 +783,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
     - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache provided
       with the tests.
     - Make sure the copied directories exist at the test-cache location.
-    - Trigger the `flush_cache(keep_users=True)` method.
+    - Trigger the `cache_flush(keep_users=True)` method.
     - Verify the subdirs in `to_keep` have been retained at the test-directory.
     - Verify the subdirs in `to_flush` have been removed from the test-directory.
     """
@@ -728,7 +812,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
         log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
-    ppms_connection.flush_cache(keep_users=True)
+    ppms_connection.cache_flush(keep_users=True)
 
     for subdir in to_keep:
         tgt_path = fresh_cache_path / subdir
@@ -743,7 +827,7 @@ def test_flush_cache__keep_users(ppms_connection, caplog, tmp_path):
 
 @pytest.mark.online
 def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path):
-    """Test flush_cache() with `keep_users=True` and request a new user after.
+    """Test cache_flush() with `keep_users=True` and request a new user after.
 
     This test has a huge overlap to the `test_flush_cache__keep_users()` one
     (that works offline, unlike this one) with the main difference being that
@@ -758,7 +842,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     - Update the connection object's `cache_path` to point to the test location.
     - Copy over the subdirs listed in `to_keep` and `to_flush` from the cache
       provided with the tests.
-    - Trigger the `flush_cache(keep_users=True)` method.
+    - Trigger the `cache_flush(keep_users=True)` method.
     - Simulate a new user in PPMS that is not yet cached locally:
       - Remove a specific file of previously cached user details from the
         `getuser` cache.
@@ -795,7 +879,7 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
         log.info(f"Copied [{subdir}] to [{tgt_path}]")
         assert os.path.exists(tgt_path)
 
-    ppms_connection.flush_cache(keep_users=True)
+    ppms_connection.cache_flush(keep_users=True)
 
     new_user_name = "pyppms-adm"  # simulated "new" user
     old_user_name = "pyppms"  # previously existing, cached user (preserved)
@@ -825,3 +909,53 @@ def test_flush_cache__keep_users__request_new(ppms_connection, caplog, tmp_path)
     assert ppms_connection.last_served_from_cache is False
     # assert "No cache hit" in caplog.text  # requires an on-line request
     assert os.path.exists(new_user_cache)
+
+
+############ projects ############
+
+
+def test_projects(ppms_connection, caplog):
+    """Test projects property."""
+    projects = ppms_connection.projects
+
+    assert projects[7].billing_code == "proj.bcode.7"
+    assert projects[7].name == "Project Seven"
+    assert "billing_code=[proj.bcode.7]" in projects[7].details()
+    assert str(projects[7]) == "PpmsProject [7] 'Project Seven'"
+    assert "Using cached details for" not in caplog.text
+
+    # test the cache-existing code path:
+    ppms_connection.projects
+    assert "Using cached details for" in caplog.text
+
+
+def test_get_user_projects(ppms_connection, user_details):
+    """Test get_projects with a user having two projects."""
+    projects = ppms_connection.get_user_projects(user_details["login"])
+    print(projects)
+    assert len(projects) == 2
+
+
+def test_get_user_projects_empty(ppms_connection, user_details):
+    """Test get_projects with a user having no projects."""
+    switch_cache_post_change(ppms_connection, 1)
+    projects = ppms_connection.get_user_projects(user_details["login"])
+    print(projects)
+    assert len(projects) == 0
+
+
+def test_get_project_users(ppms_connection, user_details):
+    """Test get_project_users()."""
+    users = ppms_connection.get_project_users(project_id="6")
+    assert len(users) == 1
+
+    users = ppms_connection.get_project_users(project_id="7")
+    assert len(users) == 2
+    assert users == ["pyppms", "pyppms-adm"]
+
+
+def test_projects_failing(ppms_connection, caplog):
+    """Test projects property with an invalid response."""
+    switch_cache_mocks(ppms_connection, "projects_invalid")
+    _ = ppms_connection.projects
+    assert "Error processing `getprojects` response" in caplog.text

@@ -4,14 +4,76 @@
 
 NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
+## 4.0.0
+
+### 🧨 Breaking Changes
+
+- **🐍Python**: the minimum required version has been raised to **3.11**.
+- **🐼 Pandas**: `pyppms.common.parse_multiline_response` now uses the new
+  `pyppms.common.parse_pandas_csv` by default, which (obviously) uses the
+  [pandas][pandas] library for parsing the CSV. This may have an impact on
+  the data type of some fields, as for example strings representing integers
+  will automatically be converted to type `int`. The old approach will be used
+  in case parsing fails or if the parameter `use_pandas` is set to `False`.
+- **🎭 Changed attribute type**: `pyppms.user.PpmsUser.ppms_group` has been
+  changed to be of type `pyppms.group.PpmsGroup` or `None`. In order to be
+  filled automatically, the connection object needs to be passed to the
+  constructor. The previously available name of the group (derived from
+  `unitlogin`) is now provided via `pyppms.user.PpmsUser.ppms_group_name`.
+- **🎭 Changed return type**: `pyppms.ppms.PpmsConnection.get_group()` now
+  returns a `pyppms.group.PpmsGroup` object instead of a dict.
+- **🚚 Renamed methods**: The following methods have been renamed in order to make
+  it explicit they are affecting the PyPPMS **cache** rather than the state of
+  the corresponding objects in PPMS:
+  - `pyppms.ppms.PpmsConnection.update_systems` is now called
+    `pyppms.ppms.PpmsConnection.cache_update_systems`.
+  - `pyppms.ppms.PpmsConnection.update_users` got renamed to
+    `pyppms.ppms.PpmsConnection.cache_update_users`.
+  - For consistency reasons `pyppms.ppms.PpmsConnection.flush_cache` was renamed
+    to `pyppms.ppms.PpmsConnection.cache_flush` such that all methods dealing
+    with the _cache state_ now start with the prefix `cache_`.
+
+### 🚀 Improved
+
+- **🧑🏼‍🔬 User class**
+  `pyppms.user.PpmsUser` got extended by the following attributes (in brackets
+  the name of the respective field in the PUMAPI response, in case it differs):
+  - `billing_info` - a list of `pyppms.billing.PpmsBillingInformation` objects,
+    with details being derived from user field `bcode`, group field `unitbcode`
+    and future usage of project-related billing.
+  - `projects` - a dict with `pyppms.project.PpmsProject` objects, using their
+    respective project ID as the key.
+  - `phone`
+  - `affiliation`
+- **🧪 Tests Coverage 📊**
+  Several tests have been added, test coverage is now available on
+  [codecov.io](https://codecov.io/github/imcf/pyppms).
+
+### ✨ Added
+
+- **🏦 New class for billing / accounting information**
+  `pyppms.billing.PpmsBillingInformation` has been added to hold billing and
+  accounting information of PPMS users, groups and projects.
+- **🧑🏼‍🤝‍🧑🏻 New class for group information**
+  `pyppms.group.PpmsGroup` has been added to store details of PPMS groups.
+- **🗂️ New class for project information**
+  `pyppms.project.PpmsProject` has been added to reflect PPMS projects.
+- **👷‍♂️ New optional constructor argument**: `pyppms.user.PpmsUser` has been
+  modified to accept an additional argument `conn` that is used to automatically
+  fetch group details (including billing information) during object creation.
+  NOTE: The connection object is **NOT** stored with the user object!
+- **🐼 Pandas for parsing CSV**: the function `pyppms.common.parse_pandas_csv`
+  has been added to provide the option of using the [pandas][pandas] library for
+  parsing CSV.
+
 ## 3.3.0
 
 ### Added
 
-- `pyppms.ppms.get_running_sheet()` now has an optional parameter `localisation`
-  (defaulting to an empty `str`) that will be passed to the call to
-  `pyppms.ppms.get_systems_matching()`, allowing to restrict the runningsheet to
-  systems of a given "room".
+- `pyppms.ppms.PpmsConnection.get_running_sheet()` now has an optional parameter
+  `localisation` (defaulting to an empty `str`) that will be passed to the call
+  to `pyppms.ppms.PpmsConnection.get_systems_matching()`, allowing to restrict
+  the runningsheet to systems of a given "room".
 
 ## 3.2.1
 
@@ -19,7 +81,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 
 - 🕛🌃 end time: `pyppms.booking.PpmsBooking.endtime_fromstr()` contained a bug
   where the end time of a booking finishing at midnight got wrongly assigned to
-  the *start* of the given day (instead of the end). This is now fixed by
+  the _start_ of the given day (instead of the end). This is now fixed by
   setting the end time to the start of the following day.
 
 ## 3.2.0
@@ -43,9 +105,9 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.booking.PpmsBooking.desc` has been added as a property to retrieve a
   shorter description of the object than calling `str()` on it.
 - `pyppms.exceptions.NoDataError` has been added to indicate a PUMAPI response
-  did *not* contain any useful data.
+  did _not_ contain any useful data.
 - `pyppms.common.parse_multiline_response()` will now raise the newly added
-  `NoDataError` in case the requested *runningsheet* for a day doesn't contain
+  `NoDataError` in case the requested _runningsheet_ for a day doesn't contain
   any bookings to allow for properly dealing with "empty" days.
 
 ### Changed
@@ -78,7 +140,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.ppms.PpmsConnection.update_users()` and
   `pyppms.ppms.PpmsConnection.get_users()` now both have an optional parameter
   `active_only` (defaulting to `True`) that can be used to also request users
-  that are marked as *inactive* in PPMS.
+  that are marked as _inactive_ in PPMS.
 
 ### Changed
 
@@ -95,7 +157,7 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
 - `pyppms.ppms.PpmsConnection.flush_cache()` to flush the on-disk cache with an
   optional argument `keep_users` (defaulting to `False`) that allows for
   flushing the entire cache **except** for the user **details**. This provides
-  the opportunity of refreshing the cache on everything but *existing* users.
+  the opportunity of refreshing the cache on everything but _existing_ users.
   Note that this will **not** affect **new** users, they will still be
   recognized and fetched from PUMAPI (and stored in the cache).
 
@@ -155,3 +217,5 @@ NOTE: potentially breaking changes are flagged with a 🧨 symbol.
   - `pyppms.user.PpmsUser.from_response()`
   - `pyppms.system.PpmsSystem.from_parsed_response()`
   - `pyppms.booking.PpmsBooking.from_booking_request()`
+
+[pandas]: https://pandas.pydata.org/

@@ -1,13 +1,5 @@
 """Core connection module for the PUMAPI communication."""
 
-# pylint: disable-msg=dangerous-default-value
-
-# NOTE: the "pyppms" package is simply a wrapper for the existing API, so we can't make
-#       any design decisions here - hence it is pointless to complain about the number
-#       of instance attributes, public methods or other stuff:
-# pylint: disable-msg=too-many-instance-attributes
-# pylint: disable-msg=too-many-public-methods
-
 import os
 import os.path
 import shutil
@@ -16,15 +8,20 @@ from io import open
 import requests
 from loguru import logger as log
 
-from .common import dict_from_single_response, parse_multiline_response
+from .common import (
+    dict_from_single_response,
+    parse_multiline_response,
+    parse_pandas_csv,
+)
 from .user import PpmsUser
+from .group import PpmsGroup
 from .system import PpmsSystem
 from .booking import PpmsBooking
+from .project import PpmsProject
 from .exceptions import NoDataError
 
 
 class PpmsConnection:
-
     """Connection object to communicate with a PPMS instance.
 
     Attributes
@@ -44,24 +41,36 @@ class PpmsConnection:
         Indicates if the last request was served from the cache or on-line.
     users : dict
         A dict with usernames as keys, mapping to the related
-        :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the object's
-        lifetime (can be empty if no calls to :py:meth:`get_user()` have been done yet).
+        :py:class:`pyppms.user.PpmsUser` object, serves as a cache during the
+        object's lifetime (can be empty if no calls to :py:meth:`get_user`
+        have been done yet).
+    groups : dict
+        A dict with group names as keys, mapping to the related
+        :py:class:`pyppms.group.PpmsGroup` object, serves as a cache during the
+        object's lifetime (can be empty if no calls to :py:meth:`get_group` have
+        been done yet).
     fullname_mapping : dict
         A dict mapping a user's *fullname* ("``<LASTNAME> <FIRSTNAME>``") to the
         corresponding username. Entries are filled in dynamically by the
-        :py:meth:`get_user()` method.
+        :py:meth:`get_user` method.
+    projects
+        A dict with project IDs as keys, mapping to the related
+        :py:class:`pyppms.project.PpmsProject` object. Will be populated
+        automatically by querying PUMAPI if empty (i.e. upon the first access),
+        or in case it has been re-set to an empty dict in order to enforce a new
+        request / update).
     systems
         A dict with system IDs as keys, mapping to the related
-        :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during the
-        object's lifetime (can be empty if no calls to the :py:meth:`get_systems()` have
-        been done yet).
+        :py:class:`pyppms.system.PpmsSystem` object. Serves as a cache during
+        the object's lifetime (can be empty if no calls to
+        :py:meth:`get_systems` have been done yet).
     status : dict
         A dict with keys ``auth_state``, ``auth_response`` and
-        ``auth_httpstatus``
+        ``auth_httpstatus``.
     """
 
     def __init__(self, url, api_key, timeout=10, cache="", cache_users_only=False):
-        """Constructor for the PPMS connection object.
+        """Create a PPMS connection object instance.
 
         Open a connection to the PUMAPI defined in `url` and try to authenticate
         against it using the given API key (or use cache-only mode if key is an
@@ -101,7 +110,10 @@ class PpmsConnection:
         self.api_key = api_key
         self.timeout = timeout
         self.users = {}
+        self.groups = {}
         self.fullname_mapping = {}
+        self._projects = {}
+        self.billing_codes = {}
         self.systems = {}
         self.status = {
             "auth_state": "NOT_TRIED",
@@ -111,7 +123,17 @@ class PpmsConnection:
         self.cache_path = cache
         self.cache_users_only = cache_users_only
         self.last_served_from_cache = False
-        """Indicates if the last request was served from the cache or on-line."""
+        """True if the last request was served from the on-disk cache."""
+
+        self.__use_cache_testing__ = False
+        """Internal flag intended for running unit-tests only.
+
+        Can be set to True in order to modify the behavior of **on-disk** cache
+        related methods like `cache_update_users()` such that it reads user
+        details from disk.
+
+        **DO NOT USE IN PRODUCTION!**
+        """
 
         # run in cache-only mode (e.g. for testing or off-line usage) if no API
         # key has been specified, skip authentication then:
@@ -121,6 +143,25 @@ class PpmsConnection:
             raise RuntimeError(
                 "Neither API key nor cache path given, at least one is required!"
             )
+
+    @property
+    def projects(self) -> dict[int, PpmsProject]:
+        """PPMS Project Information.
+
+        A dict with project IDs (int) as keys, mapping to the related
+        :py:class:`pyppms.system.PpmsProject` object. Will be populated by
+        querying PUMAPI if empty (i.e. upon the first access or in case it has
+        been re-set to an empty dict in order to enforce a new request).
+
+        Returns
+        -------
+        dict(PpmsProject)
+        """
+        if self._projects:
+            log.trace("Using cached details for {} projects", len(self._projects))
+        else:
+            self.cache_update_projects()
+        return self._projects
 
     def __authenticate(self):
         """Try to authenticate to PPMS using the `auth` request.
@@ -179,7 +220,7 @@ class PpmsConnection:
         self.status["auth_state"] = "good"
 
     def request(self, action, parameters={}, skip_cache=False):
-        """Generic method to submit a request to PPMS and return the result.
+        """Submit a request to PPMS and return the result.
 
         This convenience method deals with adding the API key to a given
         request, submitting it to the PUMAPI and checking the response for some
@@ -193,9 +234,9 @@ class PpmsConnection:
             A dictionary with additional parameters to be submitted with the
             request.
         skip_cache : bool, optional
-            If set to True the request will NOT be served from the local cache,
-            independent whether a matching response file exists there, by
-            default False.
+            If set to True the request will NOT be served from the local
+            **on-disk** cache, independent whether a matching response file
+            exists there, by default False.
 
         Returns
         -------
@@ -307,9 +348,8 @@ class PpmsConnection:
             the request parameters could be found in the cache.
         """
 
-        # pylint: disable-msg=too-few-public-methods
         class PseudoResponse:
-            """Dummy response object with attribs 'text' and 'status_code'."""
+            """Dummy object with attributes 'text' and 'status_code'."""
 
             def __init__(self, text, status_code):
                 self.text = text
@@ -324,10 +364,7 @@ class PpmsConnection:
 
         with open(intercept_file, "r", encoding="utf-8") as infile:
             text = infile.read()
-        log.debug(
-            "Read intercepted response text from [{}]",
-            intercept_file[len(str(self.cache_path)) :],
-        )
+        log.debug(f"Read intercepted response text from [{intercept_file}]")
 
         status_code = 200
         status_file = os.path.splitext(intercept_file)[0] + "_status-code.txt"
@@ -371,7 +408,7 @@ class PpmsConnection:
             log.error("Storing response text in [{}] failed: {}", intercept_file, err)
             log.error("Response text was:\n--------\n{}\n--------", response.text)
 
-    def flush_cache(self, keep_users=False):
+    def cache_flush(self, keep_users=False):
         """Flush the PyPPMS on-disk cache.
 
         Optionally flushes everything *except* the `getuser` cache if the
@@ -416,6 +453,91 @@ class PpmsConnection:
             except Exception as ex:  # pylint: disable-msg=broad-except
                 log.warning("Removing the cache at [{}] failed: {}", directory, ex)
 
+    def cache_update_projects(self):
+        """Update cached details for all projects from PPMS."""
+        log.trace("Updating list of projects...")
+        projects = {}
+        fails = 0
+        response = self.request("getprojects")
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            try:
+                project = PpmsProject(detail)
+            except Exception as err:
+                log.error("Error processing `getprojects` response: {}", err)
+                fails += 1
+                continue
+
+            projects[project.id] = project
+
+        log.trace(
+            f"Updated {len(projects)} projects from PPMS ({fails} failed parsing)",
+        )
+
+        self._projects = projects
+
+    def cache_update_systems(self):
+        """Update cached details for all bookable systems from PPMS.
+
+        Get the details on all bookable systems from PPMS and store them in the local
+        cache. If parsing the PUMAPI response for a system fails for any reason, the
+        system is skipped entirely.
+        """
+        log.trace("Updating list of bookable systems...")
+        systems = {}
+        parse_fails = 0
+        response = self.request("getsystems")
+        details = parse_multiline_response(response.text, graceful=False)
+        for detail in details:
+            try:
+                system = PpmsSystem(detail)
+            except ValueError as err:
+                log.error("Error processing `getsystems` response: {}", err)
+                parse_fails += 1
+                continue
+
+            systems[system.system_id] = system
+
+        log.trace(
+            "Updated {} bookable systems from PPMS ({} systems failed parsing)",
+            len(systems),
+            parse_fails,
+        )
+
+        self.systems = systems
+
+    def cache_update_users(self, user_ids=[], active_only=True):
+        """Update cached details for a list of users from PPMS.
+
+        Get the user details on a list of users (or all active ones) from PPMS
+        and store them in the object's `users` dict. As a side effect, this will
+        also fill the cache directory in case the object's `cache_path`
+        attribute is set.
+
+        WARNING - very slow, especially when the PPMS instance has many users!
+
+        Parameters
+        ----------
+        user_ids : list(str), optional
+            A list of user IDs (login names) to request the cache for, by
+            default [] which will result in all *active* users to be requested.
+        active_only : bool, optional
+            If set to `False` also "inactive" users will be fetched from PPMS,
+            by default `True`.
+        """
+        if not user_ids:
+            user_ids = self.get_user_ids(active=active_only)
+
+        log.trace("Updating details on {} users", len(user_ids))
+
+        # use on-disk cache if requested e.g. for unit-tests:
+        skip_cache = True if not self.__use_cache_testing__ else False
+
+        for user_id in user_ids:
+            self.get_user(user_id, skip_cache=skip_cache)
+
+        log.debug("Collected details on {} users", len(self.users))
+
     def get_admins(self):
         """Get all PPMS administrator users.
 
@@ -433,6 +555,91 @@ class PpmsConnection:
             users.append(user)
         log.trace("{} admins in the PPMS database: {}", len(admins), ", ".join(admins))
         return users
+
+    def get_billing_codes(self, skip_cache=False, force_refresh=False):
+        """Get all billing codes from PPMS.
+
+        Parameters
+        ----------
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+        force_refresh : bool, optional
+            If `True` the user details will be refreshed even if the object's
+            users cache in `self.billing_codes` already contains a corresponding
+            entry. By default `False`, meaning the instance-cache will be used.
+            Note: this is unrelated to the **on-disk cache**, see the
+            `skip_cache` for that one.
+
+        Returns
+        -------
+        dict
+            A nested dict with top-level keys `users`, `groups` and `projects`.
+            Each of them containing a dict with the unique identifier of of the
+            respective type (user, group, project) as the key another dict as
+            the content, having keys `billing_code`, `subsidy`, `charges`.
+
+        Examples
+        --------
+        To identify the billing code of the project with ID '7', the following
+        can be used:
+
+        >>> get_billing_codes()["projects"][7]
+        ... {
+        ...     "billing_code": "ABC123",
+        ...     "subsidy": "",
+        ...     "charges": 257.55,
+        ... }
+
+        For user `pyppms`:
+
+        >>> get_billing_codes()["users"]["pyppms"]
+        ... {
+        ...     "billing_code": "FOO007",
+        ...     "subsidy": "",
+        ...     "charges": 123.45,
+        ... }
+        """
+        if not force_refresh and self.billing_codes:
+            log.trace("Serving billing codes from instance-cache.")
+            return self.billing_codes
+
+        response = self.request("getbcodes", skip_cache=skip_cache)
+        df = parse_pandas_csv(response.text)
+        df = df.rename(
+            columns={
+                "User": "user",
+                "Group": "group",
+                "Project": "project",
+                "Bcode": "billing_code",
+                "Subsidy": "subsidy",
+                "Charges": "charges",
+            }
+        )
+        user_codes = (
+            df[~df["user"].isin([""])]
+            .set_index("user")
+            .drop(["group", "project"], axis=1)
+        )
+        group_codes = (
+            df[~df["group"].isin([""])]
+            .set_index("group")
+            .drop(["user", "project"], axis=1)
+        )
+        project_codes = (
+            df[~df["project"].isin([""])]
+            .set_index("project")
+            .drop(["user", "group"], axis=1)
+        )
+
+        self.billing_codes = {
+            "users": user_codes.to_dict("index"),
+            "groups": group_codes.to_dict("index"),
+            "projects": project_codes.to_dict("index"),
+        }
+
+        return self.billing_codes
 
     def get_booking(self, system_id, booking_type="get"):
         """Get the current or next booking of a system.
@@ -488,23 +695,31 @@ class PpmsConnection:
         return PpmsBooking(response.text, booking_type, system_id)
 
     def get_current_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'get'."""
+        """Call `get_booking()` with 'booking_type' set to 'get'."""
         return self.get_booking(system_id, "get")
 
-    def get_group(self, group_id):
-        """Fetch group details from PPMS and create a dict from them.
+    def get_group(self, group_id, force_refresh=False) -> PpmsGroup:
+        """Fetch group details from PPMS.
 
         Parameters
         ----------
         group_id : str
-            The group's identifier in PPMS, called 'unitlogin' there.
+            The group's identifier in PPMS, called `unitlogin` there.
+        force_refresh : bool, optional
+            If `True` the group details will be refreshed even if the object's
+            group cache in `self.groups` already contains a corresponding entry.
+            By default `False`, meaning the instance-cache will be used.
 
         Returns
         -------
-        dict
-            A dict with the group details, keys being derived from the header
-            line of the PUMAPI response, values from the data line.
+        pyppms.group.PpmsGroup
+            A PpmsGroup instance with the group details.
         """
+        if not force_refresh and group_id in self.groups:
+            log.trace(f"Serving group details from instance-cache: {group_id}")
+            return self.groups[group_id]
+
+        log.trace("Fetching group details on-line or from disk cache.")
         response = self.request("getgroup", {"unitlogin": group_id})
         log.trace("Group details returned by PPMS (raw): {}", response.text)
 
@@ -513,10 +728,14 @@ class PpmsConnection:
             log.error(msg)
             raise KeyError(msg)
 
-        details = dict_from_single_response(response.text)
-
-        log.trace("Details of group {}: {}", group_id, details)
-        return details
+        group = PpmsGroup(response.text)
+        if not group.gid == group_id:
+            log.warning(
+                f"Requested group ID ({group_id}) doesn't match with "
+                f"unitlogin in details returned by PPMS ({group.gid})!"
+            )
+        self.groups[group_id] = group  # update / add to the cached group objects
+        return group
 
     def get_group_users(self, unitlogin):
         """Get all members of a group in PPMS.
@@ -552,7 +771,7 @@ class PpmsConnection:
         Returns
         -------
         list(str)
-            A list with the group identifiers in PPMS.
+            A list with the group identifiers (`unitlogin`) in PPMS.
         """
         response = self.request("getgroups")
 
@@ -561,8 +780,35 @@ class PpmsConnection:
         return groups
 
     def get_next_booking(self, system_id):
-        """Wrapper for `get_booking()` with 'booking_type' set to 'next'."""
+        """Call `get_booking()` with 'booking_type' set to 'next'."""
         return self.get_booking(system_id, "next")
+
+    def get_project_users(self, project_id, skip_cache=False):
+        """Fetch users being members of a given project from PPMS.
+
+        Parameters
+        ----------
+        project_id : str
+            The PPMS project ID.
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+
+        Returns
+        -------
+        list(str)
+            The list of project IDs associated to the user, empty if the user
+            doesn't have any projects in PPMS.
+        """
+        response = self.request(
+            "getprojectusers", {"projectid": project_id}, skip_cache=skip_cache
+        )
+
+        ids = response.text.splitlines()
+        log.debug(f"Project [{project_id}] has {len(ids)} users in PPMS")
+        log.trace(ids)
+        return ids
 
     def get_running_sheet(
         self, core_facility_ref, date, ignore_uncached_users=False, localisation=""
@@ -570,7 +816,7 @@ class PpmsConnection:
         """Get the running sheet for a specific day on the given facility.
 
         The so-called "running-sheet" consists of all bookings / reservations of
-        a facility on a specifc day.
+        a facility on a specific day.
 
         WARNING: PUMAPI doesn't return a proper unique user identifier with the
         'getrunningsheet' request, instead the so called "full name" is given to
@@ -612,7 +858,7 @@ class PpmsConnection:
             return []
         except Exception as err:  # pylint: disable-msg=broad-except
             log.error("Parsing runningsheet details failed: {}", err)
-            log.trace("Runningsheet PUMPAI response was: >>>{}<<<", response.text)
+            log.trace("Runningsheet PUMAPI response was: >>>{}<<<", response.text)
             return []
 
         for entry in entries:
@@ -623,7 +869,7 @@ class PpmsConnection:
                     continue
 
                 log.debug(f"Booking refers an uncached user ({full}), updating users!")
-                self.update_users()
+                self.cache_update_users()
 
             if full not in self.fullname_mapping:
                 log.error("PPMS doesn't seem to know user [{}], skipping", full)
@@ -681,7 +927,7 @@ class PpmsConnection:
         if self.systems and not force_refresh:
             log.trace("Using cached details for {} systems", len(self.systems))
         else:
-            self.update_systems()
+            self.cache_update_systems()
 
         return self.systems
 
@@ -756,7 +1002,7 @@ class PpmsConnection:
         log.trace("IDs of matching bookable systems {}: {}", loc_desc, system_ids)
         return system_ids
 
-    def get_user(self, login_name, skip_cache=False):
+    def get_user(self, login_name, skip_cache=False, force_refresh=False) -> PpmsUser:
         """Fetch user details from PPMS and create a PpmsUser object from it.
 
         Parameters
@@ -764,7 +1010,13 @@ class PpmsConnection:
         login_name : str
             The user's PPMS login name.
         skip_cache : bool, optional
-            Passed as-is to the :py:meth:`request()` method
+            Passed as-is to the :py:meth:`request()` method.
+        force_refresh : bool, optional
+            If `True` the user details will be refreshed even if the object's
+            users cache in `self.users` already contains a corresponding entry.
+            By default `False`, meaning the instance-cache will be used. Note:
+            this is unrelated to the **on-disk cache**, see the `skip_cache` for
+            that one.
 
         Returns
         -------
@@ -778,6 +1030,11 @@ class PpmsConnection:
         KeyError
             Raised if the user doesn't exist in PPMS.
         """
+        if not force_refresh and login_name in self.users:
+            log.trace(f"Serving user details from instance-cache: {login_name}")
+            return self.users[login_name]
+
+        log.trace("Fetching user details on-line or from disk cache.")
         response = self.request("getuser", {"login": login_name}, skip_cache=skip_cache)
 
         if not response.text:
@@ -785,9 +1042,14 @@ class PpmsConnection:
             log.debug(msg)
             raise KeyError(msg)
 
-        user = PpmsUser(response.text)
-        self.users[user.username] = user  # update / add to the cached user objs
-        self.fullname_mapping[user.fullname] = user.username
+        user = PpmsUser(response.text, self)
+        if not user.username == login_name:
+            log.warning(
+                f"Requested login name ({login_name}) doesn't match with "
+                f"username in details returned by PPMS ({user.username})!"
+            )
+        self.users[login_name] = user  # update / add to the cached user objs
+        self.fullname_mapping[user.fullname] = login_name
         return user
 
     def get_user_dict(self, login_name, skip_cache=False):
@@ -910,6 +1172,33 @@ class PpmsConnection:
         log.trace(", ".join(users))
         return users
 
+    def get_user_projects(self, login_name, skip_cache=False) -> list[int]:
+        """Fetch user projects from PPMS.
+
+        Parameters
+        ----------
+        login_name : str
+            The user's PPMS login name.
+        skip_cache : bool, optional
+            If set to True the request will NOT be served from the local on-disk
+            cache, independent whether a matching response file exists there, by
+            default False. Passed as-is to the :py:meth:`request()` method.
+
+        Returns
+        -------
+        list(int)
+            The list of project IDs associated to the user, empty if the user
+            doesn't have any projects in PPMS.
+        """
+        response = self.request(
+            "getuserprojects", {"login": login_name}, skip_cache=skip_cache
+        )
+
+        ids = [int(x) for x in response.text.splitlines()]
+        log.debug(f"User [{login_name}] has {len(ids)} projects in PPMS")
+        log.trace(ids)
+        return ids
+
     def get_users(self, force_refresh=False, active_only=True):
         """Get user objects for all (or cached) PPMS users.
 
@@ -917,7 +1206,8 @@ class PpmsConnection:
         ----------
         force_refresh : bool, optional
             Re-request information from PPMS even if user details have been
-            cached locally before, by default False.
+            cached in the PpmsConnection *instance* before, by default False.
+            **IMPORTANT:** this is **unrelated** to the *on-disk* cache!
         active_only : bool, optional
             If set to `False` also "inactive" users will be fetched from PPMS,
             by default `True`.
@@ -928,14 +1218,16 @@ class PpmsConnection:
             A dict of PpmsUser objects with the username (login) as key.
         """
         if self.users and not force_refresh:
-            log.trace("Using cached details for {} users", len(self.users))
+            log.trace(f"Using instance-cache for details on {len(self.users)} users")
         else:
-            self.update_users(active_only=active_only)
+            self.cache_update_users(active_only=active_only)
 
         return self.users
 
     def get_users_emails(self, users=None, active=False):
-        """Get a list of user email addresses. WARNING - very slow!
+        """Get a list of user email addresses.
+
+        🔥 **WARNING - very slow!** 🔥
 
         Parameters
         ----------
@@ -981,7 +1273,7 @@ class PpmsConnection:
         Raises
         ------
         ValueError
-            Raised in case parsing the response failes for any reason.
+            Raised in case parsing the response fails for any reason.
         """
         users = []
 
@@ -1115,7 +1407,7 @@ class PpmsConnection:
 
         Parameters
         ----------
-        username : str
+        login : str
             The username ('login') to allow for booking the system.
         system_id : int or int-like
             The ID of the system to add the permission for.
@@ -1196,63 +1488,6 @@ class PpmsConnection:
             log.error("Unexpected response, assuming request failed: {}", response.text)
 
         return False
-
-    def update_systems(self):
-        """Update cached details for all bookable systems from PPMS.
-
-        Get the details on all bookable systems from PPMS and store them in the local
-        cache. If parsing the PUMAPI response for a system fails for any reason, the
-        system is skipped entirely.
-        """
-        log.trace("Updating list of bookable systems...")
-        systems = {}
-        parse_fails = 0
-        response = self.request("getsystems")
-        details = parse_multiline_response(response.text, graceful=False)
-        for detail in details:
-            try:
-                system = PpmsSystem(detail)
-            except ValueError as err:
-                log.error("Error processing `getsystems` response: {}", err)
-                parse_fails += 1
-                continue
-
-            systems[system.system_id] = system
-
-        log.trace(
-            "Updated {} bookable systems from PPMS ({} systems failed parsing)",
-            len(systems),
-            parse_fails,
-        )
-
-        self.systems = systems
-
-    def update_users(self, user_ids=[], active_only=True):
-        """Update cached details for a list of users from PPMS.
-
-        Get the user details on a list of users (or all active ones) from PPMS and store
-        them in the object's `users` dict. As a side effect, this will also fill the
-        cache directory in case the object's `cache_path` attribute is set.
-
-        WARNING - very slow, especially when the PPMS instance has many users!
-
-        Parameters
-        ----------
-        user_ids : list(str), optional
-            A list of user IDs (login names) to request the cache for, by
-            default [] which will result in all *active* users to be requested.
-        active_only : bool, optional
-            If set to `False` also "inactive" users will be fetched from PPMS,
-            by default `True`.
-        """
-        if not user_ids:
-            user_ids = self.get_user_ids(active=active_only)
-
-        log.trace("Updating details on {} users", len(user_ids))
-        for user_id in user_ids:
-            self.get_user(user_id, skip_cache=True)
-
-        log.debug("Collected details on {} users", len(self.users))
 
     def user_exists(self, login):
         """Check if an account with the given login name already exists in PPMS.
